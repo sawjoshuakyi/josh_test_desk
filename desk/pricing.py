@@ -61,6 +61,13 @@ def fair_two_way(over_price: float, under_price: float, method: str = "power") -
     return fn([over_price, under_price])[0]
 
 
+def fair_multi(prices: dict, method: str = "power") -> dict:
+    """No-vig probabilities for every outcome of one market, e.g. a 3-way soccer moneyline."""
+    keys = list(prices)
+    fn = devig_power if method == "power" else devig_multiplicative
+    return dict(zip(keys, fn([prices[k] for k in keys])))
+
+
 def overround(prices: Iterable[float]) -> float:
     return sum(implied_prob(p) for p in prices) - 1
 

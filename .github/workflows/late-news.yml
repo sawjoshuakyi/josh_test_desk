@@ -1,0 +1,27 @@
+name: late-news
+
+# NBA late injury check: 6:35 PM ET (before 7 PM tips) and 9:35 PM ET (before late West Coast tips).
+on:
+  schedule:
+    - cron: "35 23 * * *"
+    - cron: "35 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DISCORD_NBA_NFL_WEBHOOK: ${{ secrets.DISCORD_NBA_NFL_WEBHOOK }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -q -r requirements.txt
+      - name: Check injury changes against the board and slips
+        run: python3 scripts/late_news.py

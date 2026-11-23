@@ -1,0 +1,54 @@
+name: model-board
+
+# Builds the model board (fair prices, edges, Kelly stakes) before each desk session, and grades past boards.
+# Times are UTC (Eastern + 5 in winter, + 4 in summer): AM board 1:05 AM ET, PM board 3:45 PM ET, Sunday NFL 10:05 AM ET.
+on:
+  schedule:
+    - cron: "5 6 * * *"
+    - cron: "45 20 * * *"
+    - cron: "5 15 * * 0"
+  workflow_dispatch:
+    inputs:
+      session:
+        description: "am | pm | nfl"
+        default: "pm"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: model-board
+  cancel-in-progress: false
+
+jobs:
+  board:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+      DISCORD_GENERAL_WEBHOOK: ${{ secrets.DISCORD_GENERAL_WEBHOOK }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -q -r requirements.txt
+      - name: Pick session
+        id: s
+        run: |
+          case "${{ github.event.schedule }}" in
+            "5 6 * * *") s=am ;;
+            "45 20 * * *") s=pm ;;
+            "5 15 * * 0") s=nfl ;;
+            *) s="${{ github.event.inputs.session || 'pm' }}" ;;
+          esac
+          echo "session=$s" >> "$GITHUB_OUTPUT"
+      - name: Update NBA box scores (for grading)
+        run: python3 -c "import datetime as d; from desk import config; from desk.nba import data; print(data.update(config.et_today() - d.timedelta(days=1)))"
+      - name: Build board
+        run: python3 scripts/board.py ${{ steps.s.outputs.session }}
+      - name: Grade past boards
+        run: python3 scripts/grade_board.py
+      - name: Commit
+        run: scripts/commit.sh "Model board $(date -u +%F) ${{ steps.s.outputs.session }}" boards data reports

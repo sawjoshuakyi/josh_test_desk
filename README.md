@@ -52,3 +52,29 @@ a month, which the daily windows would exceed.
 - Team abbreviations are ESPN's (e.g. UTAH, SA, NO, WSH).
 
 Settings (environment variables): `POLL_SECONDS` (60), `MAX_MINUTES` (330), `ALERT_MISSES` (1 = also post misses), `DRY_RUN` (1 = print instead of posting).
+
+## Model layer (pricing, edges, CLV)
+
+| Piece | What it does | When (ET) |
+|---|---|---|
+| `scripts/board.py` | Model board: NBA prop projections (minutes × rate model) and tennis surface-Elo win probabilities, priced against DraftKings/FanDuel with Pinnacle's no-vig line as the fair benchmark. Also flags DK/FD game lines (NBA, NFL, soccer) that pay more than Pinnacle's fair price. Writes `boards/<date>-<session>.json/.md`. | 1:05 AM (am), 3:45 PM (pm), 10:05 AM Sun (nfl) |
+| `scripts/close.py` | Closing-line snapshots of every priced event ~30 min before start → `data/snapshots/`. | every 15 min |
+| `scripts/grade_board.py` | Grades past boards: model vs market log loss, CLV, flagged-bet P&L → `reports/model_performance.md`. | with each board |
+| `scripts/late_news.py` | Re-checks the NBA injury report, re-projects every slip leg and posts what moved. | 6:35 PM, 9:35 PM |
+| `scripts/watchdog.py` | Warns in #general if a desk session's board or legs file is missing, or API credits run low. | 3:15 AM, 5:50 PM, 12:15 PM Sun |
+
+Staking (`desk/config.py`): bankroll $2,500, quarter-Kelly, singles capped at 2% ($50), parlays 0.5% ($12.50),
+lottos fixed 0.2% ($5), 4% per game, 10% per day.
+
+### Secrets (Settings → Secrets and variables → Actions)
+`ODDS_API_KEY`, `DISCORD_LIVE_WEBHOOK`, `DISCORD_GENERAL_WEBHOOK`, `DISCORD_NBA_NFL_WEBHOOK`,
+`DISCORD_TENNIS_SOCCER_WEBHOOK`. Never commit keys or webhook URLs — this repo is public.
+
+Without `ODDS_API_KEY` the board still writes projections; edges and stakes appear once the key is set.
+Credit use is roughly 8 per NBA game (props), 3 per sport for game lines and 1 per tennis tour — about
+250 a day with closing lines, so a 20K-credit plan is needed (the free 500 will not last a week).
+
+Cron times are UTC set for Eastern Standard Time; after the switch to daylight time in March every job runs one
+hour later in Eastern terms.
+
+Tennis data: Jeff Sackmann's ATP/WTA match archive (CC BY-NC-SA 4.0, non-commercial use) plus ESPN results.

@@ -1,0 +1,109 @@
+{
+ "date": "2026-11-23",
+ "session": "am",
+ "generated_at": "2026-11-23T23:30:07+00:00",
+ "odds_source": "none (model only)",
+ "tennis": {
+  "matches": [
+   {
+    "tour": "wta",
+    "tournament": "IEB+ Argentina Open",
+    "surface": "Hard",
+    "start": "2026-11-24T14:00Z",
+    "player_a": "Laura Samson",
+    "player_b": "Victoria Bosio",
+    "p_a": 0.7731,
+    "elo_matches_a": 48,
+    "elo_matches_b": 9,
+    "low_sample": true
+   },
+   {
+    "tour": "wta",
+    "tournament": "IEB+ Argentina Open",
+    "surface": "Hard",
+    "start": "2026-11-24T14:00Z",
+    "player_a": "Veronika Erjavec",
+    "player_b": "Zhibek Kulambayeva",
+    "p_a": 0.4436,
+    "elo_matches_a": 23,
+    "elo_matches_b": 15,
+    "low_sample": false
+   },
+   {
+    "tour": "wta",
+    "tournament": "IEB+ Argentina Open",
+    "surface": "Hard",
+    "start": "2026-11-24T15:30Z",
+    "player_a": "Luna Maria Cinalli",
+    "player_b": "Guiomar Maristany Zuleta De Reales",
+    "p_a": 0.3496,
+    "elo_matches_a": 3,
+    "elo_matches_b": 26,
+    "low_sample": true
+   },
+   {
+    "tour": "wta",
+    "tournament": "IEB+ Argentina Open",
+    "surface": "Hard",
+    "start": "2026-11-24T15:30Z",
+    "player_a": "Alicia Herrero Linana",
+    "player_b": "Lucia Bronzetti",
+    "p_a": 0.5114,
+    "elo_matches_a": 20,
+    "elo_matches_b": 202,
+    "low_sample": false
+   },
+   {
+    "tour": "wta",
+    "tournament": "IEB+ Argentina Open",
+    "surface": "Hard",
+    "start": "2026-11-24T18:00Z",
+    "player_a": "Irene Burillo",
+    "player_b": "Lourdes Ayala",
+    "p_a": 0.5702,
+    "elo_matches_a": 19,
+    "elo_matches_b": 4,
+    "low_sample": true
+   },
+   {
+    "tour": "wta",
+    "tournament": "IEB+ Argentina Open",
+    "surface": "Hard",
+    "start": "2026-11-24T18:00Z",
+    "player_a": "Victoria Jimenez Kasintseva",
+    "player_b": "Solana Sierra",
+    "p_a": 0.3589,
+    "elo_matches_a": 39,
+    "elo_matches_b": 46,
+    "low_sample": false
+   },
+   {
+    "tour": "wta",
+    "tournament": "IEB+ Argentina Open",
+    "surface": "Hard",
+    "start": "2026-11-24T19:30Z",
+    "player_a": "Leyre Romero Gormaz",
+    "player_b": "Nadia Podoroska",
+    "p_a": 0.6732,
+    "elo_matches_a": 45,
+    "elo_matches_b": 149,
+    "low_sample": false
+   },
+   {
+    "tour": "wta",
+    "tournament": "IEB+ Argentina Open",
+    "surface": "Hard",
+    "start": "2026-11-24T19:30Z",
+    "player_a": "Sofia Costoulas",
+    "player_b": "Polona Hercog",
+    "p_a": 0.3519,
+    "elo_matches_a": 23,
+    "elo_matches_b": 380,
+    "low_sample": false
+   }
+  ],
+  "priced": [],
+  "credits_remaining": null
+ },
+ "credits_remaining": null
+}

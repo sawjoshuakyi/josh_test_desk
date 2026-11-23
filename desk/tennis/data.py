@@ -64,15 +64,29 @@ def _singles_name(c) -> str | None:
     return None
 
 
+def grouping_tour(g: dict, default: str) -> str | None:
+    """Tour of a singles grouping (Slams list men's and women's draws under both tours), or None if not singles."""
+    slug = (g.get("grouping", {}).get("slug", "") + " " + g.get("grouping", {}).get("displayName", "")).lower()
+    if "single" not in slug:
+        return None
+    if "women" in slug:
+        return "wta"
+    if "men" in slug:
+        return "atp"
+    return default
+
+
 def fetch_day(tour: str, day: dt.date, lookup: dict) -> list[dict]:
     data = _get(SB.format(tour=tour, d=day.strftime("%Y%m%d")))
     rows = []
     for ev in data.get("events", []):
         name = ev.get("name", "")
-        best_of = 5 if any(s in name for s in ("Australian Open", "Roland Garros", "French Open", "Wimbledon", "US Open")) and tour == "atp" else 3
+        slam = any(s in name for s in ("Australian Open", "Roland Garros", "French Open", "Wimbledon", "US Open"))
         for g in ev.get("groupings", []):
-            if "single" not in (g.get("grouping", {}).get("slug", "") + g.get("grouping", {}).get("displayName", "")).lower():
+            g_tour = grouping_tour(g, tour)
+            if g_tour is None:
                 continue
+            best_of = 5 if slam and g_tour == "atp" else 3
             for c in g.get("competitions", []):
                 if not c.get("status", {}).get("type", {}).get("completed"):
                     continue
@@ -88,7 +102,7 @@ def fetch_day(tour: str, day: dt.date, lookup: dict) -> list[dict]:
                 w, l = win[0], 1 - win[0]
                 when = dt.date.fromisoformat((c.get("date") or day.isoformat())[:10])
                 note = c.get("status", {}).get("type", {}).get("shortDetail", "")
-                rows.append({"tour": tour, "tourney_date": int(when.strftime("%Y%m%d")), "tourney_name": name,
+                rows.append({"tour": g_tour, "tourney_date": int(when.strftime("%Y%m%d")), "tourney_name": name,
                              "tourney_level": "A", "surface": guess_surface(name, when, lookup),
                              "round": (c.get("round") or {}).get("displayName", ""), "best_of": best_of,
                              "match_num": 0, "winner_name": names[w], "loser_name": names[l],

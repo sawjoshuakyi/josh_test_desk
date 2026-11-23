@@ -1,6 +1,9 @@
 """SQLite store for odds snapshots, projections and board entries (data/desk.db)."""
 from __future__ import annotations
 
+import datetime as dt
+import gzip
+import json
 import os
 import sqlite3
 
@@ -43,3 +46,30 @@ def insert_many(con: sqlite3.Connection, table: str, rows: list[dict]) -> int:
     )
     con.commit()
     return len(rows)
+
+
+SNAP_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "snapshots")
+
+
+def archive(rows: list[dict], tag: str) -> str | None:
+    """Append rows to data/snapshots/<UTC date>-<tag>.jsonl.gz (committed to git so CLV survives CI runs)."""
+    if not rows:
+        return None
+    os.makedirs(SNAP_DIR, exist_ok=True)
+    path = os.path.join(SNAP_DIR, f"{dt.datetime.now(dt.timezone.utc):%Y-%m-%d}-{tag}.jsonl.gz")
+    with gzip.open(path, "at") as f:
+        for r in rows:
+            f.write(json.dumps(r) + "\n")
+    return path
+
+
+def load_snapshots(pattern: str = "") -> list[dict]:
+    """Read every archived snapshot row whose file name contains `pattern`."""
+    out = []
+    if not os.path.isdir(SNAP_DIR):
+        return out
+    for name in sorted(os.listdir(SNAP_DIR)):
+        if name.endswith(".jsonl.gz") and pattern in name:
+            with gzip.open(os.path.join(SNAP_DIR, name), "rt") as f:
+                out.extend(json.loads(line) for line in f if line.strip())
+    return out
