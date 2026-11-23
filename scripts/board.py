@@ -280,11 +280,15 @@ def to_markdown(board: dict) -> str:
     if "nba" in board:
         props = board["nba"]["props"]
         lines += ["## NBA props with the largest model edge", "",
-                  "| Player | Market | Side | Line | Model | Fair mkt | Best | Edge | Kelly $ |", "|---|---|---|---|---|---|---|---|---|"]
-        for r in [p for p in props if p["edge"] > 0][:30]:
+                  "⚠️ = model and no-vig market disagree by more than 10 points: check for news before using.", "",
+                  "| Player | Market | Side | Line | Model mean | Model | Fair mkt | Best | Edge | Kelly $ |",
+                  "|---|---|---|---|---|---|---|---|---|---|"]
+        for r in [p for p in props if p["edge"] > 0][:40]:
+            fair = r["fair_market_prob"]
+            warn = " ⚠️" if fair is not None and abs(r["model_prob"] - fair) > 0.10 else ""
             lines.append(f"| {r['player']} | {r['stat']}{' (alt)' if r['alt'] else ''} | {r['side']} | {r['line']} | "
-                         f"{r['model_prob']:.0%} | {(r['fair_market_prob'] or 0):.0%} | {r['best_price']:+.0f} {r['best_book']} | "
-                         f"{r['edge']:+.1%} | {r['kelly_usd']:.0f} |")
+                         f"{r['model_mean']} | {r['model_prob']:.0%}{warn} | {'–' if fair is None else f'{fair:.0%}'} | "
+                         f"{r['best_price']:+.0f} {r['best_book']} | {r['edge']:+.1%} | {r['kelly_usd']:.0f} |")
         if not props:
             lines += ["", "_No prices (no odds key or no markets yet)._"]
         lines += ["", "## NBA projections (model means; injuries from ESPN at run time)", "",

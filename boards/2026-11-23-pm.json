@@ -1,7 +1,7 @@
 {
  "date": "2026-11-23",
  "session": "pm",
- "generated_at": "2026-11-23T23:36:01+00:00",
+ "generated_at": "2026-11-23T23:44:33+00:00",
  "odds_source": "none (model only)",
  "nba": {
   "games": [
@@ -105,7 +105,7 @@
      "CHI": 8.5,
      "CLE": -8.5
     },
-    "total": 242.5,
+    "total": 241.5,
     "injury_report": {
      "norman powell": "Out",
      "caleb wilson": "Out",
@@ -1581,11 +1581,11 @@
     "team": "CHI",
     "status": "active",
     "minutes": 22.9,
-    "pts": 11.51,
+    "pts": 11.48,
     "reb": 5.16,
-    "ast": 2.09,
+    "ast": 2.08,
     "threes": 0.27,
-    "pra": 18.75
+    "pra": 18.72
    },
    {
     "event": "CLE @ CHI",
@@ -1594,11 +1594,11 @@
     "team": "CHI",
     "status": "active",
     "minutes": 27.8,
-    "pts": 16.81,
+    "pts": 16.78,
     "reb": 8.09,
-    "ast": 2.48,
-    "threes": 2.54,
-    "pra": 27.38
+    "ast": 2.47,
+    "threes": 2.53,
+    "pra": 27.34
    },
    {
     "event": "CLE @ CHI",
@@ -1607,11 +1607,11 @@
     "team": "CHI",
     "status": "active",
     "minutes": 30.1,
-    "pts": 10.46,
+    "pts": 10.44,
     "reb": 3.47,
-    "ast": 2.57,
-    "threes": 1.32,
-    "pra": 16.5
+    "ast": 2.56,
+    "threes": 1.31,
+    "pra": 16.48
    },
    {
     "event": "CLE @ CHI",
@@ -1620,11 +1620,11 @@
     "team": "CHI",
     "status": "active",
     "minutes": 30.8,
-    "pts": 17.87,
+    "pts": 17.83,
     "reb": 5.36,
-    "ast": 2.45,
-    "threes": 2.51,
-    "pra": 25.68
+    "ast": 2.44,
+    "threes": 2.5,
+    "pra": 25.64
    },
    {
     "event": "CLE @ CHI",
@@ -1633,11 +1633,11 @@
     "team": "CHI",
     "status": "active",
     "minutes": 23.0,
-    "pts": 13.54,
+    "pts": 13.51,
     "reb": 3.56,
     "ast": 2.73,
-    "threes": 2.77,
-    "pra": 19.82
+    "threes": 2.76,
+    "pra": 19.79
    },
    {
     "event": "CLE @ CHI",
@@ -1646,11 +1646,11 @@
     "team": "CHI",
     "status": "active",
     "minutes": 30.7,
-    "pts": 12.66,
+    "pts": 12.63,
     "reb": 7.03,
-    "ast": 10.15,
+    "ast": 10.12,
     "threes": 1.39,
-    "pra": 29.84
+    "pra": 29.79
    },
    {
     "event": "CLE @ CHI",
@@ -1659,11 +1659,11 @@
     "team": "CHI",
     "status": "active",
     "minutes": 14.0,
-    "pts": 4.69,
+    "pts": 4.68,
     "reb": 3.05,
     "ast": 1.56,
     "threes": 0.37,
-    "pra": 9.31
+    "pra": 9.3
    },
    {
     "event": "CLE @ CHI",
@@ -1672,11 +1672,11 @@
     "team": "CHI",
     "status": "active",
     "minutes": 20.8,
-    "pts": 6.92,
+    "pts": 6.91,
     "reb": 2.82,
     "ast": 1.77,
     "threes": 0.8,
-    "pra": 11.51
+    "pra": 11.49
    },
    {
     "event": "CLE @ CHI",
@@ -1685,11 +1685,11 @@
     "team": "CHI",
     "status": "active",
     "minutes": 13.3,
-    "pts": 6.1,
+    "pts": 6.09,
     "reb": 3.16,
     "ast": 0.74,
     "threes": 0.67,
-    "pra": 10.01
+    "pra": 10.0
    },
    {
     "event": "CLE @ CHI",
@@ -1698,11 +1698,11 @@
     "team": "CHI",
     "status": "active",
     "minutes": 20.0,
-    "pts": 12.27,
+    "pts": 12.24,
     "reb": 2.34,
-    "ast": 4.17,
+    "ast": 4.16,
     "threes": 0.41,
-    "pra": 18.77
+    "pra": 18.74
    },
    {
     "event": "CLE @ CHI",
@@ -1711,11 +1711,11 @@
     "team": "CHI",
     "status": "active",
     "minutes": 11.9,
-    "pts": 5.08,
+    "pts": 5.07,
     "reb": 1.23,
     "ast": 0.97,
     "threes": 0.58,
-    "pra": 7.28
+    "pra": 7.27
    },
    {
     "event": "CLE @ CHI",
@@ -1728,7 +1728,7 @@
     "reb": 2.39,
     "ast": 0.87,
     "threes": 0.34,
-    "pra": 7.77
+    "pra": 7.75
    },
    {
     "event": "CLE @ CHI",
@@ -1741,7 +1741,7 @@
     "reb": 3.93,
     "ast": 0.81,
     "threes": 0.21,
-    "pra": 7.67
+    "pra": 7.66
    },
    {
     "event": "CLE @ CHI",
@@ -1750,7 +1750,7 @@
     "team": "CLE",
     "status": "active",
     "minutes": 10.1,
-    "pts": 3.4,
+    "pts": 3.39,
     "reb": 1.61,
     "ast": 0.61,
     "threes": 0.23,
@@ -1763,11 +1763,11 @@
     "team": "CLE",
     "status": "active",
     "minutes": 14.9,
-    "pts": 4.75,
+    "pts": 4.74,
     "reb": 2.73,
     "ast": 0.53,
     "threes": 0.72,
-    "pra": 8.01
+    "pra": 8.0
    },
    {
     "event": "CLE @ CHI",
@@ -1776,11 +1776,11 @@
     "team": "CLE",
     "status": "active",
     "minutes": 27.2,
-    "pts": 12.82,
+    "pts": 12.79,
     "reb": 8.46,
     "ast": 2.1,
     "threes": 0.33,
-    "pra": 23.38
+    "pra": 23.35
    },
    {
     "event": "CLE @ CHI",
@@ -1789,11 +1789,11 @@
     "team": "CLE",
     "status": "active",
     "minutes": 33.6,
-    "pts": 19.24,
+    "pts": 19.2,
     "reb": 4.9,
-    "ast": 6.38,
+    "ast": 6.36,
     "threes": 2.98,
-    "pra": 30.51
+    "pra": 30.46
    },
    {
     "event": "CLE @ CHI",
@@ -1802,11 +1802,11 @@
     "team": "CLE",
     "status": "active",
     "minutes": 32.0,
-    "pts": 24.17,
+    "pts": 24.12,
     "reb": 4.51,
-    "ast": 5.04,
-    "threes": 2.62,
-    "pra": 33.72
+    "ast": 5.03,
+    "threes": 2.61,
+    "pra": 33.66
    },
    {
     "event": "CLE @ CHI",
@@ -1815,11 +1815,11 @@
     "team": "CLE",
     "status": "active",
     "minutes": 26.5,
-    "pts": 11.18,
+    "pts": 11.16,
     "reb": 4.32,
-    "ast": 2.54,
+    "ast": 2.53,
     "threes": 1.27,
-    "pra": 18.04
+    "pra": 18.01
    },
    {
     "event": "CLE @ CHI",
@@ -1828,11 +1828,11 @@
     "team": "CLE",
     "status": "active",
     "minutes": 24.5,
-    "pts": 11.41,
+    "pts": 11.39,
     "reb": 3.72,
     "ast": 3.11,
     "threes": 2.03,
-    "pra": 18.24
+    "pra": 18.21
    },
    {
     "event": "CLE @ CHI",
@@ -1841,11 +1841,11 @@
     "team": "CLE",
     "status": "active",
     "minutes": 20.3,
-    "pts": 9.59,
+    "pts": 9.57,
     "reb": 5.69,
     "ast": 1.99,
     "threes": 1.24,
-    "pra": 17.27
+    "pra": 17.25
    },
    {
     "event": "CLE @ CHI",
@@ -1854,11 +1854,11 @@
     "team": "CLE",
     "status": "active",
     "minutes": 16.0,
-    "pts": 9.81,
+    "pts": 9.79,
     "reb": 3.7,
     "ast": 1.0,
     "threes": 1.23,
-    "pra": 14.51
+    "pra": 14.49
    },
    {
     "event": "CLE @ CHI",
@@ -1867,11 +1867,11 @@
     "team": "CLE",
     "status": "active",
     "minutes": 12.8,
-    "pts": 4.01,
+    "pts": 4.0,
     "reb": 4.0,
-    "ast": 1.35,
+    "ast": 1.34,
     "threes": 0.28,
-    "pra": 9.35
+    "pra": 9.34
    },
    {
     "event": "CLE @ CHI",
@@ -1880,11 +1880,11 @@
     "team": "CLE",
     "status": "active",
     "minutes": 22.9,
-    "pts": 7.73,
+    "pts": 7.71,
     "reb": 3.19,
     "ast": 1.96,
     "threes": 1.5,
-    "pra": 12.88
+    "pra": 12.86
    },
    {
     "event": "CLE @ CHI",
@@ -1893,11 +1893,11 @@
     "team": "CLE",
     "status": "active",
     "minutes": 24.1,
-    "pts": 13.04,
+    "pts": 13.01,
     "reb": 2.85,
     "ast": 2.08,
-    "threes": 2.41,
-    "pra": 17.97
+    "threes": 2.4,
+    "pra": 17.94
    },
    {
     "event": "CLE @ CHI",
@@ -1906,11 +1906,11 @@
     "team": "CLE",
     "status": "active",
     "minutes": 13.6,
-    "pts": 3.04,
+    "pts": 3.03,
     "reb": 2.61,
-    "ast": 2.0,
+    "ast": 1.99,
     "threes": 0.23,
-    "pra": 7.64
+    "pra": 7.63
    },
    {
     "event": "PHX @ NO",
