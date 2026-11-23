@@ -1,0 +1,599 @@
+{
+ "date": "2026-11-23",
+ "slips": [
+  {
+   "name": "Josh — FanDuel 20-leg SGP+ (boosted)",
+   "odds": "+410 (≈+820 boosted)",
+   "legs": [
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Ja'Marr Chase",
+     "stat": "rec",
+     "min": 6
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Joe Burrow",
+     "stat": "pass_yds",
+     "min": 225
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Tee Higgins",
+     "stat": "rec_yds",
+     "min": 30
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Jayden Daniels",
+     "stat": "pass_yds",
+     "min": 150
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "OKC",
+      "IND"
+     ],
+     "player": "Isaiah Hartenstein",
+     "stat": "ast",
+     "min": 2
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "OKC",
+      "IND"
+     ],
+     "player": "Jared McCain",
+     "stat": "pts",
+     "min": 10
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "MIL",
+      "TOR"
+     ],
+     "player": "Scottie Barnes",
+     "stat": "pts",
+     "min": 15
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "MIL",
+      "TOR"
+     ],
+     "player": "Brayden Burries",
+     "stat": "pra",
+     "min": 10
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "BKN",
+      "MIN"
+     ],
+     "player": "Jaden McDaniels",
+     "stat": "ra",
+     "min": 6
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "PHX",
+      "NO"
+     ],
+     "player": "Jeremiah Fears",
+     "stat": "pts",
+     "min": 10
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "PHX",
+      "NO"
+     ],
+     "player": "Yves Missi",
+     "stat": "reb",
+     "min": 4
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "LAC",
+      "HOU"
+     ],
+     "player": "Alperen Sengun",
+     "stat": "pts",
+     "min": 14
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "LAC",
+      "HOU"
+     ],
+     "player": "Amen Thompson",
+     "stat": "reb",
+     "min": 4
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "MEM",
+      "CHA"
+     ],
+     "player": "Cedric Coward",
+     "stat": "pra",
+     "min": 18
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "POR",
+      "PHI"
+     ],
+     "player": "Donovan Clingan",
+     "stat": "reb",
+     "min": 7
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "SA",
+      "SAC"
+     ],
+     "player": "Domantas Sabonis",
+     "stat": "reb",
+     "min": 6
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "UTAH",
+      "LAL"
+     ],
+     "player": "Keyonte George",
+     "stat": "ast",
+     "min": 4
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "UTAH",
+      "LAL"
+     ],
+     "player": "Walker Kessler",
+     "stat": "reb",
+     "min": 6
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "CLE",
+      "CHI"
+     ],
+     "player": "Josh Giddey",
+     "stat": "ast",
+     "min": 4
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "CLE",
+      "CHI"
+     ],
+     "player": "Jalen Smith",
+     "stat": "reb",
+     "min": 4
+    }
+   ]
+  },
+  {
+   "name": "Desk NBA Best Bet",
+   "odds": "-115",
+   "legs": [
+    {
+     "league": "nba",
+     "teams": [
+      "POR",
+      "PHI"
+     ],
+     "player": "Donovan Clingan",
+     "stat": "reb",
+     "min": 11
+    }
+   ]
+  },
+  {
+   "name": "Desk NBA Double-Up",
+   "odds": "+116",
+   "legs": [
+    {
+     "league": "nba",
+     "teams": [
+      "OKC",
+      "IND"
+     ],
+     "player": "Isaiah Hartenstein",
+     "stat": "ast",
+     "min": 4
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "UTAH",
+      "LAL"
+     ],
+     "type": "moneyline",
+     "team": "LAL"
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "LAC",
+      "HOU"
+     ],
+     "type": "moneyline",
+     "team": "HOU"
+    }
+   ]
+  },
+  {
+   "name": "Desk NBA +400-700",
+   "odds": "+451",
+   "legs": [
+    {
+     "league": "nba",
+     "teams": [
+      "POR",
+      "PHI"
+     ],
+     "player": "Donovan Clingan",
+     "stat": "reb",
+     "min": 11
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "UTAH",
+      "LAL"
+     ],
+     "player": "Walker Kessler",
+     "stat": "reb",
+     "min": 11
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "OKC",
+      "IND"
+     ],
+     "player": "Isaiah Hartenstein",
+     "stat": "ast",
+     "min": 4
+    }
+   ]
+  },
+  {
+   "name": "Desk NBA Lotto",
+   "odds": "≈+6575",
+   "legs": [
+    {
+     "league": "nba",
+     "teams": [
+      "POR",
+      "PHI"
+     ],
+     "player": "Donovan Clingan",
+     "stat": "reb",
+     "min": 11
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "UTAH",
+      "LAL"
+     ],
+     "player": "Walker Kessler",
+     "stat": "reb",
+     "min": 11
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "UTAH",
+      "LAL"
+     ],
+     "type": "moneyline",
+     "team": "LAL"
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "LAC",
+      "HOU"
+     ],
+     "type": "moneyline",
+     "team": "HOU"
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "OKC",
+      "IND"
+     ],
+     "player": "Isaiah Hartenstein",
+     "stat": "ast",
+     "min": 4
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "OKC",
+      "IND"
+     ],
+     "type": "moneyline",
+     "team": "OKC"
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "MEM",
+      "CHA"
+     ],
+     "player": "Moussa Diabate",
+     "stat": "reb",
+     "min": 10
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "MEM",
+      "CHA"
+     ],
+     "player": "Cedric Coward",
+     "stat": "pts",
+     "min": 16
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "CLE",
+      "CHI"
+     ],
+     "type": "moneyline",
+     "team": "CLE"
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "MIL",
+      "TOR"
+     ],
+     "type": "moneyline",
+     "team": "TOR"
+    },
+    {
+     "league": "nba",
+     "teams": [
+      "BKN",
+      "MIN"
+     ],
+     "type": "moneyline",
+     "team": "MIN"
+    }
+   ]
+  },
+  {
+   "name": "Desk NFL Best Bet",
+   "odds": "-110",
+   "legs": [
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Chase Brown",
+     "stat": "rush_yds",
+     "min": 44
+    }
+   ]
+  },
+  {
+   "name": "Desk NFL Double-Up",
+   "odds": "≈+115",
+   "legs": [
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "type": "moneyline",
+     "team": "CIN"
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Joe Burrow",
+     "stat": "pass_td",
+     "min": 3
+    }
+   ]
+  },
+  {
+   "name": "Desk NFL +400-700",
+   "odds": "≈+600",
+   "legs": [
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "type": "spread",
+     "team": "CIN",
+     "line": -6
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Joe Burrow",
+     "stat": "pass_td",
+     "min": 3
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Chase Brown",
+     "stat": "rush_yds",
+     "min": 44
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Ja'Marr Chase",
+     "stat": "td",
+     "min": 1
+    }
+   ]
+  },
+  {
+   "name": "Desk NFL Lotto",
+   "odds": "≈+8000",
+   "legs": [
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "type": "moneyline",
+     "team": "CIN"
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Joe Burrow",
+     "stat": "pass_td",
+     "min": 3
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Joe Burrow",
+     "stat": "pass_yds",
+     "min": 303
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Ja'Marr Chase",
+     "stat": "rec_yds",
+     "min": 91
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Ja'Marr Chase",
+     "stat": "td",
+     "min": 1
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Tee Higgins",
+     "stat": "rec_yds",
+     "min": 76
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Tee Higgins",
+     "stat": "td",
+     "min": 1
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Chase Brown",
+     "stat": "rush_yds",
+     "min": 44
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "player": "Jayden Daniels",
+     "stat": "rush_yds",
+     "min": 42
+    },
+    {
+     "league": "nfl",
+     "teams": [
+      "CIN",
+      "WSH"
+     ],
+     "type": "total",
+     "dir": "over",
+     "line": 54.5
+    }
+   ]
+  }
+ ]
+}

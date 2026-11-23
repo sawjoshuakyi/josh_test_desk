@@ -1,0 +1,37 @@
+name: live-tracker
+
+# Two tracking windows a day (times are UTC; shown in Eastern Standard Time).
+# Each run loops for up to ~5h45m, checking every 60 seconds, and stops early
+# once every leg in that window's file is settled.
+on:
+  schedule:
+    - cron: "50 11 * * *"   # 6:50 AM ET  -> legs/<date>-am.json (soccer, tennis, Sunday NFL)
+    - cron: "50 23 * * *"   # 6:50 PM ET  -> legs/<date>-pm.json (NBA, prime-time NFL)
+  workflow_dispatch:
+    inputs:
+      session:
+        description: "am or pm"
+        required: true
+        default: "pm"
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Track today's legs
+        env:
+          DISCORD_LIVE_WEBHOOK: ${{ secrets.DISCORD_LIVE_WEBHOOK }}
+          MAX_MINUTES: "345"
+          POLL_SECONDS: "60"
+        run: |
+          D=$(TZ=America/Toronto date +%F)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            S="${{ github.event.inputs.session }}"
+          elif [ "$(date -u +%H)" -lt 18 ]; then S=am; else S=pm; fi
+          F="legs/$D-$S.json"
+          if [ -f "$F" ]; then python3 tracker.py "$F"; else echo "No legs file $F - nothing to track."; fi
