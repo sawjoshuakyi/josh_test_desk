@@ -5,8 +5,9 @@ name: live-tracker
 # The follow-on runs wait for the earlier run to finish, then resume from its saved state.
 on:
   schedule:
-    - cron: "5 14 * * *"    # 9:05 AM ET  -> legs/<date>-am.json (soccer, tennis, Sunday NFL), after the AM desk
-    - cron: "5 19 * * *"    # 2:05 PM ET  -> am follow-on (late soccer, Sunday late/night NFL)
+    - cron: "0 8 * * *"     # 3:00 AM ET  -> legs/<date>-am.json (soccer, tennis, Sunday NFL), after the 1:47 AM desk
+    - cron: "50 13 * * *"   # 8:50 AM ET  -> am follow-on (European soccer, daytime tennis)
+    - cron: "40 19 * * *"   # 2:40 PM ET  -> am follow-on (late soccer, Sunday late/night NFL)
     - cron: "50 23 * * *"   # 6:50 PM ET  -> legs/<date>-pm.json (NBA, prime-time NFL)
     - cron: "30 3 * * *"    # 10:30 PM ET -> pm follow-on (late West Coast games)
   workflow_dispatch:
@@ -46,7 +47,7 @@ jobs:
           H=$((10#$(date -u +%H)))
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             S="${{ github.event.inputs.session }}"
-          elif [ $H -ge 11 ] && [ $H -le 20 ]; then S=am; else S=pm; fi
+          elif [ $H -ge 7 ] && [ $H -le 22 ]; then S=am; else S=pm; fi
           F="legs/$D-$S.json"
           if [ -f "$F" ]; then python3 tracker.py "$F"; else echo "No legs file $F - nothing to track."; fi
       - name: Save alerts state
