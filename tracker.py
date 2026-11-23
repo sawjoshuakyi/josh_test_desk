@@ -260,6 +260,9 @@ def main():
 
     feed = Feed(book["date"])
     start = time.time()
+    if unique and all(state["legs"].get(k, {}).get("status") in ("hit", "miss", "void") for k in unique):
+        print("Every leg in this file is already settled; nothing to do.")
+        return
     if not state.get("started"):
         n = len(book["slips"])
         post(webhook, [{"title": f"🔴 Live tracking started · {book['date']}", "color": 0x95A5A6,
