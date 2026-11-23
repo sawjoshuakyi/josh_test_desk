@@ -2,30 +2,37 @@ name: live-tracker
 
 # Times are UTC (shown here in Eastern Standard Time; one hour later on the clock during daylight saving).
 # Each run checks every 60 seconds for up to ~5h45m and stops early once every leg is settled.
-# The follow-on runs wait for the earlier run to finish, then resume from its saved state.
+# Follow-on runs of the same session wait for the earlier run, then resume from its saved state.
+#
+#   am  -> legs/<date>-am.json   soccer + tennis (desk runs 1:47 AM ET)
+#   nfl -> legs/<date>-nfl.json  Sunday NFL slate (desk runs 10:41 AM ET Sundays)
+#   pm  -> legs/<date>-pm.json   NBA + prime-time NFL (desk runs 4:27 PM ET)
 on:
   schedule:
-    - cron: "0 8 * * *"     # 3:00 AM ET  -> legs/<date>-am.json (soccer, tennis, Sunday NFL), after the 1:47 AM desk
-    - cron: "50 13 * * *"   # 8:50 AM ET  -> am follow-on (European soccer, daytime tennis)
-    - cron: "40 19 * * *"   # 2:40 PM ET  -> am follow-on (late soccer, Sunday late/night NFL)
-    - cron: "50 23 * * *"   # 6:50 PM ET  -> legs/<date>-pm.json (NBA, prime-time NFL)
-    - cron: "30 3 * * *"    # 10:30 PM ET -> pm follow-on (late West Coast games)
+    - cron: "0 8 * * *"     # am   3:00 AM ET
+    - cron: "50 13 * * *"   # am   8:50 AM ET follow-on
+    - cron: "40 19 * * *"   # am   2:40 PM ET follow-on
+    - cron: "50 17 * * 0"   # nfl  12:50 PM ET Sundays (1 PM kickoffs)
+    - cron: "40 23 * * 0"   # nfl  6:40 PM ET Sundays follow-on (late games, Sunday Night Football)
+    - cron: "50 23 * * *"   # pm   6:50 PM ET
+    - cron: "30 3 * * *"    # pm   10:30 PM ET follow-on (late West Coast games)
   workflow_dispatch:
     inputs:
       session:
-        description: "am or pm"
+        description: "am, nfl or pm"
         required: true
         default: "pm"
 
-# Never run two trackers at once; a second run waits and resumes from saved state.
 concurrency:
-  group: live-tracker
+  group: live-tracker-${{ github.event.inputs.session || ((github.event.schedule == '50 17 * * 0' || github.event.schedule == '40 23 * * 0') && 'nfl') || ((github.event.schedule == '50 23 * * *' || github.event.schedule == '30 3 * * *') && 'pm') || 'am' }}
   cancel-in-progress: false
 
 jobs:
   track:
     runs-on: ubuntu-latest
     timeout-minutes: 355
+    env:
+      SESSION: ${{ github.event.inputs.session || ((github.event.schedule == '50 17 * * 0' || github.event.schedule == '40 23 * * 0') && 'nfl') || ((github.event.schedule == '50 23 * * *' || github.event.schedule == '30 3 * * *') && 'pm') || 'am' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -35,8 +42,8 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: state-*.json
-          key: tracker-state-${{ github.run_id }}
-          restore-keys: tracker-state-
+          key: tracker-state-${{ env.SESSION }}-${{ github.run_id }}
+          restore-keys: tracker-state-${{ env.SESSION }}-
       - name: Track today's legs
         env:
           DISCORD_LIVE_WEBHOOK: ${{ secrets.DISCORD_LIVE_WEBHOOK }}
@@ -44,15 +51,16 @@ jobs:
           POLL_SECONDS: "60"
         run: |
           D=$(TZ=America/Toronto date +%F)
-          H=$((10#$(date -u +%H)))
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            S="${{ github.event.inputs.session }}"
-          elif [ $H -ge 7 ] && [ $H -le 22 ]; then S=am; else S=pm; fi
-          F="legs/$D-$S.json"
-          if [ -f "$F" ]; then python3 tracker.py "$F"; else echo "No legs file $F - nothing to track."; fi
+          F="legs/$D-$SESSION.json"
+          echo "Session: $SESSION  File: $F"
+          if [ -f "$F" ]; then
+            STATE_FILE="state-$D-$SESSION.json" python3 tracker.py "$F"
+          else
+            echo "No legs file $F - nothing to track."
+          fi
       - name: Save alerts state
         if: always()
         uses: actions/cache/save@v4
         with:
           path: state-*.json
-          key: tracker-state-${{ github.run_id }}
+          key: tracker-state-${{ env.SESSION }}-${{ github.run_id }}

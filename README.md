@@ -26,11 +26,13 @@ Data comes from ESPN's public live scoreboards (NBA, NFL, soccer, tennis). No AP
 1. Create a GitHub repository and upload these files (keep the folder structure).
 2. Repository → Settings → Secrets and variables → Actions → New repository secret:
    name `DISCORD_LIVE_WEBHOOK`, value = your live-alerts webhook URL.
-3. Each day, the desk puts that day's legs files in `legs/` (`<date>-am.json`, `<date>-pm.json`).
-   The workflow runs at 3:00 AM ET (am file) with 8:50 AM and 2:40 PM follow-ons, and at 6:50 PM ET
-   (pm file) with a 10:30 PM follow-on. Follow-on runs wait for the earlier run and resume from its saved state.
+3. Each day, the desk writes that day's legs files in `legs/`:
+   - `<date>-am.json`: soccer + tennis (desk at 1:47 AM ET). Tracked from 3:00 AM ET, follow-ons 8:50 AM and 2:40 PM.
+   - `<date>-nfl.json`: Sunday NFL (desk at 10:41 AM ET Sundays). Tracked from 12:50 PM ET, follow-on 6:40 PM.
+   - `<date>-pm.json`: NBA + prime-time NFL (desk at 4:27 PM ET). Tracked from 6:50 PM ET, follow-on 10:30 PM.
+   Follow-on runs wait for the earlier run of the same session and resume from its saved state.
    GitHub schedules run in UTC, so these are one hour later on the clock during daylight saving time.
-4. To start a run by hand: Actions → live-tracker → Run workflow → choose am or pm.
+4. To start a run by hand: Actions → live-tracker → Run workflow → choose am, nfl or pm.
 
 Public repositories get unlimited free Actions minutes. Private repositories get 2,000 free minutes
 a month, which the daily windows would exceed.
