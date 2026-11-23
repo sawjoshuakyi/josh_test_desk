@@ -72,18 +72,30 @@ class Feed:
             self.scoreboards[league] = data.get("events", [])
         return self.scoreboards[league]
 
+    def matches(self, league):
+        """Yield pseudo-events {"id", "competitions": [comp]}; tennis nests matches inside tournaments."""
+        for e in self.events(league):
+            if e.get("groupings"):
+                for g in e["groupings"]:
+                    for c in g.get("competitions", []):
+                        yield {"id": c.get("id"), "competitions": [c], "tennis": True}
+            else:
+                yield e
+
     def find_event(self, league, teams):
         want = {t.upper() for t in teams}
-        for e in self.events(league):
-            comp = e["competitions"][0]
-            abbrs = set()
-            for c in comp["competitors"]:
-                for key in ("team", "athlete"):
-                    obj = c.get(key) or {}
-                    for f in ("abbreviation", "shortDisplayName", "displayName"):
-                        if obj.get(f):
-                            abbrs.add(obj[f].upper())
-            if want & abbrs and (len(want) == 1 or want <= abbrs or len(want & abbrs) >= 1):
+        for e in self.matches(league):
+            names = set()
+            for c in e["competitions"][0]["competitors"]:
+                names |= competitor_names(c)
+            if want <= names:
+                return e
+        # fall back: any single overlap
+        for e in self.matches(league):
+            names = set()
+            for c in e["competitions"][0]["competitors"]:
+                names |= competitor_names(c)
+            if want & names:
                 return e
         return None
 
@@ -98,15 +110,25 @@ def game_status(event):
     t = st["type"]
     return t.get("state"), t.get("completed", False), t.get("shortDetail") or t.get("description", "")
 
+def competitor_names(c):
+    names = set()
+    for key in ("team", "athlete", "roster"):
+        obj = c.get(key) or {}
+        for f in ("abbreviation", "shortDisplayName", "displayName", "shortName", "fullName"):
+            if obj.get(f):
+                names.add(obj[f].upper())
+    return names
+
 def team_scores(event):
-    out = {}
+    out = []
     for c in event["competitions"][0]["competitors"]:
-        abbr = ((c.get("team") or {}).get("abbreviation") or (c.get("athlete") or {}).get("shortName") or "").upper()
         try:
             score = float(c.get("score") or 0)
-        except ValueError:
+        except (ValueError, TypeError):
             score = 0.0
-        out[abbr] = {"score": score, "winner": c.get("winner", False), "home": c.get("homeAway") == "home"}
+        if not c.get("score") and c.get("linescores"):  # tennis: count sets won
+            score = 0.0
+        out.append({"names": competitor_names(c), "score": score, "winner": bool(c.get("winner"))})
     return out
 
 def player_stat(league, summary, player, stat):
@@ -192,7 +214,7 @@ def evaluate(feed, leg):
         return ("hit", f"finished with {val:g} {lab}") if done else ("pending", f"{val:g} {lab} · {clock}")
     scores = team_scores(event)
     if t == "total":
-        tot = sum(s["score"] for s in scores.values())
+        tot = sum(x["score"] for x in scores)
         if leg["dir"] == "over":
             if tot > leg["line"]:
                 return "hit", f"{tot:g} total · {clock}"
@@ -201,19 +223,25 @@ def evaluate(feed, leg):
             return "miss", f"{tot:g} total · {clock}"
         return ("hit", f"final total {tot:g}") if done else ("pending", f"{tot:g} total · {clock}")
     team = leg["team"].upper()
-    if team not in scores:
-        return "pending", f"team {team} not matched"
-    mine = scores[team]["score"]
-    other = max(s["score"] for k, s in scores.items() if k != team) if len(scores) > 1 else 0
+    mine_rec = next((x for x in scores if team in x["names"]), None)
+    if not mine_rec:
+        return "pending", f"{leg['team']} not matched"
+    others = [x for x in scores if x is not mine_rec]
+    mine = mine_rec["score"]
+    other = max((x["score"] for x in others), default=0)
     if not done:
-        return "pending", f"{team} {mine:g}-{other:g} · {clock}"
+        return "pending", f"{leg['team']} {mine:g}-{other:g} · {clock}"
     if t == "moneyline":
-        return ("hit" if mine > other else "miss"), f"final {team} {mine:g}-{other:g}"
+        if any(x["winner"] for x in scores):
+            return ("hit" if mine_rec["winner"] else "miss"), f"final · {leg['team']} {'won' if mine_rec['winner'] else 'lost'}"
+        if mine == other:
+            return "miss", f"final draw {mine:g}-{other:g}"
+        return ("hit" if mine > other else "miss"), f"final {leg['team']} {mine:g}-{other:g}"
     if t == "spread":
         margin = mine + leg["line"] - other
         if margin == 0:
-            return "void", f"push · final {team} {mine:g}-{other:g}"
-        return ("hit" if margin > 0 else "miss"), f"final {team} {mine:g}-{other:g}"
+            return "void", f"push · final {leg['team']} {mine:g}-{other:g}"
+        return ("hit" if margin > 0 else "miss"), f"final {leg['team']} {mine:g}-{other:g}"
     return "pending", "unknown leg type"
 
 # ---------------------------------------------------------------- discord
