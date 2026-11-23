@@ -7,7 +7,8 @@ is the hardest test in tennis; a model that cannot do it has no edge there.
 """
 import io, json, math, os, sys, urllib.request
 import pandas as pd
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
 from desk.tennis.elo import Elo, EloParams, is_completed
 from desk.tennis.data import all_matches
 from desk import pricing
@@ -40,6 +41,8 @@ def load_market():
         d = pd.read_excel(io.BytesIO(raw))
         d["tour"] = tour
         frames.append(d)
+    if not frames:
+        return None
     m = pd.concat(frames, ignore_index=True)
     m = m.dropna(subset=["PSW", "PSL"])
     m["date"] = pd.to_datetime(m["Date"]).dt.strftime("%Y%m%d").astype(int)
@@ -49,6 +52,12 @@ def load_market():
 
 def main(threshold=0.03):
     market = load_market()
+    if market is None:
+        json.dump({"status": "unavailable", "reason": "tennis-data.co.uk refused the download (HTTP 403) from GitHub's servers. "
+                   "The model-vs-market test now runs on the desk's own closing-line snapshots (scripts/grade_board.py)."},
+                  open(os.path.join(ROOT, "reports", "backtest_tennis_market.json"), "w"), indent=1)
+        print("market data unavailable; wrote status file")
+        return
     index = {}
     for r in market.itertuples():
         index.setdefault((r.tour, r.wk, r.lk), []).append(r)
