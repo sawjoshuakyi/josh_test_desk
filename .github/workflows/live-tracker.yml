@@ -14,6 +14,11 @@ on:
         required: true
         default: "pm"
 
+# Never run two trackers at once; a second run waits and resumes from saved state.
+concurrency:
+  group: live-tracker
+  cancel-in-progress: false
+
 jobs:
   track:
     runs-on: ubuntu-latest
@@ -23,6 +28,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Restore saved alerts (so restarts never repeat a notification)
+        uses: actions/cache/restore@v4
+        with:
+          path: state-*.json
+          key: tracker-state-${{ github.run_id }}
+          restore-keys: tracker-state-
       - name: Track today's legs
         env:
           DISCORD_LIVE_WEBHOOK: ${{ secrets.DISCORD_LIVE_WEBHOOK }}
@@ -35,3 +46,9 @@ jobs:
           elif [ "$(date -u +%H)" -lt 18 ]; then S=am; else S=pm; fi
           F="legs/$D-$S.json"
           if [ -f "$F" ]; then python3 tracker.py "$F"; else echo "No legs file $F - nothing to track."; fi
+      - name: Save alerts state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state-*.json
+          key: tracker-state-${{ github.run_id }}
