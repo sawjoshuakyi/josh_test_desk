@@ -1,2 +1,5 @@
 state-*.json
 __pycache__/
+.pytest_cache/
+reports/backtest_nba_rows.csv
+*.pyc
