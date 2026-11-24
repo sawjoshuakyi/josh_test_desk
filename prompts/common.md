@@ -65,8 +65,14 @@ It is built about 45 minutes before this run. It contains:
   injury report at build time, and — once the Odds API key is set — every NBA prop line priced: model probability,
   Pinnacle (or DK/FD) no-vig fair probability, best DK/FD price, edge = model prob × decimal price − 1, and
   quarter-Kelly $ stake. Also NBA and NFL game lines where DK/FD pay more than Pinnacle's no-vig fair price (⭐ = 2%+).
-- am: tennis surface-Elo win probabilities for the next day of ATP/WTA singles (low-sample players flagged) priced
-  the same way, and soccer game lines vs Pinnacle's fair price.
+- am, tennis: surface-Elo match-winner probabilities plus our serve/return score model (hold rates, set-score
+  probabilities, total-games and game-margin distributions) for the next day of ATP/WTA singles, priced for match
+  winner, total games and games handicap (low-sample players flagged), with `facts` bullets per match.
+- am, soccer: our team-rating model (Dixon-Coles goals, corners, team shots on target) for every fixture today in the
+  Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Champions League and MLS — 1X2 probabilities, expected goals,
+  over/under 1.5–4.5, BTTS, expected corners and over/under 7.5–12.5 — plus a shots-on-target projection for every
+  likely starter and rotation player, priced for match result, total goals (main and alternate), total corners and
+  player shots on target, with `facts` bullets.
 - nfl: NFL game lines vs Pinnacle's fair price.
 If the board is missing, or says "odds: none", say so in the report and continue with analyst estimates.
 
@@ -77,10 +83,14 @@ If the board is missing, or says "odds: none", say so in the report and continue
 
 How to use it:
 1. MODELED markets (NBA player points/rebounds/assists/threes/PRA; NFL receptions, receiving yards, rushing yards,
-   rushing attempts, pass attempts, pass TDs, anytime TD; tennis match winner): the board's model_prob is
+   rushing attempts, pass attempts, pass TDs, anytime TD; tennis match winner; soccer match result, total goals,
+   total corners, player shots on target): the board's model_prob is
    the leg's probability. Analysts may adjust it only for news after the board's `generated_at` time (late scratch,
    minutes limit, retirement risk), by at most 8 points, and must state the reason (Prob source "Model+adj").
-2. UNMODELED or LOW-TRUST markets (soccer props, NFL passing yards/completions, NBA steals/blocks/other combos):
+   MEDIUM-TRUST markets (tennis total games, games handicap, set betting): our score model is calibrated but has not
+   beaten a strong baseline, so a leg needs edge ≥ +5% (not +3%) to count as value.
+2. UNMODELED or LOW-TRUST markets (soccer props other than shots on target, NFL passing yards/completions, NBA
+   steals/blocks/other combos, low-sample soccer teams or tennis players):
    the analyst estimates the
    probability, but it must be anchored to the no-vig market price (from the board or two-sided DK/FD prices) and
    any move away from the market needs a stated reason (Prob source "Analyst"). Game lines use the board's
@@ -95,6 +105,30 @@ How to use it:
    market probability, and the edge. Singles also show the Kelly $ stake.
 6. Slip math: parlay probability = product of leg probabilities (state that same-game legs are correlated and the
    sportsbook's SGP price will differ); slip EV = probability × decimal odds − 1. Show both for each slip.
+
+## QUANT CHECKLIST — every analyst, every leg
+Elite means nothing is assumed. Before a leg goes in a slip, the analyst works through every item for its sport using
+our data (board, datasets, scripts/leg_facts.py, our own pandas computations on the repo's data) and official facts,
+and the report shows the numbers. If an item cannot be checked, say so explicitly.
+- ALL SPORTS: price (DK, FD, best), no-vig market probability, model probability and its trust level, edge; line
+  movement since the board was built (compare the board price time with now, if visible); sample size behind every
+  rate; recent form vs season baseline (last 5 / last 10 / season); home/away split; rest and schedule spot; the
+  opponent-adjusted matchup bullet; injuries/lineups from official sources; how the leg loses; correlation with every
+  other leg in the same slip; exposure to the same game/player across all slips.
+- NBA: projected minutes and their stability (minutes SD last 10), role change from teammates out (who is out, usage
+  and minutes redistribution), back-to-back / 3-in-4, spread → blowout risk to minutes (spread ≥ 10 flag), pace from
+  the total, opponent stat allowed and rank, alt-line ladder (does the model prefer a lower alt at a shorter price?).
+- NFL: target share, air-yards share, snap share and route participation trend, carries share and goal-line role,
+  QB status and pass rate, game script from spread and total, opponent allowed to the position group and rank,
+  weather and wind for outdoor games, offensive-line injuries, inactives timing (late-news check re-projects legs).
+- SOCCER: model 1X2 / xG / total-goals and corners distribution; both teams' last-10 goals, shots on target and
+  corners for and against; home/away form; low-sample flag (teams outside our leagues); fixture congestion and
+  rotation risk (midweek European games, cup ties); motivation/table position; for player shots on target: per-90
+  rate, projected minutes and role (starter vs rotation), recent SOT log, opponent SOT conceded, penalty duty; the
+  confirmed XI (late-news check ~1 hour before kickoff).
+- TENNIS: surface Elo gap and sample sizes, model hold rates on this surface, set-score and total-games
+  distribution, last-10 form and surface record this season, head-to-head, fatigue (matches and sets played this
+  week, long previous match), travel/surface switch, retirement/withdrawal risk, best-of-3 vs best-of-5.
 
 ## LEG REASONING TOOL
 For any NBA or NFL player leg whose bullets are not already in the board's `facts`, generate them from our data:
@@ -175,10 +209,13 @@ You already have the repo cloned (sawjoshuakyi/josh_test_desk). Read README.md f
   Player prop {"league": "nba"|"nfl", "teams": [AWAY, HOME], "player": "Full Name", "stat": <README stat code>,
   "min": N} where an "over X.5" is min X+1 and an "N+" alt is min N (use "max" for unders); moneyline {"league",
   "teams", "type": "moneyline", "team"}; spread {"league", "teams", "type": "spread", "team", "line"}; game total
-  {"league", "teams", "type": "total", "dir": "over"|"under", "line"}. Tennis "teams" and "team" are players' names
-  as ESPN shows them. Leagues: nba, nfl, epl, laliga, seriea, bundesliga, ligue1, ucl, mls, atp, wta. Use ESPN team
+  {"league", "teams", "type": "total", "dir": "over"|"under", "line"}; soccer draw {"league", "teams", "type":
+  "draw"}; soccer total corners {"league", "teams", "type": "corners", "dir", "line"}; soccer player shots on target
+  {"league", "teams", "player", "stat": "sot", "min": N}; tennis total games {"league": "atp"|"wta", "teams",
+  "type": "total_games", "dir", "line"}; tennis games handicap {"league", "teams", "type": "games_spread", "team",
+  "line"}. Tennis "teams" and "team" are players' names as ESPN shows them; soccer teams use ESPN abbreviations. Leagues: nba, nfl, epl, laliga, seriea, bundesliga, ligue1, ucl, mls, atp, wta. Use ESPN team
   abbreviations (e.g. UTAH, SA, NO, GS, NY, WSH, LAR, LAC, JAX, KC) and players' full names as ESPN shows them. Skip
-  any leg the format can't express (soccer/tennis player props, soccer draws) and mention it in the report.
+  any leg the format can't express (e.g. set betting, cards) and mention it in the report.
 - If the file already exists (Josh may have added his own slips), keep every slip whose name does not start with
   "Desk" and replace only the "Desk" slips. Top level: {"date": "YYYY-MM-DD", "slips": [...]}. Validate the JSON.
 - Commit to main with a short message and push (pull --rebase and retry if the push is rejected). If the push fails,

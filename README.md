@@ -86,3 +86,17 @@ Team dropbacks and rush attempts (recent volume adjusted for spread and total) �
 simulated 6,000 times per game, then calibrated per stat. Walk-forward test on 2026 weeks 3–11 (5,863 player-game
 props): log loss 0.626 vs 0.652 for the naive baseline; passing yards and completions marked low trust.
 `scripts/leg_facts.py` prints a leg's reasoning bullets and model probability from our own data.
+
+### Soccer and tennis models
+- Soccer (`desk/soccer/`): ESPN match + player data since July 2024 for the EPL, La Liga, Serie A, Bundesliga,
+  Ligue 1, Champions League and MLS (`data/soccer/`). Time-decayed, ridge-penalised Poisson team ratings (goals target
+  blends goals with shots on target × conversion), Dixon-Coles result/totals, negative-binomial corners, player shots
+  on target from per-90 rate × projected minutes × opponent adjustment. Out of sample (868 matches, Aug–Nov 2026) it
+  beats league/player baselines on result, over 2.5, corners and SOT 1+/2+ (`reports/backtest_soccer.json`).
+- Tennis score model (`desk/tennis/score.py`): serve/return points won from the tour archive (to May 2026), shifted to
+  agree with surface Elo, exact game/tiebreak/set dynamic programming with a fitted per-match swing → set scores,
+  total games, game margin. Calibrated and on par with an Elo-bucket baseline (`reports/backtest_tennis_games.json`):
+  medium trust.
+- Late news: `late_news_nfl.py` (inactives), `late_news_am.py` (soccer XIs, tennis withdrawals), workflow
+  `late-news-more.yml`.
+- Tracker leg types added: `draw`, `corners`, player `stat: "sot"` (soccer), `total_games`, `games_spread` (tennis).

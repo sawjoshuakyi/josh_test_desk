@@ -1,4 +1,6 @@
 # AM session (Soccer + Tennis) — runs ~1:47 AM ET
+Late-news jobs: soccer line-ups are re-checked hourly (posted ~1 hour before kickoff once the XI is out) and tennis
+withdrawals hourly — mention this in the header message.
 
 Session label "AM"; board/legs file session "am". Doc title: "Betting Desk — [Weekday, Month Day] AM".
 Discord: sport channel = TENNIS_SOCCER, plus GENERAL.
@@ -20,10 +22,15 @@ and deliver four slips:
  2. DOUBLE-UP parlay: any number of legs, combined odds at least +100 (aim +100 to +130).
  3. +400 to +700 parlay.
  4. LOTTO parlay of 10 or more legs.
-Start from the model board. Tennis: every match-winner leg uses the board's surface-Elo probability (adjust only for
-news after the board was built — injury, retirement in the previous round, withdrawal — max 8 points, with the reason);
-treat players flagged low-sample with extra caution. Soccer: game lines start from the board's Pinnacle no-vig fair
-prices; ⭐ rows are where DK/FD pay more than fair. Research requirements: start times (ET); injury and suspension
+Start from the model board and work through the QUANT CHECKLIST in common.md for every leg.
+Tennis: match-winner legs use the board's surface-Elo probability; total games, games handicap and set-score legs use
+the score model (medium trust: value needs edge ≥ +5%). Adjust only for news after the board was built (injury,
+retirement in the previous round, withdrawal) by at most 8 points, with the reason; treat low-sample players with
+extra caution.
+Soccer: the desk TARGETS FOUR MARKETS — total goals, match result (1X2), player shots on target and total corners.
+Build every soccer slip from these markets (use others only when none of the four offers value, and say so). Each leg
+uses the board's model probability for that market; adjust only for confirmed team news, by at most 8 points, with
+the reason. Teams flagged low-sample (outside our leagues) need extra caution and a stated reason. Research requirements: start times (ET); injury and suspension
 news, projected lineups and rotation risk; DK and FD prices; recent form (last 5/10) vs season baselines; matchup data
 (home/away, possession, surface for tennis); managers' rotation habits around midweek fixtures; motivation/schedule
 spots; weather and conditions. Soccer: xG/xGA, set pieces, goals trends, confirmed XIs where available. Tennis: hold/

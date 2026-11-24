@@ -201,3 +201,58 @@ def soccer_player_facts(pl: pd.DataFrame, player_id: str, name: str, line: float
             f"He's {'had ' + str(k) + '+' if over else 'stayed under ' + str(k)} shots on target in {hits} of his last {len(last10)} matches.",
             f"Shots on target, last five (newest first): {log}.",
             f"He has at least {k} shot{'s' if k > 1 else ''} on target in {int((cur.sot >= k).sum())} of {len(cur)} appearances this season."]
+
+
+# ------------------------------------------------------------------ matchup context (opponent-adjusted, our data)
+def _ordinal(n: int) -> str:
+    return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
+
+
+def nba_matchup(box: pd.DataFrame, opp: str, stat: str, before: str, season_start: str = "2026-10-01") -> list[str]:
+    """How much of `stat` the opponent allows per game (and its rank), plus pace context."""
+    d = box[(box.date < before) & (box.date >= season_start) & (box.dnp == 0)]
+    if d.empty or stat not in NBA_COLS:
+        return []
+    d = d.assign(v=d[NBA_COLS[stat]].sum(axis=1))
+    allowed = d.groupby(["game_id", "opp"]).v.sum().groupby("opp").mean().sort_values(ascending=False)
+    if opp not in allowed.index:
+        return []
+    rank = int(allowed.index.get_loc(opp)) + 1
+    games = d.drop_duplicates(["game_id", "team"])
+    pace = (games.team_pts + games.opp_pts).groupby(games.team).mean().sort_values(ascending=False)
+    lab = LABEL.get(stat, stat)
+    out = [f"Matchup: {NBA_TEAMS.get(opp, opp)} allow {allowed[opp]:.1f} {lab} per game to opponents "
+           f"({_ordinal(rank)} most of {len(allowed)}; league average {allowed.mean():.1f})."]
+    if opp in pace.index:
+        out.append(f"Pace proxy: {NBA_TEAMS.get(opp, opp)} games average {pace[opp]:.0f} combined points "
+                   f"({_ordinal(int(pace.index.get_loc(opp)) + 1)} highest).")
+    return out
+
+
+def nfl_matchup(pg: pd.DataFrame, opp: str, pos: str, stat: str, before: str, season: int) -> list[str]:
+    """What the opponent's defence allows to this position group per game, and its rank."""
+    if stat not in NFL_COLS:
+        return []
+    d = pg[(pg.date < before) & (pg.season == season)]
+    grp = {"WR": ["WR"], "TE": ["TE"], "RB": ["RB", "FB"], "QB": ["QB"]}.get(pos, [pos])
+    d = d[d.position.isin(grp)]
+    if d.empty:
+        return []
+    d = d.assign(v=d[NFL_COLS[stat]].sum(axis=1))
+    allowed = d.groupby(["game_id", "opponent_team"]).v.sum().groupby("opponent_team").mean().sort_values(ascending=False)
+    if opp not in allowed.index:
+        return []
+    rank = int(allowed.index.get_loc(opp)) + 1
+    return [f"Matchup: {NFL_TEAMS.get(opp, opp)} allow {allowed[opp]:.1f} {LABEL.get(stat, stat)} per game to "
+            f"{'/'.join(grp)}s ({_ordinal(rank)} most of {len(allowed)}; league average {allowed.mean():.1f})."]
+
+
+def soccer_sot_matchup(mt: pd.DataFrame, opp_id: str, opp_name: str, before: str, n: int = 10) -> list[str]:
+    d = mt[mt.date < before]
+    recent = d.sort_values("date").groupby("opp_id").tail(n)
+    conceded = recent.groupby("opp_id").shotsOnTarget.mean()
+    if opp_id not in conceded.index:
+        return []
+    league_avg = d.shotsOnTarget.mean()
+    return [f"Matchup: {opp_name} concede {conceded[opp_id]:.1f} shots on target per match over their last {n} "
+            f"(overall average {league_avg:.1f})."]

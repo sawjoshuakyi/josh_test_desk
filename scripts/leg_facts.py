@@ -35,6 +35,9 @@ def nba(player, stat, line, side, day):
         for team in g["teams"].values():
             for pr, row in team_projections(proj, hist, team, g["injury_report"], g["spread"].get(team), g["total"]):
                 if norm(row["player"]) == norm(player):
+                    teams = list(g["teams"].values())
+                    opp = teams[1] if teams[0] == team else teams[0]
+                    bullets += facts.nba_matchup(box, opp, stat, day.isoformat())
                     p_over = proj.prob_at_least(pr, stat, math.floor(line) + 1)
                     p = p_over if side == "over" else 1 - p_over
                     mean = row["pra"] if stat == "pra" else row.get(stat, 0)
@@ -72,6 +75,10 @@ def nfl(player, stat, line, side, day):
             avail = {p.player_id for p in regs if g["injury_report"].get(norm(p.name), "").lower() not in board.NFL_OUT}
             pj = model.project_team(team, avail, g["spread"].get(espn_team), g["total"]).get(pid)
             if pj:
+                others = [t for t in g["teams"].values() if t != espn_team]
+                if others:
+                    opp = board.ESPN_TO_NFLVERSE.get(others[0], others[0])
+                    bullets += facts.nfl_matchup(pg, opp, pj["state"].position, stat, day.isoformat(), int(pg.season.max()))
                 p_over = prob_at_least(pj["sims"], stat, math.floor(line) + 1, calibrated=True)
                 p = p_over if side == "over" else 1 - p_over
                 bullets.append(facts.model_bullet(pj["means"].get(stat, 0), p, None, None, line, side, stat))

@@ -180,8 +180,16 @@ def nba_board(day: dt.date, api: OddsAPI | None) -> dict:
         credits = api.remaining
     props.sort(key=lambda r: r["edge"], reverse=True)
     from desk import facts
+    opp_of = {}
+    for g in games:
+        teams = [t.strip() for t in g["event"].split("@")]
+        if len(teams) == 2:
+            opp_of[teams[0]], opp_of[teams[1]] = teams[1], teams[0]
     for r in [x for x in props if x["edge"] > 0][:config.FACTS_ROWS]:
-        r["facts"] = facts.nba_facts(box, r["player"], r["stat"], r["line"], r["side"], day.isoformat()) + [
+        opp = opp_of.get(r["team"])
+        r["opponent"] = opp
+        r["facts"] = facts.nba_facts(box, r["player"], r["stat"], r["line"], r["side"], day.isoformat()) + \
+            (facts.nba_matchup(box, opp, r["stat"], day.isoformat()) if opp else []) + [
             facts.model_bullet(r["model_mean"] or 0, r["model_prob"], r["fair_market_prob"], r["edge"], r["line"],
                                r["side"], r["stat"])]
     return {"games": games, "projections": projections, "props": props, "credits_remaining": credits}
@@ -313,7 +321,14 @@ def nfl_board(day: dt.date, api: OddsAPI | None) -> dict:
     season = int(pg.season.max())
     for r in [x for x in props if x["edge"] > 0][:config.FACTS_ROWS]:
         side = "Over" if r["side"] in ("Over", "Yes") else "Under"
-        r["facts"] = facts.nfl_facts(pg, r["player_id"], r["player"], r["stat"], r["line"], side, day.isoformat(), season) + [
+        prow = next((p for p in projections if p["player_id"] == r["player_id"]), None)
+        g = next((x for x in games if prow and prow["team"] in x["event"]), None)
+        opp = None
+        if g and prow:
+            a, h = [t.strip() for t in g["event"].split("@")]
+            opp = ESPN_TO_NFLVERSE.get(h if prow["team"] == a else a, h if prow["team"] == a else a)
+        r["facts"] = facts.nfl_facts(pg, r["player_id"], r["player"], r["stat"], r["line"], side, day.isoformat(), season) + \
+            (facts.nfl_matchup(pg, opp, prow["pos"], r["stat"], day.isoformat(), season) if opp and prow else []) + [
             facts.model_bullet(r["model_mean"], r["model_prob"], r["fair_market_prob"], r["edge"], r["line"], side, r["stat"])]
     return {"games": games, "projections": projections, "props": props, "credits_remaining": credits}
 
@@ -582,7 +597,10 @@ def soccer_board(day: dt.date, api: OddsAPI | None) -> dict:
                         if stat == "sot":
                             pp = byname[norm(player)]
                             row["player_id"] = pp["player_id"]
-                            row["facts"] = facts.soccer_player_facts(pl, pp["player_id"], player, point, side, day.isoformat()) + [
+                            opp_id = fx["away_id"] if pp["team_id"] == fx["home_id"] else fx["home_id"]
+                            opp_nm = fx["away"] if pp["team_id"] == fx["home_id"] else fx["home"]
+                            row["facts"] = facts.soccer_player_facts(pl, pp["player_id"], player, point, side, day.isoformat()) + \
+                                facts.soccer_sot_matchup(mt, opp_id, opp_nm, day.isoformat()) + [
                                 facts.model_bullet(pp["sot_mean"], p_model, row["fair_market_prob"], edge, point, side, "sot",
                                                    f"Projected {pp['minutes']} minutes ({pp['role']}); confirm the XI ~1 hour before kickoff")]
                             row["role"] = pp["role"]

@@ -4,7 +4,8 @@ Session label "SUN"; board/legs file session "nfl". Doc title: "Betting Desk —
 Discord: sport channel = NBA_NFL, plus GENERAL. Sport label "NFL".
 
 SCOPE: today's full NFL Sunday slate — early (1:00 PM ET), late (4:05/4:25 PM ET) and Sunday Night Football.
-Official inactives come out about 90 minutes before each kickoff (~11:30 AM ET for 1 PM games): use the final
+Official inactives come out about 90 minutes before each kickoff (~11:30 AM ET for 1 PM games); the inactives job
+re-projects every NFL leg at ~11:40 AM, 3:00 PM and 7:10 PM ET and posts what moved: use the final
 Friday/Saturday injury reports and Sunday-morning news, never use a player listed doubtful, treat questionable players
 as risky unless reported active, and list every questionable player with when their inactive news is due.
 
