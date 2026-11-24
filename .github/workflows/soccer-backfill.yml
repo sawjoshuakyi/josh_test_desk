@@ -1,0 +1,28 @@
+name: soccer-backfill
+
+# Manual: loads API-Football soccer history (2024/25 season onward, 27 leagues) into data/soccer_af.
+# Uses about 1,400 of the 7,500 daily requests. Safe to re-run: stored matches are skipped.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -q -r requirements.txt
+      - name: Backfill
+        run: python3 scripts/soccer_af_update.py --backfill --max 6000
+      - name: Commit
+        if: always()
+        run: scripts/commit.sh "API-Football soccer backfill $(date -u +%F)" data/soccer_af reports
