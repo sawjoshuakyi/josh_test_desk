@@ -1,0 +1,42 @@
+name: late-news-more
+
+# NFL inactives (UTC; Eastern + 5): Sunday 11:40 AM, 3:00 PM and 7:10 PM ET; Monday/Thursday 6:50 PM ET.
+# Soccer line-ups and tennis withdrawals: hourly from 5 AM to 4 PM ET.
+on:
+  schedule:
+    - cron: "40 16 * * 0"
+    - cron: "0 20 * * 0"
+    - cron: "10 0 * * 1"
+    - cron: "50 23 * * 1,4"
+    - cron: "20 10-21 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: late-news-more
+  cancel-in-progress: false
+
+jobs:
+  news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DISCORD_NBA_NFL_WEBHOOK: ${{ secrets.DISCORD_NBA_NFL_WEBHOOK }}
+      DISCORD_TENNIS_SOCCER_WEBHOOK: ${{ secrets.DISCORD_TENNIS_SOCCER_WEBHOOK }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -q -r requirements.txt
+      - name: NFL inactives (uses the Eastern date, so the 7:10 PM run after midnight UTC is still Sunday)
+        if: github.event.schedule != '20 10-21 * * *'
+        run: python3 scripts/late_news_nfl.py
+      - name: Soccer line-ups and tennis withdrawals
+        if: github.event.schedule == '20 10-21 * * *' || github.event_name == 'workflow_dispatch'
+        run: python3 scripts/late_news_am.py
+      - name: Save alert state
+        run: scripts/commit.sh "Late-news state $(date -u +%FT%H:%M)" data/late_news_state.json

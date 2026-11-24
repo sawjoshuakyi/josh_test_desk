@@ -319,15 +319,23 @@ def nfl_board(day: dt.date, api: OddsAPI | None) -> dict:
 
 
 # ------------------------------------------------------------------ tennis
+def _pmf(d: dict, digits: int = 4) -> dict:
+    return {str(k): round(v, digits) for k, v in sorted(d.items()) if v >= 1e-4}
+
+
 def tennis_board(day: dt.date, api: OddsAPI | None) -> dict:
+    from desk import facts
     from desk.tennis import data as tdata
     from desk.tennis.elo import build
+    from desk.tennis.score import ServeTable, p_cover, p_total_over
 
     tdata.update(day)
-    elos = build(tdata.all_matches())
+    allm = tdata.all_matches()
+    elos = build(allm)
+    serve = ServeTable()
     lookup = tdata.surface_lookup()
     now = dt.datetime.now(dt.timezone.utc)
-    matches = []
+    matches, dists = [], {}
     for tour in ("atp", "wta"):
         sb = espn(f"https://site.api.espn.com/apis/site/v2/sports/tennis/{tour}/scoreboard?dates={day:%Y%m%d}")
         for ev in sb.get("events", []):
@@ -353,10 +361,21 @@ def tennis_board(day: dt.date, api: OddsAPI | None) -> dict:
                     elo = elos[g_tour]
                     a, b = names
                     slam = any(x in ev.get("name", "") for x in ("Australian Open", "Roland Garros", "Wimbledon", "US Open"))
-                    p = elo.predict(a, b, surface, 5 if slam and g_tour == "atp" else 3)
-                    matches.append({"espn_id": c.get("id"), "tour": g_tour, "tournament": ev.get("name"), "surface": surface, "start": c.get("date"),
-                                    "player_a": a, "player_b": b, "p_a": round(p, 4), "elo_matches_a": elo.n[a],
-                                    "elo_matches_b": elo.n[b], "low_sample": min(elo.n[a], elo.n[b]) < 15})
+                    bo = 5 if slam and g_tour == "atp" else 3
+                    p = elo.predict(a, b, surface, bo)
+                    sd = serve.match(g_tour, a, b, surface, p, bo)
+                    dists[c.get("id")] = sd
+                    m = {"espn_id": c.get("id"), "tour": g_tour, "tournament": ev.get("name"), "surface": surface,
+                         "start": c.get("date"), "best_of": bo, "player_a": a, "player_b": b, "p_a": round(p, 4),
+                         "elo_a": round(elo.rating(a, surface)), "elo_b": round(elo.rating(b, surface)),
+                         "elo_matches_a": elo.n[a], "elo_matches_b": elo.n[b],
+                         "low_sample": min(elo.n[a], elo.n[b]) < 15,
+                         "hold_a": round(sd["hold_a"], 3), "hold_b": round(sd["hold_b"], 3),
+                         "exp_total_games": round(sum(k * v for k, v in sd["total_games"].items()), 1),
+                         "set_scores": {f"{x}-{y}": round(v, 3) for (x, y), v in sd["set_scores"].items()},
+                         "total_games_pmf": _pmf(sd["total_games"]), "margin_pmf": _pmf(sd["margin"])}
+                    m["facts"] = facts.tennis_facts(allm, m)
+                    matches.append(m)
     priced = []
     credits = None
     if api and matches:
@@ -364,43 +383,58 @@ def tennis_board(day: dt.date, api: OddsAPI | None) -> dict:
         sports = [s for s in api.sports() if s.get("group") == "Tennis" and s.get("active")]
         idx = {}
         for m in matches:
-            idx[(norm(m["player_a"]), norm(m["player_b"]))] = (m, False)
-            idx[(norm(m["player_b"]), norm(m["player_a"]))] = (m, True)
-        for s in sports:
+            idx[(norm(m["player_a"]), norm(m["player_b"]))] = m
+            idx[(norm(m["player_b"]), norm(m["player_a"]))] = m
+        for sp in sports:
+            if low_credits(api):
+                break
             try:
-                payload = api.game_odds(s["key"], markets=("h2h",))
+                payload = api.game_odds(sp["key"], markets=("h2h", "spreads", "totals"))
             except OddsAPIError as err:
                 print("odds error", err)
                 continue
             payload = [ev for ev in payload if (norm(ev.get("home_team", "")), norm(ev.get("away_team", ""))) in idx]
-            rows = flatten(payload, "game", s["key"])
+            rows = flatten(payload, "game", sp["key"])
             db.insert_many(con, "odds_snapshots", rows)
             db.archive(rows, "open-tennis")
-            for ev in payload:
-                key = (norm(ev.get("home_team", "")), norm(ev.get("away_team", "")))
-                if key not in idx:
+            for (eid, market, _pl, point), books in pair_two_way(rows).items():
+                ev = next(e for e in payload if e["id"] == eid)
+                m = idx[(norm(ev.get("home_team", "")), norm(ev.get("away_team", "")))]
+                sd = dists[m["espn_id"]]
+                sides = list(next(iter(books.values())).keys())
+                if len(sides) != 2:
                     continue
-                m, flipped = idx[key]
-                books = {}
-                for bm in ev.get("bookmakers", []):
-                    for mk in bm.get("markets", []):
-                        if mk["key"] == "h2h":
-                            books[bm["key"]] = {o["name"]: o["price"] for o in mk["outcomes"]}
-                for player, p_model in ((m["player_a"], m["p_a"]), (m["player_b"], 1 - m["p_a"])):
-                    opp = m["player_b"] if player == m["player_a"] else m["player_a"]
-                    pname = next((n for n in (books.get(config.SHARP_BOOK) or next(iter(books.values()), {})) if norm(n) == norm(player)), None)
-                    oname = next((n for n in (books.get(config.SHARP_BOOK) or next(iter(books.values()), {})) if norm(n) == norm(opp)), None)
-                    if not pname or not oname:
-                        continue
-                    best = best_side(books, pname)
+                for side in sides:
+                    other = sides[1] if side == sides[0] else sides[0]
+                    if market == "totals":
+                        p_model = p_total_over(sd["total_games"], point) if side == "Over" else 1 - p_total_over(sd["total_games"], point)
+                        line, trust = point, "medium"
+                    else:
+                        is_a = norm(side) == norm(m["player_a"])
+                        if not is_a and norm(side) != norm(m["player_b"]):
+                            continue
+                        if market == "h2h":
+                            p_model, line, trust = (m["p_a"] if is_a else 1 - m["p_a"]), None, "model"
+                        else:  # spreads: the side's own handicap line
+                            line = next((r["point"] for r in rows if r["event_id"] == eid and r["market"] == market
+                                         and r["side"] == side and r["point"] is not None and abs(r["point"]) == point), None)
+                            if line is None:
+                                continue
+                            mg = sd["margin"] if is_a else {-k: v for k, v in sd["margin"].items()}
+                            p_model, trust = p_cover(mg, line), "medium"
+                    best = best_side(books, side)
                     if best is None:
                         continue
-                    fair, src = fair_prob(books, pname, oname)
-                    priced.append({"event_id": ev["id"], "sport": s["key"], "start": ev.get("commence_time"), "tour": m["tour"], "tournament": m["tournament"], "surface": m["surface"], "player": player,
-                                   "opponent": opp, "model_prob": round(p_model, 4),
+                    fair, src = fair_prob(books, side, other)
+                    priced.append({"event_id": eid, "sport": sp["key"], "start": ev.get("commence_time"), "tour": m["tour"],
+                                   "tournament": m["tournament"], "surface": m["surface"], "market": market,
+                                   "player": side if market != "totals" else f"{m['player_a']} v {m['player_b']}",
+                                   "side": side, "line": line,
+                                   "opponent": other if market != "totals" else None, "match": f"{m['player_a']} v {m['player_b']}",
+                                   "model_prob": round(p_model, 4), "trust": trust,
                                    "fair_market_prob": round(fair, 4) if fair is not None else None, "fair_source": src,
-                                   "dk": books.get("draftkings", {}).get(pname), "fd": books.get("fanduel", {}).get(pname),
-                                   "pin": books.get("pinnacle", {}).get(pname), "best_book": best[0], "best_price": best[1],
+                                   "dk": books.get("draftkings", {}).get(side), "fd": books.get("fanduel", {}).get(side),
+                                   "pin": books.get("pinnacle", {}).get(side), "best_book": best[0], "best_price": best[1],
                                    "edge": round(pricing.edge(p_model, best[1]), 4),
                                    "model_vs_market": round(p_model - fair, 4) if fair is not None else None,
                                    "kelly_usd": pricing.kelly_stake(p_model, best[1]), "low_sample": m["low_sample"]})
@@ -409,7 +443,160 @@ def tennis_board(day: dt.date, api: OddsAPI | None) -> dict:
     return {"matches": matches, "priced": priced, "credits_remaining": credits}
 
 
+# ------------------------------------------------------------------ soccer
+from desk.soccer.data import same_team  # noqa: E402  (shared with grading)
+
+
+def fair_multi_books(books: dict, side: str):
+    """No-vig probability of `side` in a 2- or 3-way market: Pinnacle if it priced every side, else DK/FD average."""
+    sides = set().union(*[set(v) for v in books.values()]) if books else set()
+    pin = books.get(config.SHARP_BOOK, {})
+    if sides and set(pin) == sides:
+        return pricing.fair_multi(pin)[side], "pinnacle"
+    vals = [pricing.fair_multi(bp)[side] for b, bp in books.items() if b in config.BET_BOOKS and set(bp) == sides]
+    return (sum(vals) / len(vals), "dk/fd") if vals else (None, None)
+
+
+def soccer_board(day: dt.date, api: OddsAPI | None) -> dict:
+    from desk import facts
+    from desk.soccer import data as sdata
+    from desk.soccer.model import SoccerModel
+
+    sdata.update(day - dt.timedelta(days=1))
+    mt, pl = sdata.matches(), sdata.players()
+    model = SoccerModel(mt, pl, day.isoformat())
+    now = dt.datetime.now(dt.timezone.utc)
+    fixtures = []
+    for league, (sport_key, code) in sdata.LEAGUES.items():
+        try:
+            sb = espn(f"https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/scoreboard?dates={day:%Y%m%d}")
+        except Exception:
+            continue
+        for ev in sb.get("events", []):
+            comp = ev["competitions"][0]
+            if comp.get("status", {}).get("type", {}).get("state") != "pre":
+                continue
+            start = dt.datetime.fromisoformat(ev["date"].replace("Z", "+00:00"))
+            if not (now - dt.timedelta(hours=1) <= start <= now + dt.timedelta(hours=26)):
+                continue
+            side = {c["homeAway"]: c["team"] for c in comp["competitors"]}
+            h, a = side["home"], side["away"]
+            r = model.match(h["id"], a["id"], neutral=bool(comp.get("neutralSite")))
+            n_h = int((mt.team_id == h["id"]).sum())
+            n_a = int((mt.team_id == a["id"]).sum())
+            cpmf = model.corners_total_pmf(r["corners_home"], r["corners_away"])
+            fx = {"league": league, "sport_key": sport_key, "tracker_league": code, "espn_id": ev["id"], "start": ev["date"],
+                  "home": h["displayName"], "away": a["displayName"], "home_id": h["id"], "away_id": a["id"],
+                  "home_abbr": h.get("abbreviation"), "away_abbr": a.get("abbreviation"),
+                  "p_home": round(r["p_home"], 4), "p_draw": round(r["p_draw"], 4), "p_away": round(r["p_away"], 4),
+                  "xg_home": round(r["lambda_home"], 2), "xg_away": round(r["lambda_away"], 2), "btts": round(r["btts"], 3),
+                  "p_over": {str(L): round(model.p_total_over(r["goals_pmf"], L), 3) for L in (1.5, 2.5, 3.5, 4.5)},
+                  "exp_corners": round(r["corners_home"] + r["corners_away"], 1),
+                  "p_corners_over": {str(L): round(model.p_total_over(cpmf, L), 3) for L in (7.5, 8.5, 9.5, 10.5, 11.5, 12.5)},
+                  "sot_home": round(r["sot_home"], 2), "sot_away": round(r["sot_away"], 2),
+                  "low_sample": min(n_h, n_a) < 10, "players": []}
+            for tid, opp, is_home, tname in ((h["id"], a["id"], 1, h["displayName"]), (a["id"], h["id"], 0, a["displayName"])):
+                recent_events = mt[(mt.team_id == tid) & (mt.date < day.isoformat())].sort_values("date").event_id.tail(5)
+                rp = pl[(pl.team_id == tid) & pl.event_id.isin(recent_events)]
+                starters = rp.groupby("player_id").agg(starts=("starter", "sum"), player=("player", "last"))
+                for pid, srow in starters.iterrows():
+                    likely = bool(srow.starts >= 3)
+                    pr = model.player_sot(pid, tid, opp, is_home, starter=likely)
+                    if pr and pr["group"] != "GK":
+                        fx["players"].append({"player": srow.player, "player_id": pid, "team": tname, "team_id": tid,
+                                              "role": "projected starter" if likely else "rotation / bench",
+                                              "pos": pr["group"], "sot_mean": round(pr["mean"], 2), "per90": round(pr["per90"], 2),
+                                              "minutes": round(pr["minutes"]), "p_sot_1": round(model.p_sot_at_least(pr["mean"], 1), 3),
+                                              "p_sot_2": round(model.p_sot_at_least(pr["mean"], 2), 3)})
+            fx["facts"] = facts.soccer_team_facts(mt, h["id"], h["displayName"], day.isoformat()) + \
+                facts.soccer_team_facts(mt, a["id"], a["displayName"], day.isoformat())
+            fixtures.append(fx)
+    props, credits = [], None
+    if api and fixtures:
+        con = db.connect()
+        for sport_key in sorted({f["sport_key"] for f in fixtures}):
+            if low_credits(api):
+                break
+            try:
+                events = api.events(sport_key)
+            except OddsAPIError as err:
+                print("odds error", err)
+                continue
+            for e in events:
+                fx = next((f for f in fixtures if f["sport_key"] == sport_key and same_team(f["home"], e["home_team"])
+                           and same_team(f["away"], e["away_team"])), None)
+                if fx is None or low_credits(api):
+                    continue
+                try:
+                    payload = api.event_odds(sport_key, e["id"], config.SOCCER_MARKETS)
+                except OddsAPIError as err:
+                    print("odds error", err)
+                    continue
+                rows = flatten(payload, "props", sport_key)
+                db.insert_many(con, "odds_snapshots", rows)
+                db.archive(rows, "open-soccer")
+                r = model.match(fx["home_id"], fx["away_id"])
+                cpmf = model.corners_total_pmf(r["corners_home"], r["corners_away"])
+                byname = {norm(p["player"]): p for p in fx["players"]}
+                for (eid, market, player, point), books in pair_two_way(rows).items():
+                    for side in sorted(set().union(*[set(v) for v in books.values()])):
+                        stat, line = market, point
+                        if market == "h2h":
+                            if side == "Draw":
+                                p_model, label = r["p_draw"], "Draw"
+                            elif same_team(side, fx["home"]):
+                                p_model, label = r["p_home"], fx["home"]
+                            elif same_team(side, fx["away"]):
+                                p_model, label = r["p_away"], fx["away"]
+                            else:
+                                continue
+                            fair, src = fair_multi_books(books, side)
+                        elif market in ("totals", "alternate_totals", "alternate_totals_corners"):
+                            pmf = cpmf if "corners" in market else r["goals_pmf"]
+                            po = model.p_total_over(pmf, point)
+                            p_model, label = (po if side == "Over" else 1 - po), f"{side} {point}"
+                            stat = "corners" if "corners" in market else "goals"
+                            fair, src = fair_prob(books, side, "Under" if side == "Over" else "Over")
+                        elif market == "player_shots_on_target":
+                            pp = byname.get(norm(player or ""))
+                            if pp is None or point is None:
+                                continue
+                            pk = model.p_sot_at_least(pp["sot_mean"], math.floor(point) + 1)
+                            p_model, label, stat = (pk if side == "Over" else 1 - pk), f"{player} {side} {point}", "sot"
+                            fair, src = fair_prob(books, side, "Under" if side == "Over" else "Over")
+                        else:
+                            continue
+                        best = best_side(books, side)
+                        if best is None:
+                            continue
+                        edge = pricing.edge(p_model, best[1])
+                        row = {"event_id": eid, "sport": sport_key, "start": e["commence_time"],
+                               "event": f"{fx['away']} @ {fx['home']}", "league": fx["league"], "market": market,
+                               "stat": stat, "side": side, "label": label, "line": line, "player": player,
+                               "model_prob": round(p_model, 4), "fair_market_prob": round(fair, 4) if fair is not None else None,
+                               "fair_source": src, "dk": books.get("draftkings", {}).get(side),
+                               "fd": books.get("fanduel", {}).get(side), "pin": books.get("pinnacle", {}).get(side),
+                               "best_book": best[0], "best_price": best[1], "edge": round(edge, 4),
+                               "model_vs_market": round(p_model - fair, 4) if fair is not None else None,
+                               "kelly_usd": pricing.kelly_stake(p_model, best[1]), "low_sample": fx["low_sample"]}
+                        if stat == "sot":
+                            pp = byname[norm(player)]
+                            row["player_id"] = pp["player_id"]
+                            row["facts"] = facts.soccer_player_facts(pl, pp["player_id"], player, point, side, day.isoformat()) + [
+                                facts.model_bullet(pp["sot_mean"], p_model, row["fair_market_prob"], edge, point, side, "sot",
+                                                   f"Projected {pp['minutes']} minutes ({pp['role']}); confirm the XI ~1 hour before kickoff")]
+                            row["role"] = pp["role"]
+                        props.append(row)
+        credits = api.remaining
+    props.sort(key=lambda r: r["edge"], reverse=True)
+    return {"fixtures": fixtures, "props": props, "credits_remaining": credits}
+
+
 # ------------------------------------------------------------------ output
+def _pct(x) -> str:
+    return "–" if x is None else f"{x:.0%}"
+
+
 def to_markdown(board: dict) -> str:
     lines = [f"# Model board — {board['date']} {board['session'].upper()}",
              f"Generated {board['generated_at']} · odds: {board['odds_source']}", ""]
@@ -463,23 +650,46 @@ def to_markdown(board: dict) -> str:
                              f"edge {r['edge']:+.1%})")
                 lines += [f"- {b}" for b in r["facts"]] + [""]
     if "tennis" in board:
-        lines += ["", "## Tennis matches", "", "| Player | vs | Model | Fair mkt | Best | Edge |", "|---|---|---|---|---|---|"]
-        for r in board["tennis"]["priced"][:30]:
-            lines.append(f"| {r['player']} | {r['opponent']} | {r['model_prob']:.0%} | {(r['fair_market_prob'] or 0):.0%} | "
+        t = board["tennis"]
+        lines += ["", "## Tennis — priced markets (match winner = Elo model; games/handicap = medium-trust score model)", "",
+                  "| Match | Market | Pick | Line | Model | Fair mkt | Best | Edge |", "|---|---|---|---|---|---|---|---|"]
+        for r in [x for x in t["priced"] if x["edge"] > 0][:30]:
+            lines.append(f"| {r['match']} | {r['market']} | {r['side']} | {'' if r['line'] is None else r['line']} | "
+                         f"{r['model_prob']:.0%} | {_pct(r['fair_market_prob'])} | "
                          f"{r['best_price']:+.0f} {r['best_book']} | {r['edge']:+.1%} |")
-        if not board["tennis"]["priced"]:
-            lines += [f"| {m['player_a']} | {m['player_b']} | {m['p_a']:.0%}{' (low sample)' if m['low_sample'] else ''} | – | – | – |"
-                      for m in board["tennis"]["matches"][:60]]
-    for key, title in (("nba_lines", "NBA game lines"), ("nfl_lines", "NFL game lines"), ("soccer_lines", "Soccer game lines")):
-        if key in board:
-            rows = [r for r in board[key] if r["edge"] > 0][:20]
-            lines += ["", f"## {title}: DK/FD price vs Pinnacle no-vig fair", "",
-                      "| Event | Market | Side | Line | Fair | Best | Edge |", "|---|---|---|---|---|---|---|"]
-            lines += [f"| {r['event']} | {r['market']} | {r['side']} | {'' if r['line'] is None else r['line']} | "
-                      f"{r['fair_price']:+d} | {r['best_price']:+.0f} {r['best_book']} | {r['edge']:+.1%}{' ⭐' if r['flag'] else ''} |"
-                      for r in rows]
-            if not rows:
-                lines.append("| _none positive_ | | | | | | |")
+        lines += ["", "## Tennis — match model", "",
+                  "| Match | Surface | P(A) | Hold A / B | Exp. games | Set scores |", "|---|---|---|---|---|---|"]
+        for m in t["matches"]:
+            ss = ", ".join(f"{k} {v:.0%}" for k, v in m["set_scores"].items())
+            lines.append(f"| {m['player_a']} v {m['player_b']}{' (low sample)' if m['low_sample'] else ''} | {m['surface']} | "
+                         f"{m['p_a']:.0%} | {m['hold_a']:.0%} / {m['hold_b']:.0%} | {m['exp_total_games']} | {ss} |")
+        for m in t["matches"][:20]:
+            lines += ["", f"**{m['player_a']} v {m['player_b']}** — {m['tournament']}"] + [f"- {b}" for b in m["facts"]]
+    if "soccer" in board:
+        sc = board["soccer"]
+        lines += ["", "## Soccer — priced markets (result, total goals, corners, player shots on target)", "",
+                  "| Match | Market | Pick | Model | Fair mkt | Best | Edge |", "|---|---|---|---|---|---|---|"]
+        for r in [x for x in sc["props"] if x["edge"] > 0][:40]:
+            lines.append(f"| {r['event']} | {r['stat']} | {r['label']} | {r['model_prob']:.0%}{' (low sample)' if r['low_sample'] else ''} | "
+                         f"{_pct(r['fair_market_prob'])} | "
+                         f"{r['best_price']:+.0f} {r['best_book']} | {r['edge']:+.1%} |")
+        lines += ["", "## Soccer — match model", "",
+                  "| Match | H / D / A | xG H–A | O2.5 | BTTS | Exp. corners | O9.5 corners |", "|---|---|---|---|---|---|---|"]
+        for f in sc["fixtures"]:
+            lines.append(f"| {f['home']} v {f['away']}{' (low sample)' if f['low_sample'] else ''} | {f['p_home']:.0%} / "
+                         f"{f['p_draw']:.0%} / {f['p_away']:.0%} | {f['xg_home']}–{f['xg_away']} | {f['p_over']['2.5']:.0%} | "
+                         f"{f['btts']:.0%} | {f['exp_corners']} | {f['p_corners_over']['9.5']:.0%} |")
+        for f in sc["fixtures"]:
+            top = sorted([p for p in f["players"] if p.get("role") == "projected starter"], key=lambda p: -p["sot_mean"])[:6]
+            lines += ["", f"**{f['home']} v {f['away']}**"] + [f"- {b}" for b in f["facts"]]
+            lines.append("- Likely starters' shots on target (model mean · P(1+) · P(2+)): " +
+                         "; ".join(f"{p['player']} {p['sot_mean']} · {p['p_sot_1']:.0%} · {p['p_sot_2']:.0%}" for p in top))
+        rows = [r for r in sc["props"] if r.get("facts")]
+        if rows:
+            lines += ["", "## Soccer shots-on-target leg reasoning (our own data) — top edges", ""]
+            for r in rows[:20]:
+                lines.append(f"**{r['label']} SOT** ({r['best_price']:+.0f} {r['best_book']}, edge {r['edge']:+.1%})")
+                lines += [f"- {b}" for b in r["facts"]] + [""]
     return "\n".join(lines) + "\n"
 
 
@@ -506,8 +716,7 @@ def main():
             board["nfl_lines"] = market_board(day, api, ["americanfootball_nfl"], "nfl-lines")
     else:
         board["tennis"] = tennis_board(day, api)
-        if api:
-            board["soccer_lines"] = market_board(day, api, config.SOCCER_SPORTS, "soccer-lines")
+        board["soccer"] = soccer_board(day, api)
     board["credits_remaining"] = api.remaining if api else None
     os.makedirs(os.path.join(ROOT, "boards"), exist_ok=True)
     base = os.path.join(ROOT, "boards", f"{day}-{session}")

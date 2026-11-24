@@ -164,3 +164,20 @@ def matches() -> pd.DataFrame:
 
 def players() -> pd.DataFrame:
     return pd.read_csv(PLAYERS, dtype={"event_id": str, "player_id": str, "team_id": str})
+
+
+_DROP = {"fc", "afc", "cf", "sc", "the", "club", "ac", "as", "ss", "sv", "fsv", "tsg", "rc", "cd", "ud", "sd", "ca",
+         "rcd", "de", "1", "calcio", "football", "futbol", "ssc", "acf", "vfl", "vfb", "bc", "if", "fk", "ogc", "losc"}
+
+
+def team_key(name: str) -> str:
+    import unicodedata
+    s = unicodedata.normalize("NFKD", str(name or "")).encode("ascii", "ignore").decode().lower()
+    s = "".join(ch for ch in s if ch.isalnum() or ch == " ")
+    return " ".join(t for t in s.split() if t not in _DROP)
+
+
+def same_team(a: str, b: str) -> bool:
+    import difflib
+    x, y = team_key(a), team_key(b)
+    return bool(x) and bool(y) and (x == y or x in y or y in x or difflib.SequenceMatcher(None, x, y).ratio() >= 0.8)

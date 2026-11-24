@@ -31,7 +31,7 @@ NFL_TEAMS = {"ARI": "Arizona", "ATL": "Atlanta", "BAL": "Baltimore", "BUF": "Buf
 LABEL = {"pts": "points", "reb": "rebounds", "ast": "assists", "threes": "threes", "pra": "points + rebounds + assists",
          "rec": "receptions", "rec_yds": "receiving yards", "rush_yds": "rushing yards", "rush_att": "rushing attempts",
          "pass_yds": "passing yards", "pass_att": "pass attempts", "pass_cmp": "completions", "pass_td": "passing TDs",
-         "td": "touchdowns", "rush_rec_yds": "rushing + receiving yards"}
+         "td": "touchdowns", "rush_rec_yds": "rushing + receiving yards", "sot": "shots on target"}
 
 
 def _fmt(x: float) -> str:
@@ -122,3 +122,82 @@ def nfl_facts(pg: pd.DataFrame, player_id: str, name: str, stat: str, line: floa
     if "offense_pct" in cur and cur.offense_pct.notna().any():
         work += f" on {cur.offense_pct.mean():.0%} of offensive snaps"
     return facts_for_leg(name, g, vals, g.opponent_team.tolist(), line, side, stat, NFL_TEAMS, work, mask)
+
+
+# ------------------------------------------------------------------ tennis
+def _record(df, name):
+    w = (df.winner_name == name).sum()
+    return int(w), int(len(df) - w)
+
+
+def tennis_facts(allm: pd.DataFrame, m: dict) -> list[str]:
+    a, b, surf = m["player_a"], m["player_b"], m["surface"]
+    out = [f"Surface Elo ({surf}): {a} {m['elo_a']} vs {b} {m['elo_b']} → model has {a} winning {m['p_a']:.0%}"
+           f"{' (low sample — at least one player has under 15 rated matches)' if m['low_sample'] else ''}."]
+    season = str(m["start"])[:4]
+    for name in (a, b):
+        pm = allm[(allm.winner_name == name) | (allm.loser_name == name)].sort_values("tourney_date")
+        last10 = pm.tail(10)
+        w, l = _record(last10, name)
+        ss = pm[(pm.surface == surf) & (pm.tourney_date.astype(str).str[:4] == season)]
+        sw, sl = _record(ss, name)
+        log = ", ".join(("W" if r.winner_name == name else "L") + " vs " + (r.loser_name if r.winner_name == name else r.winner_name)
+                        for r in last10.tail(5).iloc[::-1].itertuples())
+        out.append(f"{name} is {w}-{l} over the last {len(last10)} matches and {sw}-{sl} on {surf} in {season}; "
+                   f"last five (newest first): {log}.")
+    h = allm[((allm.winner_name == a) & (allm.loser_name == b)) | ((allm.winner_name == b) & (allm.loser_name == a))]
+    if len(h):
+        wa = int((h.winner_name == a).sum())
+        last = h.sort_values("tourney_date").iloc[-1]
+        out.append(f"Head-to-head: {a} {wa}-{len(h) - wa} {b}; last meeting {last.tourney_name} "
+                   f"({last.tourney_date}), won by {last.winner_name} {last.score if last.score != 'completed' else ''}.".replace(" .", "."))
+    else:
+        out.append("Head-to-head: first meeting in our data.")
+    out.append(f"Serve/return model: {a} holds about {m['hold_a']:.0%} of service games here, {b} about {m['hold_b']:.0%}.")
+    top = max(m["set_scores"].items(), key=lambda kv: kv[1])
+    out.append(f"Expected total games {m['exp_total_games']}; most likely score {top[0]} ({top[1]:.0%}).")
+    return out
+
+
+# ------------------------------------------------------------------ soccer
+def soccer_team_facts(mt: pd.DataFrame, team_id: str, name: str, before: str, n: int = 10) -> list[str]:
+    g = mt[(mt.team_id == team_id) & (mt.date < before)].sort_values("date").tail(n)
+    if g.empty:
+        return [f"No match history for {name} in our data."]
+    opp_corners = []
+    for r in g.itertuples():
+        o = mt[(mt.event_id == r.event_id) & (mt.team_id == r.opp_id)]
+        opp_corners.append(float(o.wonCorners.iloc[0]) if len(o) else np.nan)
+    g = g.assign(corners_against=opp_corners, total_goals=g.goals + g.goals_against)
+    home = g[g.home == 1]
+    log = ", ".join(f"{int(r.goals)}-{int(r.goals_against)} {'vs' if r.home else 'at'} {r.opp}" for r in g.tail(5).iloc[::-1].itertuples())
+    return [f"{name}, last {len(g)}: {g.goals.mean():.2f} goals for and {g.goals_against.mean():.2f} against per match; "
+            f"{g.shotsOnTarget.mean():.1f} shots on target per match; {g.wonCorners.mean():.1f} corners won and "
+            f"{np.nanmean(g.corners_against):.1f} conceded.",
+            f"{name}: {int((g.total_goals > 2.5).sum())} of the last {len(g)} matches went over 2.5 goals; "
+            f"{'home' if len(home) else 'no home matches'} record in that span {int((home.goals > home.goals_against).sum())}-"
+            f"{int((home.goals == home.goals_against).sum())}-{int((home.goals < home.goals_against).sum())} (W-D-L).",
+            f"{name} recent results (newest first): {log}."]
+
+
+def soccer_player_facts(pl: pd.DataFrame, player_id: str, name: str, line: float, side: str, before: str,
+                        team_names: dict | None = None) -> list[str]:
+    g = pl[(pl.player_id == player_id) & (pl.date < before)].sort_values("date")
+    if g.empty:
+        return []
+    season = g[g.date >= f"{before[:4] if before[5:7] >= '07' else int(before[:4]) - 1}-07-01"]
+    cur = season if len(season) else g
+    per90 = cur.sot.sum() / max(cur.minutes.sum(), 1) * 90
+    starts = cur[cur.starter == 1]
+    last10 = g.tail(10)
+    k = math.floor(line) + 1
+    over = side.lower() == "over"
+    hits = int((last10.sot >= k).sum()) if over else int((last10.sot < k).sum())
+    log = ", ".join(f"{int(r.sot)}" for r in last10.tail(5).iloc[::-1].itertuples())
+    return [f"{_last(name)} has {int(cur.sot.sum())} shots on target in {len(cur)} appearances this season "
+            f"({per90:.2f} per 90; {len(starts)} starts averaging {starts.minutes.mean() if len(starts) else 0:.0f} minutes).",
+            f"He's averaging {last10.sot.mean():.1f} shots on target over his last {len(last10)} matches and "
+            f"{g.tail(5).sot.mean():.1f} over his last five, on {last10.shots.mean():.1f} total shots per match.",
+            f"He's {'had ' + str(k) + '+' if over else 'stayed under ' + str(k)} shots on target in {hits} of his last {len(last10)} matches.",
+            f"Shots on target, last five (newest first): {log}.",
+            f"He has at least {k} shot{'s' if k > 1 else ''} on target in {int((cur.sot >= k).sum())} of {len(cur)} appearances this season."]

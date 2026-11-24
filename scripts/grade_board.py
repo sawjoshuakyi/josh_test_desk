@@ -73,6 +73,61 @@ def nfl_prop_outcome(pg, day: str, player_id: str, stat: str, line: float, side:
     return int(over if side in ("Over", "Yes") else not over)
 
 
+def tennis_market_outcome(live: pd.DataFrame, r: dict):
+    """Outcome of a tennis h2h / totals / spreads row from stored set scores."""
+    from desk.tennis.score import parse_games
+    a, b = [norm(x) for x in r["match"].split(" v ")]
+    w, l = live.winner_name.map(norm), live.loser_name.map(norm)
+    hit = live[((w == a) & (l == b)) | ((w == b) & (l == a))]
+    if hit.empty:
+        return None
+    m = hit.iloc[-1]
+    if r["market"] == "h2h":
+        return int(norm(m.winner_name) == norm(r["side"]))
+    games = parse_games(m.score)
+    if games is None:
+        return None  # retirement / walkover: void
+    gw, gl = games
+    if r["market"] == "totals":
+        t = gw + gl
+        return None if t == r["line"] else int((t > r["line"]) == (r["side"] == "Over"))
+    mine, theirs = (gw, gl) if norm(m.winner_name) == norm(r["side"]) else (gl, gw)
+    d = mine + r["line"] - theirs
+    return None if d == 0 else int(d > 0)
+
+
+def soccer_outcome(mt, pl, r: dict, day: str):
+    from desk.soccer.data import same_team
+    away, home = r["event"].split(" @ ")
+    d0 = dt.date.fromisoformat(day)
+    cand = mt[(mt.date >= day) & (mt.date <= (d0 + dt.timedelta(days=1)).isoformat()) & (mt.home == 1)]
+    cand = cand[cand.team.map(lambda x: same_team(x, home)) & cand.opp.map(lambda x: same_team(x, away))]
+    if cand.empty:
+        return None
+    g = cand.iloc[0]
+    other = mt[(mt.event_id == g.event_id) & (mt.team_id == g.opp_id)]
+    if r["stat"] == "h2h":
+        if r["side"] == "Draw":
+            return int(g.goals == g.goals_against)
+        home_side = same_team(r["side"], home)
+        return int(g.goals > g.goals_against) if home_side else int(g.goals < g.goals_against)
+    if r["stat"] in ("goals", "corners"):
+        if r["stat"] == "goals":
+            tot = g.goals + g.goals_against
+        else:
+            if other.empty:
+                return None
+            tot = g.wonCorners + other.wonCorners.iloc[0]
+        return None if tot == r["line"] else int((tot > r["line"]) == (r["side"] == "Over"))
+    if r["stat"] == "sot":
+        p = pl[(pl.event_id == g.event_id) & (pl.player_id == r.get("player_id"))]
+        if p.empty:
+            return None  # did not play: void
+        v = float(p.sot.iloc[0])
+        return None if v == r["line"] else int((v > r["line"]) == (r["side"] == "Over"))
+    return None
+
+
 def tennis_outcome(live: pd.DataFrame, player: str, opponent: str):
     a, b = norm(player), norm(opponent)
     w, l = live.winner_name.map(norm), live.loser_name.map(norm)
@@ -193,6 +248,13 @@ def grade(today: dt.date) -> pd.DataFrame:
             pg = nfl_data.player_games()
     except Exception as err:
         print("nfl data unavailable:", err)
+    smt = spl = None
+    try:
+        from desk.soccer import data as sdata
+        if os.path.exists(sdata.MATCHES):
+            smt, spl = sdata.matches(), sdata.players()
+    except Exception as err:
+        print("soccer data unavailable:", err)
     graded = []
     for day, boards in latest_boards(today).items():
         cidx = closing_index(day)
@@ -213,9 +275,25 @@ def grade(today: dt.date) -> pd.DataFrame:
                 graded.append({"date": day, "sport": "nfl", "kind": "prop" + ("_alt" if r.get("alt") else ""),
                                "label": f"{r['player']} {r['side']} {r['line']} {r['stat']}", **_common(r, y, cf)})
             for r in b.get("tennis", {}).get("priced", []):
-                y = tennis_outcome(live, r["player"], r["opponent"]) if len(live) else None
-                cf = close_fair(cidx, r.get("event_id"), "h2h", None, r["player"], [(r["opponent"], None)], None)
-                graded.append({"date": day, "sport": "tennis", "kind": "h2h", "label": f"{r['player']} over {r['opponent']}",
+                mk = r.get("market", "h2h")
+                if "match" in r:
+                    y = tennis_market_outcome(live, r) if len(live) else None
+                else:  # boards written before the score model
+                    y = tennis_outcome(live, r["player"], r["opponent"]) if len(live) else None
+                other = r.get("opponent") or ("Under" if r.get("side") == "Over" else "Over")
+                side = r.get("side", r["player"])
+                pt = r.get("line") if mk == "totals" else (abs(r["line"]) if r.get("line") is not None else None)
+                cf = close_fair(cidx, r.get("event_id"), mk, None, side, [(other, pt)], pt)
+                graded.append({"date": day, "sport": "tennis", "kind": mk, "label": f"{side} {r.get('line') or ''} ({r.get('match', '')})",
+                               **_common(r, y, cf)})
+            for r in b.get("soccer", {}).get("props", []):
+                y = soccer_outcome(smt, spl, r, day) if smt is not None else None
+                if r["stat"] == "h2h":
+                    cf = None
+                else:
+                    other = "Under" if r["side"] == "Over" else "Over"
+                    cf = close_fair(cidx, r.get("event_id"), r["market"], r.get("player"), r["side"], [(other, r["line"])], r["line"])
+                graded.append({"date": day, "sport": "soccer", "kind": r["stat"], "label": f"{r['event']} {r['label']}",
                                **_common(r, y, cf)})
             for key in ("nba_lines", "nfl_lines", "soccer_lines"):
                 for r in b.get(key, []):

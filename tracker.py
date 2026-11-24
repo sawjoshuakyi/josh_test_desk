@@ -131,8 +131,49 @@ def team_scores(event):
         out.append({"names": competitor_names(c), "score": score, "winner": bool(c.get("winner"))})
     return out
 
+SOCCER_LEAGUES = {"epl", "laliga", "seriea", "bundesliga", "ligue1", "ucl", "mls"}
+SOCCER_STATS = {"sot": "shotsOnTarget", "shots": "totalShots", "goals": "totalGoals", "assists": "goalAssists"}
+
+
+def soccer_player_stat(summary, player, stat):
+    target = norm(player)
+    for team in summary.get("rosters", []):
+        for p in team.get("roster", []):
+            name = norm(p.get("athlete", {}).get("displayName", ""))
+            if name != target and not (target.split()[-1] == name.split()[-1] and target[0] == name[:1]):
+                continue
+            if not p.get("starter") and not p.get("subbedIn"):
+                return None  # unused substitute (so far)
+            st = {x.get("name"): x.get("value") for x in p.get("stats", [])}
+            return float(st.get(SOCCER_STATS.get(stat, stat)) or 0)
+    return None
+
+
+def team_stat_total(summary, name):
+    tot, n = 0.0, 0
+    for tb in summary.get("boxscore", {}).get("teams", []):
+        for x in tb.get("statistics", []):
+            if x.get("name") == name:
+                try:
+                    tot += float(x.get("displayValue") or 0)
+                    n += 1
+                except ValueError:
+                    pass
+    return tot if n else None
+
+
+def tennis_games(event):
+    out = []
+    for c in event["competitions"][0]["competitors"]:
+        g = sum(float(l.get("value") or 0) for l in c.get("linescores", []))
+        out.append({"names": competitor_names(c), "games": g})
+    return out
+
+
 def player_stat(league, summary, player, stat):
     """Return (value or None if player not in box score)."""
+    if league in SOCCER_LEAGUES:
+        return soccer_player_stat(summary, player, stat)
     target = norm(player)
     for team in summary.get("boxscore", {}).get("players", []):
         for cat in team.get("statistics", []):
@@ -188,6 +229,14 @@ def describe(leg):
         return f"{leg['team']} {leg['line']:+g}"
     if t == "total":
         return f"{leg['dir'].title()} {leg['line']:g} ({'/'.join(leg['teams'])})"
+    if t == "corners":
+        return f"{leg['dir'].title()} {leg['line']:g} corners ({'/'.join(leg['teams'])})"
+    if t == "draw":
+        return f"Draw ({'/'.join(leg['teams'])})"
+    if t == "total_games":
+        return f"{leg['dir'].title()} {leg['line']:g} games ({' v '.join(leg['teams'])})"
+    if t == "games_spread":
+        return f"{leg['team']} {leg['line']:+g} games"
     return leg.get("label", t)
 
 def evaluate(feed, leg):
@@ -212,7 +261,43 @@ def evaluate(feed, leg):
         if val > leg["max"]:
             return "miss", f"{val:g} {lab} · {clock}"
         return ("hit", f"finished with {val:g} {lab}") if done else ("pending", f"{val:g} {lab} · {clock}")
+    if t == "corners":
+        summ = feed.summary(leg["league"], event["id"])
+        tot = team_stat_total(summ, "wonCorners")
+        if tot is None:
+            return "pending", "no corner count yet"
+        over = leg["dir"] == "over"
+        if tot > leg["line"]:
+            return ("hit" if over else "miss"), f"{tot:g} corners · {clock}"
+        if done:
+            return ("miss" if over else "hit"), f"final corners {tot:g}"
+        return "pending", f"{tot:g} corners · {clock}"
+    if t in ("total_games", "games_spread"):
+        gs = tennis_games(event)
+        if t == "total_games":
+            tot = sum(x["games"] for x in gs)
+            over = leg["dir"] == "over"
+            if tot > leg["line"]:
+                return ("hit" if over else "miss"), f"{tot:g} games · {clock}"
+            if done:
+                return ("miss" if over else "hit"), f"final {tot:g} games"
+            return "pending", f"{tot:g} games · {clock}"
+        team = leg["team"].upper()
+        mine = next((x for x in gs if team in x["names"]), None)
+        if mine is None:
+            return "pending", f"{leg['team']} not matched"
+        other = max((x["games"] for x in gs if x is not mine), default=0)
+        if not done:
+            return "pending", f"{leg['team']} {mine['games']:g}-{other:g} games · {clock}"
+        margin = mine["games"] + leg["line"] - other
+        if margin == 0:
+            return "void", "push"
+        return ("hit" if margin > 0 else "miss"), f"final games {mine['games']:g}-{other:g}"
     scores = team_scores(event)
+    if t == "draw":
+        if not done:
+            return "pending", f"{scores[0]['score']:g}-{scores[1]['score']:g} · {clock}"
+        return ("hit" if scores[0]["score"] == scores[1]["score"] else "miss"), f"final {scores[0]['score']:g}-{scores[1]['score']:g}"
     if t == "total":
         tot = sum(x["score"] for x in scores)
         if leg["dir"] == "over":

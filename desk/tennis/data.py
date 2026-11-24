@@ -76,6 +76,16 @@ def grouping_tour(g: dict, default: str) -> str | None:
     return default
 
 
+def _score(cw: dict, cl: dict, note: str) -> str:
+    """Winner-first set scores from ESPN linescores, e.g. '7-6 6-3'; 'W/O' for walkovers, ' RET' appended for retirements."""
+    if "walkover" in note.lower():
+        return "W/O"
+    lw, ll = cw.get("linescores") or [], cl.get("linescores") or []
+    sets = [f"{int(a.get('value', 0))}-{int(b.get('value', 0))}" for a, b in zip(lw, ll)]
+    out = " ".join(sets) if sets else "completed"
+    return out + (" RET" if "ret" in note.lower() else "")
+
+
 def fetch_day(tour: str, day: dt.date, lookup: dict) -> list[dict]:
     data = _get(SB.format(tour=tour, d=day.strftime("%Y%m%d")))
     rows = []
@@ -108,7 +118,7 @@ def fetch_day(tour: str, day: dt.date, lookup: dict) -> list[dict]:
                              "match_num": 0, "winner_name": names[w], "loser_name": names[l],
                              "winner_rank": (comps[w].get("curatedRank") or {}).get("current"),
                              "loser_rank": (comps[l].get("curatedRank") or {}).get("current"),
-                             "score": "W/O" if "walkover" in note.lower() else "completed", "espn_id": c.get("id")})
+                             "score": _score(comps[w], comps[l], note), "espn_id": c.get("id")})
     return rows
 
 
