@@ -43,3 +43,14 @@ SOCCER_SPORTS = ["soccer_epl", "soccer_spain_la_liga", "soccer_italy_serie_a", "
                  "soccer_france_ligue_one", "soccer_uefa_champs_league", "soccer_usa_mls"]
 MARKET_EDGE_FLAG = 0.02    # DK/FD price beats Pinnacle's no-vig fair price by 2%+ in expected value
 MIN_CREDITS = 60           # stop making Odds API calls once fewer credits than this remain
+
+NFL_PROP_MARKETS = [
+    "player_receptions", "player_reception_yds", "player_rush_yds", "player_rush_attempts",
+    "player_pass_yds", "player_pass_attempts", "player_pass_completions", "player_pass_tds", "player_anytime_td",
+]
+NFL_ALT_MARKETS = [
+    "player_receptions_alternate", "player_reception_yds_alternate", "player_rush_yds_alternate",
+    "player_pass_yds_alternate",
+]
+FACTS_ROWS = 60            # reasoning bullets are written for the top-N positive-edge props per sport
+NFL_LOW_TRUST = {"pass_yds", "pass_cmp"}  # model lost to the naive baseline out of sample: treat as advisory only

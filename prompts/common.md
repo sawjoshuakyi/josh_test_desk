@@ -70,11 +70,18 @@ It is built about 45 minutes before this run. It contains:
 - nfl: NFL game lines vs Pinnacle's fair price.
 If the board is missing, or says "odds: none", say so in the report and continue with analyst estimates.
 
+- pm on a weekday NFL day, and nfl on Sundays: NFL player-prop projections (targets, receptions, receiving yards,
+  carries, rushing yards, pass attempts/yards/TDs, anytime TD) from our nflverse-based model, priced the same way.
+  Rows marked "low trust" (passing yards, completions) lost to the naive baseline in our backtest.
+- Each top-edge prop row in the JSON has a `facts` list: reasoning bullets computed from our own data.
+
 How to use it:
-1. MODELED markets (NBA player points/rebounds/assists/threes/PRA; tennis match winner): the board's model_prob is
+1. MODELED markets (NBA player points/rebounds/assists/threes/PRA; NFL receptions, receiving yards, rushing yards,
+   rushing attempts, pass attempts, pass TDs, anytime TD; tennis match winner): the board's model_prob is
    the leg's probability. Analysts may adjust it only for news after the board's `generated_at` time (late scratch,
    minutes limit, retirement risk), by at most 8 points, and must state the reason (Prob source "Model+adj").
-2. UNMODELED markets (NFL and soccer props, NBA steals/blocks/combos the board lacks): the analyst estimates the
+2. UNMODELED or LOW-TRUST markets (soccer props, NFL passing yards/completions, NBA steals/blocks/other combos):
+   the analyst estimates the
    probability, but it must be anchored to the no-vig market price (from the board or two-sided DK/FD prices) and
    any move away from the market needs a stated reason (Prob source "Analyst"). Game lines use the board's
    Pinnacle fair probability (Prob source "Market").
@@ -88,6 +95,14 @@ How to use it:
    market probability, and the edge. Singles also show the Kelly $ stake.
 6. Slip math: parlay probability = product of leg probabilities (state that same-game legs are correlated and the
    sportsbook's SGP price will differ); slip EV = probability × decimal odds − 1. Show both for each slip.
+
+## LEG REASONING TOOL
+For any NBA or NFL player leg whose bullets are not already in the board's `facts`, generate them from our data:
+`pip install -q pandas numpy scipy --break-system-packages` once, then
+`python3 scripts/leg_facts.py nba "Isaiah Hartenstein" ast 3.5 over` or
+`python3 scripts/leg_facts.py nfl "Ja'Marr Chase" rec 5.5 over` (stats: nba pts reb ast threes pra; nfl rec rec_yds
+rush_yds rush_att pass_yds pass_att pass_cmp pass_td td rush_rec_yds; an "N+" alt line is N-0.5). It prints the
+bullets and the model's probability with today's injury report applied.
 
 ## STAKING (bankroll $2,500 — Playbook rule)
 - Best Bet: quarter-Kelly on the leg's probability, capped at $50 (board `kelly_usd` for modeled legs; for analyst
@@ -116,6 +131,10 @@ Give it all analyst reports, the model board, the Playbook, the Ledger/Legs/Summ
   and apply extra scrutiny to them.
 - Verdict per slip: APPROVED, APPROVED WITH CHANGES (exact swaps), or REJECTED (reason). Fixes go back for one revision
   round, then re-check. Only approved slips go to Josh.
+- For EVERY approved leg, write a one- or two-sentence "Manager:" reason that names the specific evidence that won it
+  approval and the risk it accepted (e.g. "Approved: 9 of 10 over this line, model 62% vs 54% market at FD +105, and
+  his minutes don't depend on the questionable starter; accepted risk: OKC blowout trims his 4th quarter"). Generic
+  reasons ("looks good", "strong play") are not allowed.
 
 ## REPORT DOC
 Load the docs skill if listed, then create a new doc with the Claude Docs connector (title per session file).
@@ -123,8 +142,23 @@ Structure, like a presentation:
 - Manager's summary: approved slips at a glance (sport, slip type, legs, DK and FD odds, best book, slip probability,
   EV, $ stake), today's total $ at risk, top risks and when news is due, the model board status (built at, odds
   source, API credits left), and a recap of slips graded in Step 0 with the running record in units and dollars.
-- One section per sport: each approved slip with every leg's line, DK/FD prices, probability + source, fair market
-  probability, edge, supporting data and sources, bust risk, correlation logic, and the manager's verdict.
+- One section per sport: each approved slip (odds, best book, slip probability, EV, $ stake, correlation logic,
+  manager's slip verdict), then EVERY leg in this exact format (minimum standard — more is welcome):
+
+  **Isaiah Hartenstein — Over 3.5 assists** · DK -120 / FD -115 (FD) · p 62% (Model) · market 54% · edge +6.1%
+  - Hartenstein is averaging 3.9 assists per game this season while playing about 25 minutes per game.
+  - He's averaging 5.0 assists over his last 10 games and 4.4 over his last five.
+  - He's gone over 3.5 assists in 9 of his last 10 games.
+  - His recent game log: 7 vs Memphis, 6 vs Washington, 6 vs Atlanta, 6 vs the Clippers.
+  - He has at least 4 assists in 10 of his 17 games this season.
+  - Matchup/context from our data (e.g. role change with a teammate out, spread/blowout risk, pace or volume).
+  - Model: projects 4.3 assists; P(over 3.5) = 62% vs 54% no-vig market → edge +6.1%.
+  - Main risk: how this leg loses.
+  - ✅ Manager: the specific reason it was approved and the risk accepted.
+
+  Bullets come from the board's `facts` or scripts/leg_facts.py (player legs), and from our own computations for
+  team/tennis/soccer legs (fair price vs best price, results and margins computed from our datasets, surface Elo and
+  surface record, rest, official injury news). At least five data bullets per leg, every number from our data.
 - "Best model edges not used" — the top 5 board edges the desk passed on, and why.
 - Rejected/cut legs and why.
 - Remind: verify final news and prices before betting; lines move.
@@ -157,7 +191,9 @@ Post with Python's urllib from the shell (headers Content-Type application/json 
   still questionable / when news is due, links to the report doc and the tracker
   https://claude.ai/artifact/2BZr2VFhcyEg6XoFnfZdJn), then one message per sport with one embed per approved slip:
   title "[Sport] · [Slip type] · [odds] ([best book])"; description one leg per line,
-  "Player/team — market line (DK x / FD y) · p 62% · edge +4.1%"; fields "Stake" ($ and "Kelly says pass" when $0),
+  "**Player/team — market line** (DK x / FD y) · p 62% · edge +4.1%", followed by that leg's two strongest data
+  bullets and its "✅ Manager:" line (shorten to fit; the doc has the full reasoning); fields "Stake" ($ and
+  "Kelly says pass" when $0),
   "EV" (slip EV), "Manager" (one-line verdict), "Main risk" (one line). Consistent color per slip type.
 - GENERAL: one short results message — slips graded this run (record, units and $), running record and ROI from
   Summary, and links to today's doc and the tracker.

@@ -54,6 +54,25 @@ def nba_prop_outcome(box: pd.DataFrame, day: str, player: str, stat: str, line: 
     return int(over if side == "Over" else not over)
 
 
+NFL_COLS = {"rec": ["receptions"], "rec_yds": ["receiving_yards"], "rush_yds": ["rushing_yards"], "rush_att": ["carries"],
+            "pass_yds": ["passing_yards"], "pass_att": ["attempts"], "pass_cmp": ["completions"],
+            "pass_td": ["passing_tds"], "td": ["rushing_tds", "receiving_tds"]}
+
+
+def nfl_prop_outcome(pg, day: str, player_id: str, stat: str, line: float, side: str):
+    if pg is None or stat not in NFL_COLS:
+        return None
+    d = dt.date.fromisoformat(day)
+    rows = pg[(pg.player_id == player_id) & (pg.date >= day) & (pg.date <= (d + dt.timedelta(days=1)).isoformat())]
+    if rows.empty:
+        return None  # not yet in nflverse, or did not play -> void/pending
+    val = float(rows.iloc[0][NFL_COLS[stat]].sum())
+    if val == line:
+        return None
+    over = val > line
+    return int(over if side in ("Over", "Yes") else not over)
+
+
 def tennis_outcome(live: pd.DataFrame, player: str, opponent: str):
     a, b = norm(player), norm(opponent)
     w, l = live.winner_name.map(norm), live.loser_name.map(norm)
@@ -167,6 +186,13 @@ def grade(today: dt.date) -> pd.DataFrame:
     box = pd.read_csv(box_path, dtype={"game_id": str, "player_id": str}) if os.path.exists(box_path) else pd.DataFrame()
     live_path = os.path.join(ROOT, "data", "tennis", "live.csv")
     live = pd.read_csv(live_path) if os.path.exists(live_path) else pd.DataFrame()
+    pg = None
+    try:
+        from desk.nfl import data as nfl_data
+        if os.path.exists(os.path.join(nfl_data.DIR, "games.csv")):
+            pg = nfl_data.player_games()
+    except Exception as err:
+        print("nfl data unavailable:", err)
     graded = []
     for day, boards in latest_boards(today).items():
         cidx = closing_index(day)
@@ -178,6 +204,13 @@ def grade(today: dt.date) -> pd.DataFrame:
                 other = "Under" if r["side"] == "Over" else "Over"
                 cf = close_fair(cidx, r.get("event_id"), r["market"], r["player"], r["side"], [(other, r["line"])], r["line"])
                 graded.append({"date": day, "sport": "nba", "kind": "prop" + ("_alt" if r.get("alt") else ""),
+                               "label": f"{r['player']} {r['side']} {r['line']} {r['stat']}", **_common(r, y, cf)})
+            for r in b.get("nfl", {}).get("props", []):
+                y = nfl_prop_outcome(pg, day, r.get("player_id"), r["stat"], r["line"], r["side"])
+                other = {"Over": "Under", "Under": "Over", "Yes": "No", "No": "Yes"}[r["side"]]
+                cf = close_fair(cidx, r.get("event_id"), r["market"], r["player"], r["side"],
+                                [(other, None if r["stat"] == "td" else r["line"])], None if r["stat"] == "td" else r["line"])
+                graded.append({"date": day, "sport": "nfl", "kind": "prop" + ("_alt" if r.get("alt") else ""),
                                "label": f"{r['player']} {r['side']} {r['line']} {r['stat']}", **_common(r, y, cf)})
             for r in b.get("tennis", {}).get("priced", []):
                 y = tennis_outcome(live, r["player"], r["opponent"]) if len(live) else None

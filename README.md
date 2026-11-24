@@ -78,3 +78,11 @@ Cron times are UTC set for Eastern Standard Time; after the switch to daylight t
 hour later in Eastern terms.
 
 Tennis data: Jeff Sackmann's ATP/WTA match archive (CC BY-NC-SA 4.0, non-commercial use) plus ESPN results.
+
+### NFL prop model (`desk/nfl/`)
+nflverse weekly player stats, snap counts and schedules (2023–26, downloaded at run time, not committed).
+Team dropbacks and rush attempts (recent volume adjusted for spread and total) × each player's target/carry share
+(redistributed when regulars are ruled out, capped at the team total) × efficiency shrunk to position priors,
+simulated 6,000 times per game, then calibrated per stat. Walk-forward test on 2026 weeks 3–11 (5,863 player-game
+props): log loss 0.626 vs 0.652 for the naive baseline; passing yards and completions marked low trust.
+`scripts/leg_facts.py` prints a leg's reasoning bullets and model probability from our own data.

@@ -21,7 +21,9 @@ recent form vs season baselines, target share, snap share, air yards, route part
 usage, pass/run rates and pace, blitz and pressure rates, coverage tendencies, offensive-line injuries, coaching
 tendencies (fourth-down aggressiveness, game-script habits, managing a big lead), weather and wind outdoors, rest/
 travel spots. Game lines start from the board's Pinnacle no-vig fair prices (⭐ = DK/FD pay 2%+ more than fair).
-Player-prop probabilities are your estimates, anchored to the no-vig market price, with any deviation explained.
+Player props: receptions, receiving yards, rushing yards/attempts, pass attempts, pass TDs and anytime TD use the
+board's model probability (adjust only for news after the board was built — inactives, a role change — max 8
+points, with the reason). Passing yards and completions are low trust: estimate them anchored to the no-vig market.
 Rules: follow the Playbook. Every leg shows (a) line, DK and FD prices, (b) probability, source, no-vig market
 probability and edge, (c) 2–4 specific data points with sources, (d) the main way it loses. Stress-test against
 blowout and game-script scenarios. Follow the SOURCES POLICY in common.md: facts from official and raw-data sources, analysis our own — never previews, picks, articles or social posts. Return your best candidate legs and correlated combinations with sources."

@@ -4,3 +4,4 @@ __pycache__/
 reports/backtest_nba_rows.csv
 *.pyc
 data/desk.db
+data/nfl/

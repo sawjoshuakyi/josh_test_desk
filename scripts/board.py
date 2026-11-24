@@ -179,6 +179,142 @@ def nba_board(day: dt.date, api: OddsAPI | None) -> dict:
                     })
         credits = api.remaining
     props.sort(key=lambda r: r["edge"], reverse=True)
+    from desk import facts
+    for r in [x for x in props if x["edge"] > 0][:config.FACTS_ROWS]:
+        r["facts"] = facts.nba_facts(box, r["player"], r["stat"], r["line"], r["side"], day.isoformat()) + [
+            facts.model_bullet(r["model_mean"] or 0, r["model_prob"], r["fair_market_prob"], r["edge"], r["line"],
+                               r["side"], r["stat"])]
+    return {"games": games, "projections": projections, "props": props, "credits_remaining": credits}
+
+
+# ------------------------------------------------------------------ NFL
+NFL_MARKET_STAT = {"player_receptions": "rec", "player_reception_yds": "rec_yds", "player_rush_yds": "rush_yds",
+                   "player_rush_attempts": "rush_att", "player_pass_yds": "pass_yds", "player_pass_attempts": "pass_att",
+                   "player_pass_completions": "pass_cmp", "player_pass_tds": "pass_td", "player_anytime_td": "td",
+                   "player_receptions_alternate": "rec", "player_reception_yds_alternate": "rec_yds",
+                   "player_rush_yds_alternate": "rush_yds", "player_pass_yds_alternate": "pass_yds"}
+ESPN_TO_NFLVERSE = {"WSH": "WAS", "LAR": "LA"}
+NFL_OUT = ("out", "doubtful", "injured reserve", "ir", "suspended", "physically unable to perform")
+
+
+def nfl_slate(day: dt.date) -> list[dict]:
+    sb = espn(f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates={day:%Y%m%d}")
+    out = []
+    for ev in sb.get("events", []):
+        comp = ev["competitions"][0]
+        if comp.get("status", {}).get("type", {}).get("state") != "pre":
+            continue
+        teams = {c["homeAway"]: c["team"]["abbreviation"] for c in comp["competitors"]}
+        odds = (comp.get("odds") or [{}])[0]
+        spread_for, total = {}, odds.get("overUnder")
+        details = odds.get("details") or ""
+        if " " in details:
+            fav, num = details.split(" ", 1)
+            try:
+                n = abs(float(num))
+                spread_for = {t: (-n if t == fav else n) for t in teams.values()}
+            except ValueError:
+                pass
+        injured = {}
+        try:
+            summ = espn(f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event={ev['id']}")
+            for tb in summ.get("injuries", []):
+                for inj in tb.get("injuries", []):
+                    injured[norm(inj.get("athlete", {}).get("displayName", ""))] = inj.get("status", "")
+        except Exception:
+            pass
+        out.append({"event": ev["shortName"], "espn_id": ev["id"], "start": ev["date"], "teams": teams,
+                    "spread": spread_for, "total": total, "injury_report": injured})
+    return out
+
+
+def nfl_board(day: dt.date, api: OddsAPI | None) -> dict:
+    from desk import facts
+    from desk.nfl import data as nfl_data
+    from desk.nfl.model import NFLModel, prob_at_least
+
+    slate_games = nfl_slate(day)
+    if not slate_games:
+        return {"games": [], "projections": [], "props": [], "credits_remaining": None}
+    nfl_data.download()
+    pg = nfl_data.player_games()
+    hist = pg[pg.date < day.isoformat()]
+    model = NFLModel(hist)
+    games, projections, by_name = [], [], {}
+    for g in slate_games:
+        games.append({k: g[k] for k in ("event", "espn_id", "start", "spread", "total", "injury_report")})
+        for espn_team in g["teams"].values():
+            team = ESPN_TO_NFLVERSE.get(espn_team, espn_team)
+            regulars = model.team_players(team)
+            avail = {p.player_id for p in regulars
+                     if g["injury_report"].get(norm(p.name), "").lower() not in NFL_OUT}
+            proj = model.project_team(team, avail, g["spread"].get(espn_team), g["total"])
+            for pid, pj in proj.items():
+                st, m = pj["state"], pj["means"]
+                row = {"event": g["event"], "player": st.name, "player_id": pid, "team": espn_team, "pos": st.position,
+                       "status": g["injury_report"].get(norm(st.name), "") or "active",
+                       "tgt_share": round(st.tgt_share, 3), "car_share": round(st.car_share, 3),
+                       **{k: round(v, 2) for k, v in m.items()}}
+                if max(m.get("targets", 0), m.get("rush_att", 0), m.get("pass_att", 0)) >= 1.5:
+                    projections.append(row)
+                    by_name[norm(st.name)] = (pj, row)
+    props, credits = [], None
+    if api and games:
+        events = [e for e in api.events("americanfootball_nfl") if et_date(e["commence_time"]) == day]
+        con = db.connect()
+        for e in events:
+            if low_credits(api):
+                print("credit guard: stopping NFL prop calls")
+                break
+            try:
+                payload = api.event_odds("americanfootball_nfl", e["id"], config.NFL_PROP_MARKETS + config.NFL_ALT_MARKETS)
+            except OddsAPIError as err:
+                print("odds error", err)
+                continue
+            rows = flatten(payload, "props", "americanfootball_nfl")
+            db.insert_many(con, "odds_snapshots", rows)
+            db.archive(rows, "open-nfl-props")
+            for (eid, market, player, point), books in pair_two_way(rows).items():
+                stat = NFL_MARKET_STAT.get(market)
+                hit = by_name.get(norm(player or ""))
+                if not stat or hit is None:
+                    continue
+                pj, prow = hit
+                if stat == "td":  # anytime TD: "Yes"/"No" outcomes, no point
+                    line, sides = 0.5, (("Yes", "No"),)
+                else:
+                    if point is None:
+                        continue
+                    line, sides = point, (("Over", "Under"), ("Under", "Over"))
+                p_over = prob_at_least(pj["sims"], stat, math.floor(line) + 1, calibrated=True)
+                if p_over is None:
+                    continue
+                for side, other in sides:
+                    p_model = p_over if side in ("Over", "Yes") else 1 - p_over
+                    best = best_side(books, side)
+                    if best is None:
+                        continue
+                    fair, src = fair_prob(books, side, other)
+                    edge = pricing.edge(p_model, best[1])
+                    props.append({
+                        "event_id": eid, "start": e["commence_time"], "event": f'{e["away_team"]} @ {e["home_team"]}',
+                        "player": player, "player_id": prow["player_id"], "team": prow["team"], "market": market,
+                        "stat": stat, "line": line, "side": side, "alt": market.endswith("alternate"),
+                        "model_mean": round(pj["means"].get(stat, 0), 2), "model_prob": round(p_model, 4),
+                        "fair_market_prob": round(fair, 4) if fair is not None else None, "fair_source": src,
+                        "dk": books.get("draftkings", {}).get(side), "fd": books.get("fanduel", {}).get(side),
+                        "pin": books.get("pinnacle", {}).get(side), "best_book": best[0], "best_price": best[1],
+                        "edge": round(edge, 4), "model_vs_market": round(p_model - fair, 4) if fair is not None else None,
+                        "kelly_usd": pricing.kelly_stake(p_model, best[1]), "player_status": prow["status"],
+                        "low_trust": stat in config.NFL_LOW_TRUST,
+                    })
+        credits = api.remaining
+    props.sort(key=lambda r: r["edge"], reverse=True)
+    season = int(pg.season.max())
+    for r in [x for x in props if x["edge"] > 0][:config.FACTS_ROWS]:
+        side = "Over" if r["side"] in ("Over", "Yes") else "Under"
+        r["facts"] = facts.nfl_facts(pg, r["player_id"], r["player"], r["stat"], r["line"], side, day.isoformat(), season) + [
+            facts.model_bullet(r["model_mean"], r["model_prob"], r["fair_market_prob"], r["edge"], r["line"], side, r["stat"])]
     return {"games": games, "projections": projections, "props": props, "credits_remaining": credits}
 
 
@@ -297,6 +433,35 @@ def to_markdown(board: dict) -> str:
             if r["minutes"] >= 20:
                 lines.append(f"| {r['event']} | {r['player']} | {r['status']} | {r['minutes']} | {r['pts']} | {r['reb']} | "
                              f"{r['ast']} | {r.get('threes', 0)} | {r['pra']} |")
+    if board.get("nfl", {}).get("games"):
+        props = board["nfl"]["props"]
+        lines += ["", "## NFL props with the largest model edge", "",
+                  "| Player | Market | Side | Line | Model mean | Model | Fair mkt | Best | Edge | Kelly $ |",
+                  "|---|---|---|---|---|---|---|---|---|---|"]
+        for r in [p for p in props if p["edge"] > 0][:40]:
+            fair = r["fair_market_prob"]
+            warn = " ⚠️" if fair is not None and abs(r["model_prob"] - fair) > 0.10 else ""
+            lt = " (low trust)" if r.get("low_trust") else ""
+            lines.append(f"| {r['player']} | {r['stat']}{lt}{' (alt)' if r['alt'] else ''} | {r['side']} | {r['line']} | "
+                         f"{r['model_mean']} | {r['model_prob']:.0%}{warn} | {'–' if fair is None else f'{fair:.0%}'} | "
+                         f"{r['best_price']:+.0f} {r['best_book']} | {r['edge']:+.1%} | {r['kelly_usd']:.0f} |")
+        if not props:
+            lines += ["", "_No NFL prices (no odds key or no markets yet)._"]
+        lines += ["", "## NFL projections (model means; ESPN injury report at build time)", "",
+                  "| Game | Player | Pos | Status | Tgt | Rec | Rec yds | Rush att | Rush yds | Pass yds | TD |",
+                  "|---|---|---|---|---|---|---|---|---|---|---|"]
+        for r in sorted(board["nfl"]["projections"], key=lambda r: (r["event"], r["team"], -r.get("targets", 0) - r.get("rush_att", 0))):
+            lines.append(f"| {r['event']} | {r['player']} | {r['pos']} | {r['status']} | {r.get('targets', 0)} | {r.get('rec', 0)} | "
+                         f"{r.get('rec_yds', 0)} | {r.get('rush_att', 0)} | {r.get('rush_yds', 0)} | {r.get('pass_yds', '–')} | "
+                         f"{r.get('td', 0)} |")
+    for key, title in (("nba", "NBA"), ("nfl", "NFL")):
+        rows = [r for r in board.get(key, {}).get("props", []) if r.get("facts")]
+        if rows:
+            lines += ["", f"## {title} leg reasoning (our own data) — top edges", ""]
+            for r in rows[:25]:
+                lines.append(f"**{r['player']} {r['side']} {r['line']} {r['stat']}** ({r['best_price']:+.0f} {r['best_book']}, "
+                             f"edge {r['edge']:+.1%})")
+                lines += [f"- {b}" for b in r["facts"]] + [""]
     if "tennis" in board:
         lines += ["", "## Tennis matches", "", "| Player | vs | Model | Fair mkt | Best | Edge |", "|---|---|---|---|---|---|"]
         for r in board["tennis"]["priced"][:30]:
@@ -330,10 +495,13 @@ def main():
              "odds_source": "the-odds-api" if api else "none (model only)"}
     if session == "pm":
         board["nba"] = nba_board(day, api)
+        if day.weekday() != 6:  # weekday NFL (TNF/MNF/Saturday); Sunday has its own session
+            board["nfl"] = nfl_board(day, api)
         if api:
             board["nba_lines"] = market_board(day, api, ["basketball_nba"], "nba-lines")
             board["nfl_lines"] = market_board(day, api, ["americanfootball_nfl"], "nfl-lines")
     elif session == "nfl":
+        board["nfl"] = nfl_board(day, api)
         if api:
             board["nfl_lines"] = market_board(day, api, ["americanfootball_nfl"], "nfl-lines")
     else:
