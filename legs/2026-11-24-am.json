@@ -113,60 +113,6 @@
    }
   },
   {
-   "name": "Desk Soccer Value Single — Bartra",
-   "odds": "+195 FanDuel",
-   "legs": [
-    {
-     "league": "ucl",
-     "teams": [
-      "BET",
-      "SLB"
-     ],
-     "player": "Marc Bartra",
-     "stat": "sot",
-     "min": 1
-    }
-   ],
-   "betslip": {
-    "draftkings": null,
-    "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.627886407&selectionId=16743943",
-    "per_leg": [
-     {
-      "leg": "Marc Bartra Over 0.5",
-      "draftkings": null,
-      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.627886407&selectionId=16743943"
-     }
-    ]
-   }
-  },
-  {
-   "name": "Desk Soccer Value Single — Leipzig-Lens corners",
-   "odds": "+280 FanDuel / +250 DraftKings",
-   "legs": [
-    {
-     "league": "ucl",
-     "teams": [
-      "RCL",
-      "RBL"
-     ],
-     "type": "corners",
-     "dir": "over",
-     "line": 12.5
-    }
-   ],
-   "betslip": {
-    "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87380529O1250_1",
-    "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.627863543&selectionId=7076462",
-    "per_leg": [
-     {
-      "leg": "Over 12.5",
-      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87380529O1250_1",
-      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.627863543&selectionId=7076462"
-     }
-    ]
-   }
-  },
-  {
    "name": "Desk Tennis Best Bet",
    "odds": "fair -282 (bet at -253 or better)",
    "legs": [

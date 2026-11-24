@@ -101,8 +101,9 @@ How to use it:
      probability. A negative-edge leg is never
      used, not even to reach an odds target.
    - Among eligible legs, choose the HIGHEST-PROBABILITY ones first (not the biggest edge). Edge breaks ties.
-   - A leg has VALUE when edge ≥ +3% (modeled) or the DK/FD price beats Pinnacle's fair price by 2%+ (game lines).
-     Value legs that are too long-priced for the four slips are posted as extra "Value single" bets.
+   - GOAL IS STEADY BANK GROWTH (Josh: "small gradual wins is also a win"). No extra "value single" bets: a leg that
+     only has value at a long price (plus-money long shots) is not posted outside the four slips. A leg has VALUE when
+     edge ≥ +3% (modeled) or DK/FD beats Pinnacle fair by 2%+; value only breaks ties between equally likely legs.
    - Every leg of a parlay must be on the SAME book at an eligible price; quote the slip at that book.
    - If the eligible legs cannot reach a slip's odds target, post the closest honest version (say so) or skip the
      slip with the reason. Never pad with negative-edge legs.
@@ -192,7 +193,7 @@ Give it all analyst reports, the model board, the Playbook, the Ledger/Legs/Summ
   legs with edge ≥ 0. Never reuse a coin-flip leg as the backbone of several parlays.
 - FILLER RULE: every leg in a parlay needs edge ≥ 0 at the slip's book (model probability, or DK/FD at or better than
   Pinnacle fair for game lines); otherwise drop it and shorten the parlay.
-- BEST BET is the highest-probability eligible single priced -300 or longer (so a win pays something), with edge ≥ 0
+- BEST BET is the highest-probability eligible single priced -500 or longer (a loss costs at most ~5 wins), with edge ≥ 0
   at the best available price by the board (or, with no prices, the model's fair
   price must be stated as the minimum acceptable price). A Best Bet the model rates below its implied probability is
   rejected even if the analyst likes it.
