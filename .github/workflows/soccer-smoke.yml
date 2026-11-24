@@ -1,0 +1,28 @@
+name: soccer-smoke
+
+# Manual: builds tomorrow's soccer fixtures and model from API-Football (no odds, no board files) and commits
+# reports/soccer_af_smoke.json, so the switch can be checked before the 1:05 AM board run.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -q -r requirements.txt
+      - name: Smoke test
+        run: python3 scripts/soccer_af_smoke.py
+      - name: Commit
+        if: always()
+        run: scripts/commit.sh "Soccer smoke test $(date -u +%F)" reports data/soccer_af
