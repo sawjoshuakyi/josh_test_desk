@@ -1,7 +1,7 @@
 {
  "date": "2026-11-24",
  "session": "am",
- "generated_at": "2026-11-24T01:18:56+00:00",
+ "generated_at": "2026-11-24T01:27:50+00:00",
  "odds_source": "none (model only)",
  "tennis": {
   "matches": [
@@ -360,7 +360,7 @@
      "Surface Elo (Hard): Alicia Herrero Linana 1607 vs Lucia Bronzetti 1596 \u2192 model has Alicia Herrero Linana winning 51%.",
      "Alicia Herrero Linana is 6-4 over the last 10 matches and 6-4 on Hard in 2026; last five (newest first): L vs Lucia Bronzetti, L vs Bianca Andreescu, W vs Tamara Zidansek, W vs Victoria Rodriguez, L vs Barbora Palicova.",
      "Lucia Bronzetti is 5-5 over the last 10 matches and 12-11 on Hard in 2026; last five (newest first): L vs Leyre Romero Gormaz, W vs Valeriya Strakhova, W vs Carole Monnet, W vs Alicia Herrero Linana, L vs Elizabeth Mandlik.",
-     "Head-to-head: Alicia Herrero Linana 0-1 Lucia Bronzetti; last meeting LP Open by IND (20261117), won by Lucia Bronzetti.",
+     "Head-to-head: Alicia Herrero Linana 0-1 Lucia Bronzetti; last meeting LP Open by IND (20261117), won by Lucia Bronzetti 6-3 6-1.",
      "Serve/return model: Alicia Herrero Linana holds about 67% of service games here, Lucia Bronzetti about 66%.",
      "Expected total games 22.2; most likely score 2-0 (33%)."
     ]
@@ -630,7 +630,7 @@
      "Surface Elo (Hard): Leyre Romero Gormaz 1705 vs Nadia Podoroska 1587 \u2192 model has Leyre Romero Gormaz winning 64%.",
      "Leyre Romero Gormaz is 8-2 over the last 10 matches and 16-8 on Hard in 2026; last five (newest first): L vs Rebeka Masarova, W vs Lucia Bronzetti, W vs Irene Burillo, W vs Nadia Podoroska, W vs Ipek Oz.",
      "Nadia Podoroska is 7-3 over the last 10 matches and 10-6 on Hard in 2026; last five (newest first): L vs Leyre Romero Gormaz, W vs Varvara Lepchenko, L vs Carole Monnet, W vs Miriam Bulgaru, W vs Alice Rame.",
-     "Head-to-head: Leyre Romero Gormaz 1-0 Nadia Podoroska; last meeting LP Open by IND (20261118), won by Leyre Romero Gormaz.",
+     "Head-to-head: Leyre Romero Gormaz 1-0 Nadia Podoroska; last meeting LP Open by IND (20261118), won by Leyre Romero Gormaz 6-3 6-4.",
      "Serve/return model: Leyre Romero Gormaz holds about 69% of service games here, Nadia Podoroska about 58%.",
      "Expected total games 21.8; most likely score 2-0 (45%)."
     ]

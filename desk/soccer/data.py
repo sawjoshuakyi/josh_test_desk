@@ -17,8 +17,24 @@ import pandas as pd
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DIR = os.path.join(ROOT, "data", "soccer")
-MATCHES = os.path.join(DIR, "matches.csv.gz")
-PLAYERS = os.path.join(DIR, "players.csv.gz")
+MATCHES = os.path.join(DIR, "matches")   # monthly files matches-YYYY-MM.csv.gz (past months never change)
+PLAYERS = os.path.join(DIR, "players")
+_DT = {"event_id": str, "player_id": str, "team_id": str, "opp_id": str}
+
+
+def _read(prefix: str) -> pd.DataFrame:
+    import glob
+    files = sorted(glob.glob(f"{prefix}-*.csv.gz"))
+    return pd.concat([pd.read_csv(f, dtype=_DT) for f in files], ignore_index=True) if files else pd.DataFrame()
+
+
+def _write(prefix: str, df: pd.DataFrame, key: list[str], months: set[str]) -> None:
+    for mth in months:
+        part = df[df.date.str[:7] == mth]
+        path = f"{prefix}-{mth}.csv.gz"
+        if os.path.exists(path):
+            part = pd.concat([pd.read_csv(path, dtype=_DT), part], ignore_index=True)
+        part.drop_duplicates(key, keep="last").sort_values(["date", "event_id"]).to_csv(path, index=False)
 START = dt.date(2024, 7, 1)
 
 LEAGUES = {  # ESPN slug -> (Odds API sport key, tracker league code)
@@ -116,10 +132,10 @@ def update(until: dt.date | None = None, workers: int = 8) -> int:
     os.makedirs(DIR, exist_ok=True)
     until = until or dt.date.today()
     have = set()
-    if os.path.exists(MATCHES):
-        m = pd.read_csv(MATCHES, dtype={"event_id": str})
-        have = set(m.event_id)
-        start = dt.date.fromisoformat(m.date.max()) - dt.timedelta(days=10)
+    existing = _read(MATCHES)
+    if len(existing):
+        have = set(existing.event_id)
+        start = dt.date.fromisoformat(existing.date.max()) - dt.timedelta(days=10)
     else:
         start = START
     months, d = [], dt.date(start.year, start.month, 1)
@@ -146,38 +162,63 @@ def update(until: dt.date | None = None, workers: int = 8) -> int:
                 player_rows += pr
             except Exception as err:
                 print("summary failed", futs[f], err)
-    for path, rows in ((MATCHES, match_rows), (PLAYERS, player_rows)):
-        if not rows:
-            continue
-        new = pd.DataFrame(rows)
-        if os.path.exists(path):
-            new = pd.concat([pd.read_csv(path, dtype={"event_id": str, "player_id": str, "team_id": str, "opp_id": str}),
-                             new], ignore_index=True)
-        key = ["event_id", "team_id"] if path == MATCHES else ["event_id", "player_id"]
-        new.drop_duplicates(key, keep="last").sort_values(["date", "event_id"]).to_csv(path, index=False)
+    for prefix, rows, key in ((MATCHES, match_rows, ["event_id", "team_id"]), (PLAYERS, player_rows, ["event_id", "player_id"])):
+        if rows:
+            new = pd.DataFrame(rows)
+            _write(prefix, new, key, set(new.date.str[:7]))
     return len(todo)
 
 
 def matches() -> pd.DataFrame:
-    return pd.read_csv(MATCHES, dtype={"event_id": str, "team_id": str, "opp_id": str})
+    return _read(MATCHES)
 
 
 def players() -> pd.DataFrame:
-    return pd.read_csv(PLAYERS, dtype={"event_id": str, "player_id": str, "team_id": str})
+    return _read(PLAYERS)
 
 
 _DROP = {"fc", "afc", "cf", "sc", "the", "club", "ac", "as", "ss", "sv", "fsv", "tsg", "rc", "cd", "ud", "sd", "ca",
-         "rcd", "de", "1", "calcio", "football", "futbol", "ssc", "acf", "vfl", "vfb", "bc", "if", "fk", "ogc", "losc"}
+         "rcd", "de", "1", "and", "calcio", "football", "futbol", "ssc", "acf", "vfl", "vfb", "bc", "if", "fk", "ogc", "losc"}
 
 
 def team_key(name: str) -> str:
     import unicodedata
     s = unicodedata.normalize("NFKD", str(name or "")).encode("ascii", "ignore").decode().lower()
-    s = "".join(ch for ch in s if ch.isalnum() or ch == " ")
+    s = "".join(ch if (ch.isalnum() or ch == " ") else " " for ch in s.replace("&", " "))
     return " ".join(t for t in s.split() if t not in _DROP)
 
 
+ALIASES = {"milan": "ac milan", "internazionale": "inter milan", "inter": "inter milan", "man utd": "manchester united",
+           "man united": "manchester united", "man city": "manchester city", "psg": "paris saint germain",
+           "paris sg": "paris saint germain", "spurs": "tottenham hotspur", "tottenham": "tottenham hotspur",
+           "wolves": "wolverhampton wanderers", "wolverhampton": "wolverhampton wanderers", "atletico": "atletico madrid",
+           "atl madrid": "atletico madrid", "bayern": "bayern munich", "bayern munchen": "bayern munich",
+           "gladbach": "borussia monchengladbach", "monchengladbach": "borussia monchengladbach",
+           "dortmund": "borussia dortmund", "leverkusen": "bayer leverkusen", "napoli": "napoli", "roma": "roma",
+           "newcastle": "newcastle united", "west ham": "west ham united", "brighton": "brighton hove albion",
+           "nottm forest": "nottingham forest", "sporting": "sporting cp", "sporting lisbon": "sporting cp",
+           "inter miami": "inter miami", "la galaxy": "la galaxy", "lafc": "los angeles fc"}
+
+
+def _canon(name: str) -> str:
+    k = team_key(name)
+    return ALIASES.get(k, k)
+
+
 def same_team(a: str, b: str) -> bool:
+    """Conservative team-name match: exact/alias, word containment, or most words shared. 'Manchester United' and
+    'Manchester City' do NOT match."""
     import difflib
-    x, y = team_key(a), team_key(b)
-    return bool(x) and bool(y) and (x == y or x in y or y in x or difflib.SequenceMatcher(None, x, y).ratio() >= 0.8)
+    x, y = _canon(a), _canon(b)
+    if not x or not y:
+        return False
+    if x == y:
+        return True
+    tx, ty = set(x.split()), set(y.split())
+    if tx <= ty or ty <= tx:
+        return True
+    if len(tx & ty) / len(tx | ty) >= 0.6:
+        return True
+    if len(tx) == 1 and len(ty) == 1:
+        return difflib.SequenceMatcher(None, x, y).ratio() >= 0.85
+    return False

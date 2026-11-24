@@ -251,7 +251,7 @@ def grade(today: dt.date) -> pd.DataFrame:
     smt = spl = None
     try:
         from desk.soccer import data as sdata
-        if os.path.exists(sdata.MATCHES):
+        if len(sdata.matches()):
             smt, spl = sdata.matches(), sdata.players()
     except Exception as err:
         print("soccer data unavailable:", err)
