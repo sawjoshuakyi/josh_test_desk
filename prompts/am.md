@@ -32,4 +32,4 @@ Rules: follow the Playbook. Every leg shows (a) line, DK and FD prices, (b) prob
 probability and edge, (c) 2–4 specific data points with sources, (d) the main way it loses. Never use a player listed
 doubtful or awaiting a late fitness test unless confirmed. Stress-test against game-state scenarios (early red card,
 early goal, injury retirement). Build parlays from legs that win in the SAME game script. Verify each player's current
-team. Return a structured report with sources."
+team. Follow the SOURCES POLICY in common.md: facts from official and raw-data sources, analysis our own — never previews, picks, articles or social posts. Return a structured report with sources."

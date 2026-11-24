@@ -24,7 +24,7 @@ travel spots. Game lines start from the board's Pinnacle no-vig fair prices (⭐
 Player-prop probabilities are your estimates, anchored to the no-vig market price, with any deviation explained.
 Rules: follow the Playbook. Every leg shows (a) line, DK and FD prices, (b) probability, source, no-vig market
 probability and edge, (c) 2–4 specific data points with sources, (d) the main way it loses. Stress-test against
-blowout and game-script scenarios. Return your best candidate legs and correlated combinations with sources."
+blowout and game-script scenarios. Follow the SOURCES POLICY in common.md: facts from official and raw-data sources, analysis our own — never previews, picks, articles or social posts. Return your best candidate legs and correlated combinations with sources."
 
 Then, in this session, build the four slips for the whole Sunday slate (Best Bet, Double-Up ≥ +100, +400–700, Lotto
 10+ legs) from legs that win in the SAME game script.

@@ -27,8 +27,9 @@ with the reason). Research requirements: confirm schedule and tip/kickoff times;
 (last 5/10) vs season baselines; matchup data (defense vs position, pace, rebounding, usage shifts when teammates are
 out, home/away splits); coaching tendencies (minutes management, blowouts, back-to-backs, rotation changes); spreads of
 10+ points as blowout flags. NFL: target share, snap share, game script, pass/run rates, blitz/pressure, red-zone
-usage, weather. Useful sources: Rotowire NBA lineups, official NBA injury report, team injury reports, Sports Mole,
-NBC Sports/Rotoworld, Covers, Action Network, PFF, Sportsbook Review — verify roster details, because rosters change.
+usage, weather. Follow the SOURCES POLICY in common.md: compute matchup and form numbers yourself from the repo's
+box scores and raw stat tables; use official injury reports and team announcements for availability; never use
+anyone's previews, picks or write-ups. Verify roster details, because rosters change.
 Rules: follow the Playbook. Every leg shows (a) line, DK and FD prices, (b) probability, its source, the no-vig market
 probability and edge, (c) 2–4 specific data points with sources, (d) the main way it loses. Never use a player listed
 questionable/doubtful/game-time decision unless confirmed active. Stress-test against blowout and game-script

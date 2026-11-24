@@ -38,13 +38,25 @@ Docs connector's guide (topic.sheets) first and find the workbook node as it say
    in K when a slip loses. Leave rows Pending if their game is not final.
 
 ## ODDS — FanDuel and DraftKings
-The model board (below) already holds DraftKings, FanDuel and Pinnacle prices from The Odds API, taken at the time
-it shows. Use those first. For anything not on the board: the FanDuel and DraftKings sites are blocked in this
-environment — do not try to open them or get around the block. Use VegasInsider odds and player-props pages
-(DraftKings and FanDuel columns), FanDuel Research articles (fanduel.com/research) and DK Network articles
-(dknetwork.draftkings.com), noting each snapshot's time. Alt lines are often not visible outside the apps: when a DK
-or FD price can't be found, write "not visible — confirm in app" and give your estimated fair price. Never invent a
-price. Every leg lists the DK price, the FD price and which is better.
+Prices come from The Odds API only: the model board (below) holds DraftKings, FanDuel and Pinnacle prices with the
+time they were taken. If a line you need is not on the board, the repo's `desk/odds.py` client can fetch it
+(ODDS_API_KEY is not available in this session, so instead say "not on board — confirm in app" and give the model's or
+the market's fair price). Never invent a price, and never take prices from articles or odds-comparison sites.
+Every leg lists the DK price, the FD price and which is better.
+
+## SOURCES POLICY — our own analysis only (Playbook rule, Active)
+The desk forms its own opinions. Its numbers come from its own data: the model board, The Odds API prices, and the
+repo's datasets (ESPN box scores in data/nba_boxscores.csv, the tennis results archive, odds snapshots).
+- ALLOWED, for FACTS only: official injury reports and team/league announcements (who is out, questionable, minutes
+  limits, confirmed lineups and starting XIs), official schedules and venues, weather forecasts, and raw statistics
+  tables (box scores, play-by-play, team and player stat pages) from league or reference-data sites.
+- BANNED: anyone else's analysis or opinion — previews, picks, "best bets", prop articles, power rankings, model
+  outputs, betting-site or media write-ups (e.g. Covers, Action Network, Sports Mole, Rotoworld/NBC write-ups, PFF
+  grades, FanDuel Research, DK Network), tipsters, forums and social-media posts. Do not read them, cite them or let
+  them shape a pick. If a fact (e.g. an injury) is only reported inside such a piece, confirm it from an official or
+  team source before using it; otherwise treat the player as uncertain.
+- Every data point in the report names its source, and each must be a fact source or our own computation.
+- The manager rejects any leg whose reasoning relies on outside opinion.
 
 ## MODEL BOARD (the quant layer)
 Before Step 1, read `boards/<today's ET date>-<session>.md` and `.json` from the repo (session = am, pm or nfl).
@@ -91,8 +103,8 @@ How to use it:
 ## MANAGER / REVIEWER (fresh subagent, devil's advocate)
 Give it all analyst reports, the model board, the Playbook, the Ledger/Legs/Summary record from Step 0 and
 `reports/model_performance.md`. Its job:
-- Re-verify injury/lineup/team news for every leg against the newest source, and that each player is on the team
-  claimed.
+- Re-verify injury/lineup/team news for every leg against the newest official source, and that each player is on the
+  team claimed. Reject any leg whose support relies on outside analysis or opinion (SOURCES POLICY).
 - Attack each slip: how the research could be wrong, game scripts that break it, blowout/minutes risk, stale lines
   (compare the board's price time with now), hidden negative correlations, over-exposure to one game or player across
   slips, legs whose direction contradicts the analyst's own data or the model (e.g. an over where the model mean
