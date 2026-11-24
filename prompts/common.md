@@ -102,7 +102,7 @@ How to use it:
      used, not even to reach an odds target.
    - Among eligible legs, choose the HIGHEST-PROBABILITY ones first (not the biggest edge). Edge breaks ties.
    - GOAL IS STEADY BANK GROWTH (Josh: "small gradual wins is also a win"). No extra "value single" bets: a leg that
-     only has value at a long price (plus-money long shots) is not posted outside the four slips. A leg has VALUE when
+     only has value at a long price (plus-money long shots) is not posted outside the five slips. A leg has VALUE when
      edge ≥ +3% (modeled) or DK/FD beats Pinnacle fair by 2%+; value only breaks ties between equally likely legs.
    - Every leg of a parlay must be on the SAME book at an eligible price; quote the slip at that book.
    - If the eligible legs cannot reach a slip's odds target, post the closest honest version (say so) or skip the
@@ -161,6 +161,7 @@ bullets and the model's probability with today's injury report applied.
 ## STAKING (bankroll $2,500 — Playbook rule)
 - Best Bet: quarter-Kelly on the leg's probability, capped at $50 (board `kelly_usd` for modeled legs; for analyst
   probabilities use half of quarter-Kelly, capped at $25).
+- Bank Builder: quarter-Kelly on the slip probability and price, capped at $50 (it is the steady-win slip).
 - Double-Up and +400–700: quarter-Kelly on the slip probability and best price, capped at $12.50.
 - Lotto: fixed $5.
 - If Kelly is $0 (eligible but edge rounds to zero), stake a flat $10 on a single or $5 on a parlay, labelled
@@ -178,7 +179,7 @@ Give it all analyst reports, the model board, the Playbook, the Ledger/Legs/Summ
   (compare the board's price time with now), hidden negative correlations, over-exposure to one game or player across
   slips, legs whose direction contradicts the analyst's own data or the model (e.g. an over where the model mean
   sits below the line), and any Playbook violation.
-- Check the math: Double-Up truly at least +100, the +400–700 slip inside that range, lotto 10+ legs; every leg's
+- Check the math: Bank Builder between -200 and +125, Double-Up between +100 and +150, the +400–700 slip inside that range, lotto 10+ legs; every leg's
   probability source, edge and the slip EV; Kelly stakes and the $100/game and $250/day limits; DK vs FD and the
   better book for each slip.
 - Call out underperforming analysts, markets and slip types (Ledger/Legs, calibration, CLV, model_performance.md)
@@ -234,7 +235,7 @@ Structure, like a presentation:
 ## LOGGING
 Append one Ledger row per APPROVED slip (Session per session file, Result "Pending", formulas for H, J, M) and one Legs
 row per leg (Result "Pending", K and M formulas, T–X filled as above, Best odds = the better of DK/FD where known).
-Exact labels — Sport: NBA, NFL, Soccer, Tennis. Slip type: Best Bet, Double-Up, +400-700, Lotto.
+Exact labels — Sport: NBA, NFL, Soccer, Tennis. Slip type: Best Bet, Bank Builder, Double-Up, +400-700, Lotto.
 
 ## LIVE TRACKER FILE (GitHub)
 You already have the repo cloned (sawjoshuakyi/josh_test_desk). Read README.md for the exact leg format and write

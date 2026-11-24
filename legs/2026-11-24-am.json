@@ -29,9 +29,19 @@
    }
   },
   {
-   "name": "Desk Soccer Double-Up",
-   "odds": "+109 DraftKings",
+   "name": "Desk Soccer Bank Builder",
+   "odds": "-170 FanDuel",
    "legs": [
+    {
+     "league": "ucl",
+     "teams": [
+      "PSV",
+      "RMA"
+     ],
+     "type": "corners",
+     "dir": "over",
+     "line": 6.5
+    },
     {
      "league": "mls",
      "teams": [
@@ -41,7 +51,86 @@
      "type": "total",
      "dir": "under",
      "line": 3.5
+    }
+   ],
+   "betslip": {
+    "draftkings": null,
+    "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId[0]=42.627863663&selectionId[0]=6457876&marketId[1]=42.624459019&selectionId[1]=1222344",
+    "per_leg": [
+     {
+      "leg": "Over 6.5",
+      "draftkings": null,
+      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.627863663&selectionId=6457876"
+     },
+     {
+      "leg": "Under 3.5",
+      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87214733U350_3",
+      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.624459019&selectionId=1222344"
+     }
+    ]
+   }
+  },
+  {
+   "name": "Desk Soccer Double-Up",
+   "odds": "+115 FanDuel",
+   "legs": [
+    {
+     "league": "ucl",
+     "teams": [
+      "PSV",
+      "RMA"
+     ],
+     "type": "corners",
+     "dir": "over",
+     "line": 6.5
     },
+    {
+     "league": "ucl",
+     "teams": [
+      "AVL",
+      "GAL"
+     ],
+     "type": "corners",
+     "dir": "under",
+     "line": 12.5
+    },
+    {
+     "league": "mls",
+     "teams": [
+      "HOU",
+      "SJ"
+     ],
+     "type": "corners",
+     "dir": "over",
+     "line": 9.5
+    }
+   ],
+   "betslip": {
+    "draftkings": null,
+    "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId[0]=42.627863663&selectionId[0]=6457876&marketId[1]=42.627862608&selectionId[1]=7076463&marketId[2]=42.628024494&selectionId[2]=6384610",
+    "per_leg": [
+     {
+      "leg": "Over 6.5",
+      "draftkings": null,
+      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.627863663&selectionId=6457876"
+     },
+     {
+      "leg": "Under 12.5",
+      "draftkings": null,
+      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.627862608&selectionId=7076463"
+     },
+     {
+      "leg": "Over 9.5",
+      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87357398O950_1",
+      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.628024494&selectionId=6384610"
+     }
+    ]
+   }
+  },
+  {
+   "name": "Desk Soccer +400-700",
+   "odds": "+414 DraftKings",
+   "legs": [
     {
      "league": "ucl",
      "teams": [
@@ -50,39 +139,7 @@
      ],
      "type": "corners",
      "dir": "under",
-     "line": 10.5
-    }
-   ],
-   "betslip": {
-    "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87214733U350_3+0OU87383527U1050_3",
-    "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId[0]=42.624459019&selectionId[0]=1222344&marketId[1]=42.627862768&selectionId[1]=7449025",
-    "per_leg": [
-     {
-      "leg": "Under 3.5",
-      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87214733U350_3",
-      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.624459019&selectionId=1222344"
-     },
-     {
-      "leg": "Under 10.5",
-      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87383527U1050_3",
-      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.627862768&selectionId=7449025"
-     }
-    ]
-   }
-  },
-  {
-   "name": "Desk Soccer +400-700",
-   "odds": "+394 DraftKings",
-   "legs": [
-    {
-     "league": "mls",
-     "teams": [
-      "HOU",
-      "SJ"
-     ],
-     "type": "total",
-     "dir": "under",
-     "line": 2.5
+     "line": 9.5
     },
     {
      "league": "ucl",
@@ -92,22 +149,22 @@
      ],
      "type": "corners",
      "dir": "over",
-     "line": 10.5
+     "line": 11.5
     }
    ],
    "betslip": {
-    "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87214733U250_3+0OU87383523O1050_1",
-    "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId[0]=42.624459018&selectionId[0]=47972&marketId[1]=42.627863752&selectionId[1]=6393483",
+    "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87383527U950_3+0OU87383523O1150_1",
+    "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId[0]=42.627862768&selectionId[0]=7449024&marketId[1]=42.627863740&selectionId[1]=7448818",
     "per_leg": [
      {
-      "leg": "Under 2.5",
-      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87214733U250_3",
-      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.624459018&selectionId=47972"
+      "leg": "Under 9.5",
+      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87383527U950_3",
+      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.627862768&selectionId=7449024"
      },
      {
-      "leg": "Over 10.5",
-      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87383523O1050_1",
-      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.627863752&selectionId=6393483"
+      "leg": "Over 11.5",
+      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87383523O1150_1",
+      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.627863740&selectionId=7448818"
      }
     ]
    }
@@ -128,18 +185,9 @@
    ]
   },
   {
-   "name": "Desk Tennis Double-Up",
-   "odds": "fair +124 (bet at +130 or better)",
+   "name": "Desk Tennis Bank Builder",
+   "odds": "fair -203 (bet at -200 to +125)",
    "legs": [
-    {
-     "league": "wta",
-     "teams": [
-      "Leyre Romero Gormaz",
-      "Nadia Podoroska"
-     ],
-     "type": "moneyline",
-     "team": "Leyre Romero Gormaz"
-    },
     {
      "league": "wta",
      "teams": [
@@ -152,8 +200,8 @@
    ]
   },
   {
-   "name": "Desk Tennis +400-700",
-   "odds": "fair +505 (bet at +535 or better)",
+   "name": "Desk Tennis Double-Up",
+   "odds": "fair +103 (bet at +103 to +150)",
    "legs": [
     {
      "league": "wta",
@@ -161,10 +209,24 @@
       "Victoria Jimenez Kasintseva",
       "Solana Sierra"
      ],
-     "type": "games_spread",
-     "team": "Solana Sierra",
-     "line": -2.5
+     "type": "moneyline",
+     "team": "Solana Sierra"
     },
+    {
+     "league": "wta",
+     "teams": [
+      "Leyre Romero Gormaz",
+      "Nadia Podoroska"
+     ],
+     "type": "moneyline",
+     "team": "Leyre Romero Gormaz"
+    }
+   ]
+  },
+  {
+   "name": "Desk Tennis +400-700",
+   "odds": "fair +443 (bet at +454 or better)",
+   "legs": [
     {
      "league": "wta",
      "teams": [
@@ -173,7 +235,7 @@
      ],
      "type": "games_spread",
      "team": "Leyre Romero Gormaz",
-     "line": -2.5
+     "line": -3.5
     },
     {
      "league": "wta",
@@ -183,17 +245,17 @@
      ],
      "type": "games_spread",
      "team": "Polona Hercog",
-     "line": -1.5
+     "line": -3.5
     },
     {
      "league": "wta",
      "teams": [
-      "Leyre Romero Gormaz",
-      "Nadia Podoroska"
+      "Victoria Jimenez Kasintseva",
+      "Solana Sierra"
      ],
      "type": "total_games",
      "dir": "under",
-     "line": 22.5
+     "line": 21.5
     }
    ]
   }

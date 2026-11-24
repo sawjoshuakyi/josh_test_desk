@@ -17,11 +17,13 @@ Give each the Active and Testing Playbook rules for its sport, the ODDS and MODE
 board file contents for its sport, and this brief:
 
 "You are a professional [SPORT] betting analyst. Research today's [SPORT] slate (Eastern date) with real due diligence
-and deliver four slips:
- 1. BEST BET of the day (single bet or single prop).
- 2. DOUBLE-UP parlay: any number of legs, combined odds at least +100 (aim +100 to +130).
- 3. +400 to +700 parlay.
- 4. LOTTO parlay of 10 or more legs.
+and deliver five slips:
+ 1. BEST BET of the day: one single, the highest-probability eligible leg priced -500 or longer.
+ 2. BANK BUILDER: a single or short parlay with combined odds between -200 and +125 — the steady-win slip.
+ 3. DOUBLE-UP parlay: combined odds +100 to +150.
+ 4. +400 to +700 parlay.
+ 5. LOTTO parlay of 10 or more legs (fixed $5). Skip it, with the reason, when the board has fewer than 10 eligible
+    legs from separate games.
 Start from the model board and work through the QUANT CHECKLIST in common.md for every leg.
 Tennis: match-winner legs use the board's surface-Elo probability; total games, games handicap and set-score legs use
 the score model (medium trust: value needs edge ≥ +5%). Adjust only for news after the board was built (injury,
