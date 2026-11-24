@@ -54,3 +54,7 @@ NFL_ALT_MARKETS = [
 ]
 FACTS_ROWS = 60            # reasoning bullets are written for the top-N positive-edge props per sport
 NFL_LOW_TRUST = {"pass_yds", "pass_cmp"}  # model lost to the naive baseline out of sample: treat as advisory only
+# Markets whose model is calibrated but not yet better than a strong baseline: require a bigger edge
+MEDIUM_TRUST_EDGE = 0.05
+TENNIS_MEDIUM_TRUST = {"totals", "spreads", "set_betting"}
+SOCCER_MARKETS = ["h2h", "totals", "alternate_totals", "alternate_totals_corners", "player_shots_on_target"]
