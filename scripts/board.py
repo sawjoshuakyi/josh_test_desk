@@ -714,13 +714,17 @@ def to_markdown(board: dict) -> str:
 def main():
     session = sys.argv[1] if len(sys.argv) > 1 else "pm"
     day = dt.date.fromisoformat(sys.argv[2]) if len(sys.argv) > 2 else config.et_today()
+    odds_error = None
     try:
         api = OddsAPI()
-    except OddsAPIError:
+        api.sports()  # one free call: validates the key before any priced call
+    except OddsAPIError as err:
+        odds_error = str(err)[:300] if os.environ.get("ODDS_API_KEY") else "ODDS_API_KEY not set"
+        print("odds disabled:", odds_error)
         api = None
     board = {"date": day.isoformat(), "session": session,
              "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-             "odds_source": "the-odds-api" if api else "none (model only)"}
+             "odds_source": "the-odds-api" if api else "none (model only)", "odds_error": odds_error}
     if session == "pm":
         board["nba"] = nba_board(day, api)
         if day.weekday() != 6:  # weekday NFL (TNF/MNF/Saturday); Sunday has its own session

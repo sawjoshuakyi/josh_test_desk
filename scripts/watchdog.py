@@ -30,7 +30,9 @@ def main():
     else:
         b = json.load(open(board))
         if b.get("odds_source", "").startswith("none"):
-            notes.append("Board ran **without odds** (ODDS_API_KEY secret not set or invalid) — no edges or Kelly stakes.")
+            err = b.get("odds_error") or "ODDS_API_KEY secret not set or invalid"
+            problems.append(f"Board ran **without odds** — The Odds API said: `{err[:160]}`. No edges or Kelly stakes "
+                            "until the ODDS_API_KEY secret is fixed.")
         credits = b.get("credits_remaining")
         if credits is not None and float(credits) < LOW_CREDITS:
             problems.append(f"The Odds API credits are low: **{credits}** left this month.")
