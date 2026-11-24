@@ -50,7 +50,9 @@ jobs:
           MAX_MINUTES: "345"
           POLL_SECONDS: "60"
         run: |
-          D=$(TZ=America/Toronto date +%F)
+          # Evening (pm) runs can start after midnight while they wait for an earlier run: count anything before
+          # 8 AM ET as the previous day's slate.
+          if [ "$SESSION" = "pm" ]; then D=$(TZ=America/Toronto date -d '-8 hours' +%F); else D=$(TZ=America/Toronto date +%F); fi
           F="legs/$D-$SESSION.json"
           echo "Session: $SESSION  File: $F"
           if [ -f "$F" ]; then
