@@ -112,13 +112,14 @@ def parse_fixture(f: dict) -> tuple[list[dict], list[dict]]:
     code = LEAGUES.get(lg["id"], (None, f"af{lg['id']}"))[1]
     eid, date = str(fx["id"]), fx["date"][:10]
     h, a = teams["home"], teams["away"]
-    stats = {str(t["team"]["id"]): {s["type"]: s["value"] for s in t.get("statistics") or []} for t in f.get("statistics") or []}
+    stats = {str(t["team"]["id"]): {s["type"]: s["value"] for s in t.get("statistics") or []}
+             for t in f.get("statistics") or [] if t.get("team")}
     rows = []
     for me, op, home, gf, ga in ((h, a, 1, goals["home"], goals["away"]), (a, h, 0, goals["away"], goals["home"])):
         st = stats.get(str(me["id"]), {})
         row = {"league": code, "event_id": eid, "date": date, "team": me["name"], "team_id": str(me["id"]),
                "opp": op["name"], "opp_id": str(op["id"]), "home": home, "goals": gf, "goals_against": ga,
-               "neutral": int(lg.get("round", "").lower().startswith("final")), "season": lg.get("season")}
+               "neutral": int((lg.get("round") or "").lower().startswith("final")), "season": lg.get("season")}
         for src, dst in STAT.items():
             row[dst] = _num(st.get(src))
         row["totalCrosses"] = None
@@ -129,8 +130,10 @@ def parse_fixture(f: dict) -> tuple[list[dict], list[dict]]:
     for t in f.get("players") or []:
         tid = str(t["team"]["id"])
         for p in t.get("players") or []:
-            s = (p.get("statistics") or [{}])[0]
+            s = (p.get("statistics") or [{}])[0] or {}
             g = s.get("games") or {}
+            if not (p.get("player") or {}).get("id"):
+                continue
             mins = g.get("minutes") or 0
             if not mins:
                 continue
@@ -176,7 +179,8 @@ def update(until: dt.date | None = None, leagues: list[int] | None = None, backf
     loads past seasons from FIRST_SEASON. Stops before `max_requests` so the daily quota is never exhausted."""
     os.makedirs(DIR, exist_ok=True)
     until = until or dt.date.today()
-    have = set(_read(MATCHES).event_id) if os.path.exists(DIR) else set()
+    stored = _read(MATCHES)
+    have = set(stored.event_id) if len(stored) else set()
     seasons = current_seasons()
     used, todo, report = 1, [], {"leagues": {}, "errors": []}
     for lid in leagues or list(LEAGUES):
@@ -199,6 +203,7 @@ def update(until: dt.date | None = None, leagues: list[int] | None = None, backf
                 if f["fixture"]["status"]["short"] in DONE and f["fixture"]["date"][:10] <= until.isoformat() \
                         and str(f["fixture"]["id"]) not in have:
                     todo.append(f["fixture"]["id"])
+                    have.add(str(f["fixture"]["id"]))
                     n += 1
         report["leagues"][LEAGUES[lid][1]] = n
     mrows, prows = [], []
@@ -214,7 +219,11 @@ def update(until: dt.date | None = None, leagues: list[int] | None = None, backf
             continue
         used += 1
         for f in items:
-            r, p = parse_fixture(f)
+            try:
+                r, p = parse_fixture(f)
+            except Exception as e:                       # one odd fixture never stops the load
+                report["errors"].append(f"parse {f.get('fixture', {}).get('id')}: {e!r}")
+                continue
             mrows += r
             prows += p
         if len(mrows) > 20000:                           # flush in pieces on big backfills

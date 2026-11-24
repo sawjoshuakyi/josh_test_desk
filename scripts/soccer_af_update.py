@@ -5,7 +5,13 @@ from desk.soccer import apifootball as af
 
 if __name__ == "__main__":
     mx = int(sys.argv[sys.argv.index("--max") + 1]) if "--max" in sys.argv else 6000
-    rep = af.update(dt.date.today(), backfill="--backfill" in sys.argv, max_requests=mx)
+    os.makedirs("reports", exist_ok=True)
+    try:
+        rep = af.update(dt.date.today(), backfill="--backfill" in sys.argv, max_requests=mx)
+    except Exception:
+        import traceback
+        json.dump({"crashed": traceback.format_exc()}, open("reports/soccer_af_update.json", "w"), indent=1)
+        raise
     m, p = af.matches(), af.players()
     rep["stored"] = {"team_rows": len(m), "player_rows": len(p), "first": m.date.min() if len(m) else None,
                      "last": m.date.max() if len(m) else None,

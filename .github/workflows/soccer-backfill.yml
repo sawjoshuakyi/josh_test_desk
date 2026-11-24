@@ -25,4 +25,6 @@ jobs:
         run: python3 scripts/soccer_af_update.py --backfill --max 6000
       - name: Commit
         if: always()
-        run: scripts/commit.sh "API-Football soccer backfill $(date -u +%F)" data/soccer_af reports
+        run: |
+          mkdir -p data/soccer_af reports && touch data/soccer_af/.keep
+          scripts/commit.sh "API-Football soccer backfill $(date -u +%F)" data/soccer_af reports
