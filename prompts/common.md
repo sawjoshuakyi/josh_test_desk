@@ -257,6 +257,15 @@ Post with Python's urllib from the shell (headers Content-Type application/json 
   "Kelly says pass" when $0), "Bet it" ("[DraftKings](link) · [FanDuel](link)" from BET-SLIP LINKS; "find in app"
   when a book has no link),
   "EV" (slip EV), "Manager" (one-line verdict), "Main risk" (one line). Consistent color per slip type.
+- PLAYBOOK-READY SLIPS (always, every session, after the embeds): one plain-text message (content only, no embed)
+  introducing them — "🎟️ Playbook-ready slips — [date] [session]: reply to any slip with `@Playbook FanDuel` (or
+  `@Playbook DraftKings`) to load it into your bet slip; check the app price is at least the 'bet at' price" — then
+  ONE plain-text message per approved slip: first line "**[Sport] · [Slip type] · bet at [price] or better · $[stake]**",
+  then one leg per line written the way a sportsbook names it, with the full player/team names and the game, e.g.
+  "Kylian Mbappé 2+ shots on target (Real Madrid vs PSV Eindhoven)", "Solana Sierra to win vs Victoria Jimenez
+  Kasintseva (moneyline)", "Manchester City vs Napoli over 8.5 total corners", "Jalen Brunson over 24.5 points (Knicks
+  vs Celtics)". Playbook (Better Collective's free bet-slip bot in Josh's Discord) reads these and replies with a link
+  that loads the slip at the book Josh names. No odds analysis comes from Playbook — it is only a bet-slip loader.
 - GENERAL: one short results message — slips graded this run (record, units and $), running record and ROI from
   Summary, and links to today's doc and the tracker.
 - Limits: content ≤ 2000 characters, embed description ≤ 4096, ≤ 6000 characters of embed text and ≤ 10 embeds per
