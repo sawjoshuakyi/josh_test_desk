@@ -1,9 +1,9 @@
 {
  "date": "2026-11-24",
  "session": "am",
- "generated_at": "2026-11-24T14:53:52+00:00",
+ "generated_at": "2026-11-24T15:36:34+00:00",
  "odds_source": "none (model only)",
- "odds_error": "ODDS_API_KEY not set",
+ "odds_error": "HTTP 401: {\"message\":\"API key is not valid. Get an API key at https://the-odds-api.com\",\"error_code\":\"INVALID_KEY\",\"details_url\":\"https://the-odds-api.com/liveapi/guides/v4/api-error-codes.html#invalid-key\"}\n",
  "tennis": {
   "matches": [
    {
@@ -11,7 +11,7 @@
     "tour": "wta",
     "tournament": "IEB+ Argentina Open",
     "surface": "Clay",
-    "start": "2026-11-24T15:30Z",
+    "start": "2026-11-24T15:40Z",
     "best_of": 3,
     "player_a": "Luna Maria Cinalli",
     "player_b": "Guiomar Maristany Zuleta De Reales",
@@ -101,7 +101,7 @@
     "tour": "wta",
     "tournament": "IEB+ Argentina Open",
     "surface": "Clay",
-    "start": "2026-11-24T15:30Z",
+    "start": "2026-11-24T15:50Z",
     "best_of": 3,
     "player_a": "Alicia Herrero Linana",
     "player_b": "Lucia Bronzetti",
@@ -3138,7 +3138,7 @@
       "sot_mean": 0.27,
       "per90": 0.18,
       "minutes": 84,
-      "p_sot_1": 0.229,
+      "p_sot_1": 0.23,
       "p_sot_2": 0.033
      },
      {
@@ -3152,7 +3152,7 @@
       "per90": 0.8,
       "minutes": 75,
       "p_sot_1": 0.615,
-      "p_sot_2": 0.275
+      "p_sot_2": 0.276
      },
      {
       "player": "Thomas Beelen",
@@ -3268,7 +3268,7 @@
       "sot_mean": 0.92,
       "per90": 0.73,
       "minutes": 73,
-      "p_sot_1": 0.575,
+      "p_sot_1": 0.576,
       "p_sot_2": 0.237
      },
      {
@@ -3294,7 +3294,7 @@
       "sot_mean": 0.33,
       "per90": 0.96,
       "minutes": 20,
-      "p_sot_1": 0.274,
+      "p_sot_1": 0.275,
       "p_sot_2": 0.048
      },
      {
@@ -3991,7 +3991,7 @@
       "sot_mean": 0.19,
       "per90": 0.35,
       "minutes": 78,
-      "p_sot_1": 0.17,
+      "p_sot_1": 0.169,
       "p_sot_2": 0.018
      },
      {
@@ -5034,7 +5034,7 @@
       "sot_mean": 0.84,
       "per90": 0.8,
       "minutes": 81,
-      "p_sot_1": 0.542,
+      "p_sot_1": 0.543,
       "p_sot_2": 0.207
      },
      {
@@ -5406,7 +5406,7 @@
      "12.5": 0.247
     },
     "sot_home": 3.7,
-    "sot_away": 7.25,
+    "sot_away": 7.26,
     "low_sample": false,
     "players": [
      {
