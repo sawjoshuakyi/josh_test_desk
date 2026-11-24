@@ -26,3 +26,8 @@ def test_slip_links_needs_every_leg():
             {"label": "B", "links": {}}]
     out = slip_links(rows)
     assert out["fanduel"] is None and out["per_leg"][0]["fanduel"] == "x"
+
+
+def test_fanduel_ids_from_link():
+    leg = {"link": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.6&selectionId=7"}
+    assert fanduel([leg, leg]).endswith("marketId[0]=42.6&selectionId[0]=7&marketId[1]=42.6&selectionId[1]=7")

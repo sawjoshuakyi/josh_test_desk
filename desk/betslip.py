@@ -22,8 +22,19 @@ def _host(book: str, url: str) -> str:
     return urllib.parse.urlunsplit((p.scheme, want, p.path, p.query, p.fragment))
 
 
+def _fd_ids(l: dict) -> dict:
+    """FanDuel market and selection ids, from the sids or parsed out of the addToBetslip link."""
+    out = {"sid": l.get("sid"), "market_sid": l.get("market_sid")}
+    if l.get("link") and not (out["sid"] and out["market_sid"]):
+        qs = urllib.parse.parse_qs(urllib.parse.urlsplit(l["link"]).query)
+        out["market_sid"] = out["market_sid"] or (qs.get("marketId") or [None])[0]
+        out["sid"] = (qs.get("selectionId") or [None])[0] or out["sid"]
+    return out
+
+
 def fanduel(legs: list[dict]) -> str | None:
-    """legs: [{"sid": selectionId, "market_sid": marketId}] — every leg must have both."""
+    """legs: [{"sid": selectionId, "market_sid": marketId} or {"link": addToBetslip link}] — every leg needs both ids."""
+    legs = [_fd_ids(l) for l in legs]
     if not legs or any(not (l.get("sid") and l.get("market_sid")) for l in legs):
         return None
     q = []
