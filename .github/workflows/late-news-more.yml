@@ -25,6 +25,7 @@ jobs:
     env:
       DISCORD_NBA_NFL_WEBHOOK: ${{ secrets.DISCORD_NBA_NFL_WEBHOOK }}
       DISCORD_TENNIS_SOCCER_WEBHOOK: ${{ secrets.DISCORD_TENNIS_SOCCER_WEBHOOK }}
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

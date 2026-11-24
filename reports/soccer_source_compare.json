@@ -1,0 +1,1001 @@
+{
+ "espn_7_leagues": {
+  "all": {
+   "matches": 868,
+   "result": [
+    0.9861,
+    1.0608
+   ],
+   "over25": [
+    0.6485,
+    0.6662
+   ],
+   "corners95": [
+    0.6857,
+    0.6935
+   ],
+   "corners105": [
+    0.6726,
+    0.6762
+   ],
+   "sot1": [
+    0.5239,
+    0.541
+   ],
+   "sot2": [
+    0.235,
+    0.2512
+   ],
+   "sot_players": 16187,
+   "fav_calibration": [
+    {
+     "bucket": "0%-50%",
+     "n": 615,
+     "avg_pred": 0.37872826348616934,
+     "hit_rate": 0.36585365853658536
+    },
+    {
+     "bucket": "50%-60%",
+     "n": 169,
+     "avg_pred": 0.5457480449975234,
+     "hit_rate": 0.5976331360946746
+    },
+    {
+     "bucket": "60%-70%",
+     "n": 62,
+     "avg_pred": 0.641761142610912,
+     "hit_rate": 0.7741935483870968
+    },
+    {
+     "bucket": "70%-80%",
+     "n": 16,
+     "avg_pred": 0.7278320827032797,
+     "hit_rate": 0.9375
+    },
+    {
+     "bucket": "80%-90%",
+     "n": 6,
+     "avg_pred": 0.8270383364830289,
+     "hit_rate": 0.8333333333333334
+    }
+   ]
+  },
+  "seconds": 84
+ },
+ "af_xg": {
+  "all": {
+   "matches": 3505,
+   "result": [
+    1.0066,
+    1.0681
+   ],
+   "over25": [
+    0.6749,
+    0.6829
+   ],
+   "corners95": [
+    0.6934,
+    0.6934
+   ],
+   "corners105": [
+    0.6802,
+    0.6824
+   ],
+   "fav_calibration": [
+    {
+     "bucket": "0%-50%",
+     "n": 2548,
+     "avg_pred": 0.3832003504919739,
+     "hit_rate": 0.3716640502354788
+    },
+    {
+     "bucket": "50%-60%",
+     "n": 657,
+     "avg_pred": 0.5419933600854485,
+     "hit_rate": 0.5905631659056316
+    },
+    {
+     "bucket": "60%-70%",
+     "n": 222,
+     "avg_pred": 0.6405615615785777,
+     "hit_rate": 0.7612612612612613
+    },
+    {
+     "bucket": "70%-80%",
+     "n": 70,
+     "avg_pred": 0.7382320206952826,
+     "hit_rate": 0.7857142857142857
+    },
+    {
+     "bucket": "80%-90%",
+     "n": 8,
+     "avg_pred": 0.835132010800914,
+     "hit_rate": 0.875
+    }
+   ]
+  },
+  "same_7_leagues": {
+   "matches": 921,
+   "result": [
+    0.9854,
+    1.0576
+   ],
+   "over25": [
+    0.6518,
+    0.6696
+   ],
+   "corners95": [
+    0.686,
+    0.6913
+   ],
+   "corners105": [
+    0.666,
+    0.6742
+   ],
+   "fav_calibration": [
+    {
+     "bucket": "0%-50%",
+     "n": 635,
+     "avg_pred": 0.37785643845261346,
+     "hit_rate": 0.3763779527559055
+    },
+    {
+     "bucket": "50%-60%",
+     "n": 173,
+     "avg_pred": 0.5434555512406236,
+     "hit_rate": 0.5838150289017341
+    },
+    {
+     "bucket": "60%-70%",
+     "n": 91,
+     "avg_pred": 0.639150319318061,
+     "hit_rate": 0.7252747252747253
+    },
+    {
+     "bucket": "70%-80%",
+     "n": 18,
+     "avg_pred": 0.7405305789756511,
+     "hit_rate": 0.8888888888888888
+    },
+    {
+     "bucket": "80%-90%",
+     "n": 4,
+     "avg_pred": 0.8412049498267299,
+     "hit_rate": 0.75
+    }
+   ]
+  },
+  "by_league_result_ll": {
+   "argentina": 1.0439,
+   "austria": 0.9535,
+   "belgium": 0.9222,
+   "brasileirao": 0.9788,
+   "bundesliga": 0.9502,
+   "bundesliga2": 1.0499,
+   "efl_champ": 1.0588,
+   "efl_l1": 1.064,
+   "efl_l2": 1.0555,
+   "eliteserien": 0.9906,
+   "epl": 1.0235,
+   "eredivisie": 1.0244,
+   "greece": 0.9103,
+   "laliga": 0.948,
+   "laliga2": 1.0118,
+   "ligamx": 1.0908,
+   "ligue1": 0.9821,
+   "ligue2": 1.052,
+   "mls": 1.0642,
+   "primeira": 0.9258,
+   "seriea": 0.9305,
+   "serieb": 1.0827,
+   "spl": 0.9892,
+   "superlig": 0.9627,
+   "ucl": 0.8916,
+   "uecl": 0.9609,
+   "uel": 0.9679
+  },
+  "seconds": 103
+ },
+ "af_default": {
+  "all": {
+   "matches": 3505,
+   "result": [
+    1.0088,
+    1.0681
+   ],
+   "over25": [
+    0.6721,
+    0.6829
+   ],
+   "corners95": [
+    0.6934,
+    0.6934
+   ],
+   "corners105": [
+    0.6802,
+    0.6824
+   ],
+   "sot1": [
+    0.518,
+    0.5275
+   ],
+   "sot2": [
+    0.21,
+    0.2233
+   ],
+   "sot_players": 74912,
+   "fav_calibration": [
+    {
+     "bucket": "0%-50%",
+     "n": 2594,
+     "avg_pred": 0.386266220953698,
+     "hit_rate": 0.37625289128758677
+    },
+    {
+     "bucket": "50%-60%",
+     "n": 648,
+     "avg_pred": 0.5423934239040825,
+     "hit_rate": 0.5910493827160493
+    },
+    {
+     "bucket": "60%-70%",
+     "n": 202,
+     "avg_pred": 0.644936183352762,
+     "hit_rate": 0.7772277227722773
+    },
+    {
+     "bucket": "70%-80%",
+     "n": 55,
+     "avg_pred": 0.7388761066330942,
+     "hit_rate": 0.8181818181818182
+    },
+    {
+     "bucket": "80%-90%",
+     "n": 6,
+     "avg_pred": 0.8367237785529102,
+     "hit_rate": 0.8333333333333334
+    }
+   ]
+  },
+  "same_7_leagues": {
+   "matches": 921,
+   "result": [
+    0.9872,
+    1.0576
+   ],
+   "over25": [
+    0.6479,
+    0.6696
+   ],
+   "corners95": [
+    0.686,
+    0.6913
+   ],
+   "corners105": [
+    0.666,
+    0.6742
+   ],
+   "fav_calibration": [
+    {
+     "bucket": "0%-50%",
+     "n": 652,
+     "avg_pred": 0.38340914057002806,
+     "hit_rate": 0.3773006134969325
+    },
+    {
+     "bucket": "50%-60%",
+     "n": 184,
+     "avg_pred": 0.547834251418485,
+     "hit_rate": 0.6032608695652174
+    },
+    {
+     "bucket": "60%-70%",
+     "n": 68,
+     "avg_pred": 0.644568754253619,
+     "hit_rate": 0.7647058823529411
+    },
+    {
+     "bucket": "70%-80%",
+     "n": 13,
+     "avg_pred": 0.7373968948947746,
+     "hit_rate": 1.0
+    },
+    {
+     "bucket": "80%-90%",
+     "n": 4,
+     "avg_pred": 0.8332591359376604,
+     "hit_rate": 0.75
+    }
+   ]
+  },
+  "by_league_result_ll": {
+   "argentina": 1.048,
+   "austria": 0.9588,
+   "belgium": 0.9212,
+   "brasileirao": 0.9795,
+   "bundesliga": 0.9555,
+   "bundesliga2": 1.0487,
+   "efl_champ": 1.0604,
+   "efl_l1": 1.0644,
+   "efl_l2": 1.0585,
+   "eliteserien": 1.0037,
+   "epl": 1.0235,
+   "eredivisie": 1.0191,
+   "greece": 0.9122,
+   "laliga": 0.9431,
+   "laliga2": 1.0195,
+   "ligamx": 1.094,
+   "ligue1": 0.9811,
+   "ligue2": 1.0511,
+   "mls": 1.0703,
+   "primeira": 0.9361,
+   "seriea": 0.9298,
+   "serieb": 1.0808,
+   "spl": 0.989,
+   "superlig": 0.9623,
+   "ucl": 0.895,
+   "uecl": 0.9659,
+   "uel": 0.9691
+  },
+  "by_league": {
+   "argentina": {
+    "n": 220,
+    "result_gain": 0.0434,
+    "over25_gain": 0.0376,
+    "corners95_gain": -0.0029,
+    "corners105_gain": -0.0104
+   },
+   "austria": {
+    "n": 76,
+    "result_gain": 0.0793,
+    "over25_gain": 0.0034,
+    "corners95_gain": 0.0023,
+    "corners105_gain": -0.0395
+   },
+   "belgium": {
+    "n": 107,
+    "result_gain": 0.1201,
+    "over25_gain": 0.0046,
+    "corners95_gain": -0.0002,
+    "corners105_gain": -0.0043
+   },
+   "brasileirao": {
+    "n": 154,
+    "result_gain": 0.0539,
+    "over25_gain": 0.0018,
+    "corners95_gain": -0.0192,
+    "corners105_gain": -0.0008
+   },
+   "bundesliga": {
+    "n": 90,
+    "result_gain": 0.0936,
+    "over25_gain": 0.0067,
+    "corners95_gain": 0.0154,
+    "corners105_gain": 0.007
+   },
+   "bundesliga2": {
+    "n": 106,
+    "result_gain": 0.0185,
+    "over25_gain": -0.0013,
+    "corners95_gain": 0.0175,
+    "corners105_gain": 0.0292
+   },
+   "efl_champ": {
+    "n": 192,
+    "result_gain": 0.0144,
+    "over25_gain": -0.0108,
+    "corners95_gain": -0.0016,
+    "corners105_gain": 0.0018
+   },
+   "efl_l1": {
+    "n": 175,
+    "result_gain": 0.0225,
+    "over25_gain": -0.0068,
+    "corners95_gain": 0.0177,
+    "corners105_gain": 0.0067
+   },
+   "efl_l2": {
+    "n": 184,
+    "result_gain": 0.0131,
+    "over25_gain": 0.0097,
+    "corners95_gain": -0.0217,
+    "corners105_gain": -0.0081
+   },
+   "eliteserien": {
+    "n": 100,
+    "result_gain": 0.056,
+    "over25_gain": 0.0225,
+    "corners95_gain": 0.0331,
+    "corners105_gain": 0.0607
+   },
+   "epl": {
+    "n": 110,
+    "result_gain": 0.0551,
+    "over25_gain": 0.0249,
+    "corners95_gain": 0.0241,
+    "corners105_gain": 0.0136
+   },
+   "eredivisie": {
+    "n": 117,
+    "result_gain": 0.0971,
+    "over25_gain": 0.0188,
+    "corners95_gain": -0.038,
+    "corners105_gain": -0.0225
+   },
+   "greece": {
+    "n": 74,
+    "result_gain": 0.1421,
+    "over25_gain": 0.0011,
+    "corners95_gain": -0.0066,
+    "corners105_gain": -0.0229
+   },
+   "laliga": {
+    "n": 129,
+    "result_gain": 0.1305,
+    "over25_gain": 0.0632,
+    "corners95_gain": 0.029,
+    "corners105_gain": 0.0191
+   },
+   "laliga2": {
+    "n": 160,
+    "result_gain": 0.0446,
+    "over25_gain": 0.0046,
+    "corners95_gain": -0.0177,
+    "corners105_gain": -0.0069
+   },
+   "ligamx": {
+    "n": 135,
+    "result_gain": 0.0204,
+    "over25_gain": -0.011,
+    "corners95_gain": -0.0157,
+    "corners105_gain": -0.0086
+   },
+   "ligue1": {
+    "n": 99,
+    "result_gain": 0.0869,
+    "over25_gain": 0.0172,
+    "corners95_gain": 0.0166,
+    "corners105_gain": 0.0139
+   },
+   "ligue2": {
+    "n": 113,
+    "result_gain": 0.0229,
+    "over25_gain": 0.0201,
+    "corners95_gain": 0.0064,
+    "corners105_gain": -0.0064
+   },
+   "mls": {
+    "n": 265,
+    "result_gain": 0.0153,
+    "over25_gain": 0.0108,
+    "corners95_gain": -0.0152,
+    "corners105_gain": -0.0036
+   },
+   "primeira": {
+    "n": 96,
+    "result_gain": 0.1403,
+    "over25_gain": 0.005,
+    "corners95_gain": 0.0217,
+    "corners105_gain": 0.0187
+   },
+   "seriea": {
+    "n": 120,
+    "result_gain": 0.1222,
+    "over25_gain": 0.0207,
+    "corners95_gain": 0.0108,
+    "corners105_gain": 0.0114
+   },
+   "serieb": {
+    "n": 122,
+    "result_gain": 0.0133,
+    "over25_gain": 0.0103,
+    "corners95_gain": -0.0431,
+    "corners105_gain": -0.0441
+   },
+   "spl": {
+    "n": 80,
+    "result_gain": 0.082,
+    "over25_gain": -0.0121,
+    "corners95_gain": -0.017,
+    "corners105_gain": -0.0194
+   },
+   "superlig": {
+    "n": 105,
+    "result_gain": 0.0769,
+    "over25_gain": 0.0263,
+    "corners95_gain": -0.018,
+    "corners105_gain": -0.0052
+   },
+   "ucl": {
+    "n": 108,
+    "result_gain": 0.0571,
+    "over25_gain": 0.0135,
+    "corners95_gain": -0.0171,
+    "corners105_gain": 0.0108
+   },
+   "uecl": {
+    "n": 147,
+    "result_gain": 0.1189,
+    "over25_gain": -0.0007,
+    "corners95_gain": 0.0534,
+    "corners105_gain": 0.0639
+   },
+   "uel": {
+    "n": 121,
+    "result_gain": 0.0667,
+    "over25_gain": 0.0047,
+    "corners95_gain": 0.0182,
+    "corners105_gain": 0.0026
+   }
+  },
+  "seconds": 377
+ },
+ "af_league_offsets": {
+  "all": {
+   "matches": 3505,
+   "result": [
+    1.0088,
+    1.0681
+   ],
+   "over25": [
+    0.6722,
+    0.6829
+   ],
+   "corners95": [
+    0.6935,
+    0.6934
+   ],
+   "corners105": [
+    0.6799,
+    0.6824
+   ],
+   "fav_calibration": [
+    {
+     "bucket": "0%-50%",
+     "n": 2593,
+     "avg_pred": 0.3861378547634292,
+     "hit_rate": 0.37639799460084844
+    },
+    {
+     "bucket": "50%-60%",
+     "n": 645,
+     "avg_pred": 0.5421462506730901,
+     "hit_rate": 0.5891472868217055
+    },
+    {
+     "bucket": "60%-70%",
+     "n": 206,
+     "avg_pred": 0.6446216776414736,
+     "hit_rate": 0.7766990291262136
+    },
+    {
+     "bucket": "70%-80%",
+     "n": 55,
+     "avg_pred": 0.7385782940848941,
+     "hit_rate": 0.8181818181818182
+    },
+    {
+     "bucket": "80%-90%",
+     "n": 6,
+     "avg_pred": 0.8376569808166946,
+     "hit_rate": 0.8333333333333334
+    }
+   ]
+  },
+  "same_7_leagues": {
+   "matches": 921,
+   "result": [
+    0.9868,
+    1.0576
+   ],
+   "over25": [
+    0.6469,
+    0.6696
+   ],
+   "corners95": [
+    0.6855,
+    0.6913
+   ],
+   "corners105": [
+    0.666,
+    0.6742
+   ],
+   "fav_calibration": [
+    {
+     "bucket": "0%-50%",
+     "n": 648,
+     "avg_pred": 0.38301549020665593,
+     "hit_rate": 0.3734567901234568
+    },
+    {
+     "bucket": "50%-60%",
+     "n": 186,
+     "avg_pred": 0.5467714459551134,
+     "hit_rate": 0.6075268817204301
+    },
+    {
+     "bucket": "60%-70%",
+     "n": 70,
+     "avg_pred": 0.6442671389765254,
+     "hit_rate": 0.7714285714285715
+    },
+    {
+     "bucket": "70%-80%",
+     "n": 13,
+     "avg_pred": 0.7365647388363956,
+     "hit_rate": 1.0
+    },
+    {
+     "bucket": "80%-90%",
+     "n": 4,
+     "avg_pred": 0.8347311846583322,
+     "hit_rate": 0.75
+    }
+   ]
+  },
+  "by_league_result_ll": {
+   "argentina": 1.0479,
+   "austria": 0.9595,
+   "belgium": 0.9213,
+   "brasileirao": 0.9795,
+   "bundesliga": 0.9547,
+   "bundesliga2": 1.049,
+   "efl_champ": 1.0605,
+   "efl_l1": 1.0656,
+   "efl_l2": 1.0584,
+   "eliteserien": 1.0037,
+   "epl": 1.0238,
+   "eredivisie": 1.0191,
+   "greece": 0.9128,
+   "laliga": 0.9447,
+   "laliga2": 1.0198,
+   "ligamx": 1.0942,
+   "ligue1": 0.9814,
+   "ligue2": 1.0504,
+   "mls": 1.0705,
+   "primeira": 0.9362,
+   "seriea": 0.9302,
+   "serieb": 1.0804,
+   "spl": 0.9891,
+   "superlig": 0.9619,
+   "ucl": 0.8882,
+   "uecl": 0.9676,
+   "uel": 0.9697
+  },
+  "seconds": 101
+ },
+ "af_xg_offsets": {
+  "all": {
+   "matches": 3505,
+   "result": [
+    1.0066,
+    1.0681
+   ],
+   "over25": [
+    0.6751,
+    0.6829
+   ],
+   "corners95": [
+    0.6935,
+    0.6934
+   ],
+   "corners105": [
+    0.6799,
+    0.6824
+   ],
+   "sot1": [
+    0.518,
+    0.5275
+   ],
+   "sot2": [
+    0.21,
+    0.2233
+   ],
+   "sot_players": 74912,
+   "fav_calibration": [
+    {
+     "bucket": "0%-50%",
+     "n": 2547,
+     "avg_pred": 0.3830738569904143,
+     "hit_rate": 0.3718099725166863
+    },
+    {
+     "bucket": "50%-60%",
+     "n": 652,
+     "avg_pred": 0.5415015320653859,
+     "hit_rate": 0.5858895705521472
+    },
+    {
+     "bucket": "60%-70%",
+     "n": 227,
+     "avg_pred": 0.6397125916407193,
+     "hit_rate": 0.7665198237885462
+    },
+    {
+     "bucket": "70%-80%",
+     "n": 71,
+     "avg_pred": 0.7376578523701919,
+     "hit_rate": 0.7887323943661971
+    },
+    {
+     "bucket": "80%-90%",
+     "n": 8,
+     "avg_pred": 0.8352574157077728,
+     "hit_rate": 0.875
+    }
+   ]
+  },
+  "same_7_leagues": {
+   "matches": 921,
+   "result": [
+    0.9851,
+    1.0576
+   ],
+   "over25": [
+    0.6513,
+    0.6696
+   ],
+   "corners95": [
+    0.6855,
+    0.6913
+   ],
+   "corners105": [
+    0.666,
+    0.6742
+   ],
+   "fav_calibration": [
+    {
+     "bucket": "0%-50%",
+     "n": 635,
+     "avg_pred": 0.3780805292790418,
+     "hit_rate": 0.37480314960629924
+    },
+    {
+     "bucket": "50%-60%",
+     "n": 171,
+     "avg_pred": 0.5433168878995497,
+     "hit_rate": 0.5906432748538012
+    },
+    {
+     "bucket": "60%-70%",
+     "n": 92,
+     "avg_pred": 0.6379765941087002,
+     "hit_rate": 0.717391304347826
+    },
+    {
+     "bucket": "70%-80%",
+     "n": 19,
+     "avg_pred": 0.7379948307507302,
+     "hit_rate": 0.8947368421052632
+    },
+    {
+     "bucket": "80%-90%",
+     "n": 4,
+     "avg_pred": 0.8415440601810782,
+     "hit_rate": 0.75
+    }
+   ]
+  },
+  "by_league_result_ll": {
+   "argentina": 1.0439,
+   "austria": 0.954,
+   "belgium": 0.9222,
+   "brasileirao": 0.9788,
+   "bundesliga": 0.9497,
+   "bundesliga2": 1.0504,
+   "efl_champ": 1.0587,
+   "efl_l1": 1.0659,
+   "efl_l2": 1.0555,
+   "eliteserien": 0.9905,
+   "epl": 1.0238,
+   "eredivisie": 1.0243,
+   "greece": 0.9107,
+   "laliga": 0.949,
+   "laliga2": 1.0119,
+   "ligamx": 1.0909,
+   "ligue1": 0.9825,
+   "ligue2": 1.0513,
+   "mls": 1.0643,
+   "primeira": 0.9259,
+   "seriea": 0.9311,
+   "serieb": 1.0822,
+   "spl": 0.9893,
+   "superlig": 0.9627,
+   "ucl": 0.8859,
+   "uecl": 0.9625,
+   "uel": 0.9682
+  },
+  "by_league": {
+   "argentina": {
+    "n": 220,
+    "result_gain": 0.0475,
+    "over25_gain": 0.0327,
+    "corners95_gain": -0.0033,
+    "corners105_gain": -0.0109
+   },
+   "austria": {
+    "n": 76,
+    "result_gain": 0.0841,
+    "over25_gain": 0.0052,
+    "corners95_gain": 0.0029,
+    "corners105_gain": -0.0394
+   },
+   "belgium": {
+    "n": 107,
+    "result_gain": 0.1192,
+    "over25_gain": 0.0064,
+    "corners95_gain": 0.0011,
+    "corners105_gain": -0.0041
+   },
+   "brasileirao": {
+    "n": 154,
+    "result_gain": 0.0546,
+    "over25_gain": -0.0091,
+    "corners95_gain": -0.019,
+    "corners105_gain": -0.0003
+   },
+   "bundesliga": {
+    "n": 90,
+    "result_gain": 0.0994,
+    "over25_gain": 0.0044,
+    "corners95_gain": 0.01,
+    "corners105_gain": 0.0038
+   },
+   "bundesliga2": {
+    "n": 106,
+    "result_gain": 0.0168,
+    "over25_gain": -0.0023,
+    "corners95_gain": 0.0258,
+    "corners105_gain": 0.0376
+   },
+   "efl_champ": {
+    "n": 192,
+    "result_gain": 0.0161,
+    "over25_gain": -0.0148,
+    "corners95_gain": -0.0042,
+    "corners105_gain": 0.0001
+   },
+   "efl_l1": {
+    "n": 175,
+    "result_gain": 0.0209,
+    "over25_gain": -0.0043,
+    "corners95_gain": 0.0224,
+    "corners105_gain": 0.0135
+   },
+   "efl_l2": {
+    "n": 184,
+    "result_gain": 0.0161,
+    "over25_gain": 0.0103,
+    "corners95_gain": -0.0254,
+    "corners105_gain": -0.0052
+   },
+   "eliteserien": {
+    "n": 100,
+    "result_gain": 0.0692,
+    "over25_gain": 0.0227,
+    "corners95_gain": 0.0328,
+    "corners105_gain": 0.0602
+   },
+   "epl": {
+    "n": 110,
+    "result_gain": 0.0549,
+    "over25_gain": 0.0225,
+    "corners95_gain": 0.0329,
+    "corners105_gain": 0.0225
+   },
+   "eredivisie": {
+    "n": 117,
+    "result_gain": 0.0918,
+    "over25_gain": 0.0073,
+    "corners95_gain": -0.0383,
+    "corners105_gain": -0.0209
+   },
+   "greece": {
+    "n": 74,
+    "result_gain": 0.1436,
+    "over25_gain": 0.0068,
+    "corners95_gain": -0.0103,
+    "corners105_gain": -0.0263
+   },
+   "laliga": {
+    "n": 129,
+    "result_gain": 0.1246,
+    "over25_gain": 0.061,
+    "corners95_gain": 0.0363,
+    "corners105_gain": 0.0217
+   },
+   "laliga2": {
+    "n": 160,
+    "result_gain": 0.0521,
+    "over25_gain": 0.0019,
+    "corners95_gain": -0.0206,
+    "corners105_gain": -0.0112
+   },
+   "ligamx": {
+    "n": 135,
+    "result_gain": 0.0236,
+    "over25_gain": -0.0003,
+    "corners95_gain": -0.0156,
+    "corners105_gain": -0.0085
+   },
+   "ligue1": {
+    "n": 99,
+    "result_gain": 0.0855,
+    "over25_gain": 0.0134,
+    "corners95_gain": 0.0132,
+    "corners105_gain": 0.0126
+   },
+   "ligue2": {
+    "n": 113,
+    "result_gain": 0.0227,
+    "over25_gain": 0.0198,
+    "corners95_gain": 0.0054,
+    "corners105_gain": -0.0065
+   },
+   "mls": {
+    "n": 265,
+    "result_gain": 0.0213,
+    "over25_gain": 0.0033,
+    "corners95_gain": -0.0151,
+    "corners105_gain": -0.0035
+   },
+   "primeira": {
+    "n": 96,
+    "result_gain": 0.1505,
+    "over25_gain": -0.0031,
+    "corners95_gain": 0.0233,
+    "corners105_gain": 0.0196
+   },
+   "seriea": {
+    "n": 120,
+    "result_gain": 0.1209,
+    "over25_gain": 0.0072,
+    "corners95_gain": 0.0118,
+    "corners105_gain": 0.0118
+   },
+   "serieb": {
+    "n": 122,
+    "result_gain": 0.0119,
+    "over25_gain": 0.0066,
+    "corners95_gain": -0.0467,
+    "corners105_gain": -0.0483
+   },
+   "spl": {
+    "n": 80,
+    "result_gain": 0.0817,
+    "over25_gain": -0.0135,
+    "corners95_gain": -0.0176,
+    "corners105_gain": -0.0203
+   },
+   "superlig": {
+    "n": 105,
+    "result_gain": 0.0765,
+    "over25_gain": 0.0164,
+    "corners95_gain": -0.0169,
+    "corners105_gain": -0.0047
+   },
+   "ucl": {
+    "n": 108,
+    "result_gain": 0.0662,
+    "over25_gain": 0.0275,
+    "corners95_gain": -0.024,
+    "corners105_gain": 0.0017
+   },
+   "uecl": {
+    "n": 147,
+    "result_gain": 0.1223,
+    "over25_gain": -0.0092,
+    "corners95_gain": 0.0499,
+    "corners105_gain": 0.0621
+   },
+   "uel": {
+    "n": 121,
+    "result_gain": 0.0676,
+    "over25_gain": -0.0017,
+    "corners95_gain": 0.0197,
+    "corners105_gain": 0.0063
+   }
+  },
+  "seconds": 390
+ }
+}

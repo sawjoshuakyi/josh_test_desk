@@ -47,6 +47,7 @@ jobs:
       - name: Track today's legs
         env:
           DISCORD_LIVE_WEBHOOK: ${{ secrets.DISCORD_LIVE_WEBHOOK }}
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
           MAX_MINUTES: "345"
           POLL_SECONDS: "60"
         run: |

@@ -123,7 +123,8 @@ def parse_fixture(f: dict) -> tuple[list[dict], list[dict]]:
         for src, dst in STAT.items():
             row[dst] = _num(st.get(src))
         row["totalCrosses"] = None
-        if row["wonCorners"] is None and st:          # stats present but corners blank -> 0 corners
+        if row["wonCorners"] is None and (row["totalShots"] is not None or row["shotsOnTarget"] is not None):
+            # API-Football leaves zero counts blank; only trust that when the rest of the stats are there
             row["wonCorners"] = 0.0
         rows.append(row)
     players = []

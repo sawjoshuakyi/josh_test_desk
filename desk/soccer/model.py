@@ -38,10 +38,16 @@ class SoccerParams:
     sot_k_minutes: float = 900.0    # minutes at which a player's own SOT rate gets half weight
     sot_half_life_days: float = 300.0
     sot_disp: float = 6.0           # negative binomial size for player SOT
+    league_offsets: bool = False    # own scoring/corner baseline per competition (many leagues at once)
+    use_xg: bool = True             # goals target uses API-Football xG where present (SOT proxy otherwise)
+    recent_days: float = 60.0       # re-level the overall rate to the last N days (2026/27 scores ~0.25 goals more)
+    result_power: float = 1.141     # 1X2 calibration fitted on 2025/26 (fixes underrated favourites), checked on 2026/27
+    draw_mult: float = 1.037
 
 
 def fit_ratings(m: pd.DataFrame, target: pd.Series, asof: str, p: SoccerParams) -> dict:
-    """Fit attack/defence ratings on rows before `asof`. Returns dict with base, home, att, dfn (by team_id)."""
+    """Fit attack/defence ratings on rows before `asof`. Returns dict with base, home, att, dfn (by team_id) and,
+    with p.league_offsets, lg (by competition code, lightly penalised so base stays identified)."""
     d = m[m.date < asof].copy()
     d["y"] = target.loc[d.index]
     d = d.dropna(subset=["y"])
@@ -50,29 +56,45 @@ def fit_ratings(m: pd.DataFrame, target: pd.Series, asof: str, p: SoccerParams) 
     teams = pd.Index(sorted(set(d.team_id) | set(d.opp_id)))
     ti, oi = teams.get_indexer(d.team_id), teams.get_indexer(d.opp_id)
     home, y, n = d.home.to_numpy(float), d.y.to_numpy(float), len(teams)
+    lgs = pd.Index(sorted(d.league.unique())) if p.league_offsets else pd.Index([])
+    li = lgs.get_indexer(d.league) if p.league_offsets else None
+    L = len(lgs)
 
     def nll(theta):
-        base, h, att, dfn = theta[0], theta[1], theta[2:2 + n], theta[2 + n:]
-        eta = base + h * home + att[ti] - dfn[oi]
+        base, h = theta[0], theta[1]
+        lg, att, dfn = theta[2:2 + L], theta[2 + L:2 + L + n], theta[2 + L + n:]
+        eta = base + h * home + att[ti] - dfn[oi] + (lg[li] if L else 0.0)
         mu = np.exp(eta)
         ll = w * (y * eta - mu)
-        reg = p.ridge * (att @ att + dfn @ dfn) / 2
+        reg = p.ridge * (att @ att + dfn @ dfn) / 2 + 0.5 * (lg @ lg) / 2
         g = w * (y - mu)
         grad = np.zeros_like(theta)
         grad[0], grad[1] = g.sum(), (g * home).sum()
-        grad[2:2 + n] = np.bincount(ti, g, n) - p.ridge * att
-        grad[2 + n:] = -np.bincount(oi, g, n) - p.ridge * dfn
+        if L:
+            grad[2:2 + L] = np.bincount(li, g, L) - 0.5 * lg
+        grad[2 + L:2 + L + n] = np.bincount(ti, g, n) - p.ridge * att
+        grad[2 + L + n:] = -np.bincount(oi, g, n) - p.ridge * dfn
         return -(ll.sum() - reg), -grad
 
-    x0 = np.zeros(2 + 2 * n)
+    x0 = np.zeros(2 + L + 2 * n)
     x0[0] = np.log(max(np.average(y, weights=w), 1e-3))
-    res = optimize.minimize(nll, x0, jac=True, method="L-BFGS-B", options={"maxiter": 500})
+    res = optimize.minimize(nll, x0, jac=True, method="L-BFGS-B", options={"maxiter": 800})
     th = res.x
-    return {"base": th[0], "home": th[1], "att": dict(zip(teams, th[2:2 + n])), "dfn": dict(zip(teams, th[2 + n:]))}
+    if p.recent_days > 0:
+        lg_ = th[2:2 + L]
+        eta = th[0] + th[1] * home + th[2 + L:2 + L + n][ti] - th[2 + L + n:][oi] + (lg_[li] if L else 0.0)
+        wr = 0.5 ** (age / (p.recent_days / 2))          # recent window, half-life = half the window
+        ratio = np.sum(wr * y) / max(np.sum(wr * np.exp(eta)), 1e-9)
+        th = th.copy()
+        th[0] += float(np.log(np.clip(ratio, 0.8, 1.25)))
+    return {"base": th[0], "home": th[1], "lg": dict(zip(lgs, th[2:2 + L])),
+            "att": dict(zip(teams, th[2 + L:2 + L + n])), "dfn": dict(zip(teams, th[2 + L + n:]))}
 
 
-def rate(r: dict, team: str, opp: str, home: int) -> float:
-    return float(np.exp(r["base"] + r["home"] * home + r["att"].get(team, 0.0) - r["dfn"].get(opp, 0.0)))
+def rate(r: dict, team: str, opp: str, home: int, league: str | None = None) -> float:
+    lg = r.get("lg") or {}
+    off = lg.get(league, 0.0) if league is not None else 0.0
+    return float(np.exp(r["base"] + off + r["home"] * home + r["att"].get(team, 0.0) - r["dfn"].get(opp, 0.0)))
 
 
 def dixon_coles(lh: float, la: float, rho: float, max_g: int = 10) -> np.ndarray:
@@ -93,28 +115,38 @@ class SoccerModel:
         self.m, self.pl, self.asof = matches, players, asof
         hist = matches[matches.date < asof]
         self.conv = hist.goals.sum() / max(hist.shotsOnTarget.sum(), 1)
-        goal_target = (1 - self.p.xg_weight) * matches.goals + self.p.xg_weight * matches.shotsOnTarget * self.conv
+        proxy = matches.shotsOnTarget * self.conv
+        if self.p.use_xg and "xg" in matches:
+            proxy = matches.xg.where(matches.xg.notna(), proxy)
+        goal_target = (1 - self.p.xg_weight) * matches.goals + self.p.xg_weight * proxy
         self.goals = fit_ratings(matches, goal_target, asof, self.p)
         self.sot = fit_ratings(matches, matches.shotsOnTarget, asof, self.p)
         self.corners = fit_ratings(matches, matches.wonCorners, asof, self.p)
         self._by_player = {pid: g for pid, g in players[players.date < asof].groupby("player_id")}
-        self._team_avg_sot = hist.groupby("team_id").apply(
+        recent = hist.sort_values("date").groupby("team_id").tail(15)
+        self._home_league = recent.groupby("team_id").league.agg(lambda x: x.mode().iloc[0]).to_dict()
+        self._team_avg_sot = hist.dropna(subset=["shotsOnTarget"]).groupby("team_id").apply(
             lambda g: np.average(g.shotsOnTarget, weights=0.5 ** ((pd.Timestamp(asof) - pd.to_datetime(g.date)).dt.days
                                                                     / self.p.half_life_days)),
             include_groups=False).to_dict()
 
     # ---------------------------------------------------------------- match markets
-    def match(self, home_id: str, away_id: str, neutral: bool = False) -> dict:
+    def match(self, home_id: str, away_id: str, neutral: bool = False, league: str | None = None) -> dict:
         h = 0 if neutral else 1
-        lh, la = rate(self.goals, home_id, away_id, h), rate(self.goals, away_id, home_id, 0)
+        lg = league if league is not None else self._home_league.get(home_id)
+        lh, la = rate(self.goals, home_id, away_id, h, lg), rate(self.goals, away_id, home_id, 0, lg)
         mat = dixon_coles(lh, la, self.p.rho)
         tot = np.array([sum(mat[i, j] for i in range(mat.shape[0]) for j in range(mat.shape[1]) if i + j == k)
                         for k in range(2 * mat.shape[0] - 1)])
-        ch, ca = rate(self.corners, home_id, away_id, h), rate(self.corners, away_id, home_id, 0)
+        ch, ca = rate(self.corners, home_id, away_id, h, lg), rate(self.corners, away_id, home_id, 0, lg)
+        raw = np.array([np.tril(mat, -1).sum(), np.trace(mat), np.triu(mat, 1).sum()])
+        q = raw ** self.p.result_power
+        q[1] *= self.p.draw_mult
+        q = q / q.sum()
         return {"lambda_home": lh, "lambda_away": la,
-                "p_home": float(np.tril(mat, -1).sum()), "p_draw": float(np.trace(mat)), "p_away": float(np.triu(mat, 1).sum()),
+                "p_home": float(q[0]), "p_draw": float(q[1]), "p_away": float(q[2]), "p_home_raw": float(raw[0]),
                 "goals_pmf": tot, "btts": float(mat[1:, 1:].sum()),
-                "sot_home": rate(self.sot, home_id, away_id, h), "sot_away": rate(self.sot, away_id, home_id, 0),
+                "sot_home": rate(self.sot, home_id, away_id, h, lg), "sot_away": rate(self.sot, away_id, home_id, 0, lg),
                 "corners_home": ch, "corners_away": ca}
 
     @staticmethod
@@ -134,7 +166,7 @@ class SoccerModel:
         return pl
 
     def player_sot(self, player_id: str, team_id: str, opp_id: str, home: int, starter: bool | None = None,
-                   minutes: float | None = None) -> dict | None:
+                   minutes: float | None = None, league: str | None = None) -> dict | None:
         g = self._by_player.get(player_id)
         if g is None or g.empty:
             return None
@@ -152,7 +184,8 @@ class SoccerModel:
         if minutes is None:
             pool = g[g.starter == int(starter)].tail(8)
             minutes = float(pool.minutes.mean()) if len(pool) else (80.0 if starter else 20.0)
-        exp_team = rate(self.sot, team_id, opp_id, home)
+        lg = league if league is not None else self._home_league.get(team_id)
+        exp_team = rate(self.sot, team_id, opp_id, home, lg)
         usual = self._team_avg_sot.get(team_id, exp_team)
         factor = float(np.clip(exp_team / usual, 0.6, 1.6)) if usual else 1.0
         mu = per90 * minutes / 90 * factor

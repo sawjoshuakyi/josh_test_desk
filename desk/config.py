@@ -62,3 +62,14 @@ SOCCER_MARKETS = ["h2h", "totals", "alternate_totals", "alternate_totals_corners
 # Bet-slip link hosts. Leave a book out to keep the host The Odds API returns. Examples:
 #   Maryland/US: {} (default)   Ontario: {"fanduel": "on.sportsbook.fanduel.ca", "draftkings": "sportsbook.draftkings.com"}
 BETSLIP_HOSTS: dict = {}
+
+# Soccer markets validated per league (API-Football walk-forward test, 2026-08-01..2026-11-22: the model beat the
+# league-frequency baseline on both corner lines / on over 2.5). Other leagues: those markets are not posted.
+# Match result beat the baseline in every league and is allowed everywhere.
+SOCCER_CORNER_LEAGUES = {"epl", "laliga", "seriea", "bundesliga", "ligue1", "primeira", "eliteserien", "uel", "uecl",
+                         "efl_l1", "bundesliga2"}
+SOCCER_GOALS_EXCLUDE = {"efl_champ", "efl_l1", "ligamx", "spl", "bundesliga2", "uecl"}
+SOCCER_CREDIT_BUDGET = 220      # Odds API credits one soccer board may spend (top leagues are priced first)
+SOCCER_PRIORITY = ["ucl", "epl", "laliga", "seriea", "bundesliga", "ligue1", "uel", "mls", "efl_champ", "primeira",
+                   "eredivisie", "uecl", "superlig", "spl", "belgium", "bundesliga2", "serieb", "laliga2", "ligue2",
+                   "ligamx", "brasileirao", "argentina", "greece", "austria", "eliteserien", "efl_l1", "efl_l2"]

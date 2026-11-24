@@ -26,6 +26,7 @@ jobs:
     timeout-minutes: 40
     env:
       ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
       DISCORD_GENERAL_WEBHOOK: ${{ secrets.DISCORD_GENERAL_WEBHOOK }}
     steps:
       - uses: actions/checkout@v4

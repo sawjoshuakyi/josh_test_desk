@@ -120,7 +120,12 @@ def soccer_outcome(mt, pl, r: dict, day: str):
             tot = g.wonCorners + other.wonCorners.iloc[0]
         return None if tot == r["line"] else int((tot > r["line"]) == (r["side"] == "Over"))
     if r["stat"] == "sot":
-        p = pl[(pl.event_id == g.event_id) & (pl.player_id == r.get("player_id"))]
+        p = pl[(pl.event_id == g.event_id) & (pl.player_id == str(r.get("player_id")))]
+        if p.empty and r.get("player"):   # boards from before the API-Football switch carry ESPN player ids
+            ev = pl[pl.event_id == g.event_id]
+            target = norm(r["player"])
+            p = ev[ev.player.map(lambda x: norm(x) == target or (norm(x).split()[-1:] == target.split()[-1:]
+                                                               and norm(x)[:1] == target[:1]))]
         if p.empty:
             return None  # did not play: void
         v = float(p.sot.iloc[0])
@@ -152,6 +157,17 @@ def final_scores(sport: str, day: str) -> dict:
                 "soccer_germany_bundesliga": "soccer/ger.1", "soccer_france_ligue_one": "soccer/fra.1",
                 "soccer_uefa_champs_league": "soccer/uefa.champions", "soccer_usa_mls": "soccer/usa.1"}.get(sport)
     out = {}
+    if sport.startswith("soccer"):
+        path = None
+        try:
+            from desk.soccer import apifootball as af
+            mt = af.matches()
+            d0 = dt.date.fromisoformat(day)
+            mt = mt[(mt.date >= day) & (mt.date <= (d0 + dt.timedelta(days=1)).isoformat()) & (mt.home == 1)]
+            for g in mt.itertuples():
+                out[(frozenset({norm(g.opp)}), frozenset({norm(g.team)}))] = (float(g.goals_against), float(g.goals))
+        except Exception as err:
+            print("soccer scores unavailable:", err)
     if path:
         d = dt.date.fromisoformat(day)
         for dd in (d, d + dt.timedelta(days=1)):
@@ -173,12 +189,20 @@ def final_scores(sport: str, day: str) -> dict:
 
 def line_outcome(r: dict, day: str):
     away, home = [norm(x) for x in r["event"].split(" @ ")]
+    soccer = r["sport"].startswith("soccer")
+    if soccer:
+        from desk.soccer.data import same_team
+        match = lambda name, names: any(same_team(name, n) for n in names)
+    else:
+        match = lambda name, names: name in names
     for (an, hn), (ap, hp) in final_scores(r["sport"], day).items():
-        if away in an and home in hn:
+        if match(away, an) and match(home, hn):
             break
     else:
         return None
     side = norm(r["side"])
+    if soccer and side not in ("over", "under", "draw"):
+        side = away if same_team(side, away) else (home if same_team(side, home) else side)
     if r["market"] == "totals":
         tot = ap + hp
         if tot == r["line"]:
@@ -250,7 +274,7 @@ def grade(today: dt.date) -> pd.DataFrame:
         print("nfl data unavailable:", err)
     smt = spl = None
     try:
-        from desk.soccer import data as sdata
+        from desk.soccer import apifootball as sdata
         if len(sdata.matches()):
             smt, spl = sdata.matches(), sdata.players()
     except Exception as err:

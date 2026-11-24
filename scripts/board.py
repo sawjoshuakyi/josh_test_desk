@@ -493,64 +493,79 @@ def fair_multi_books(books: dict, side: str):
 
 
 def soccer_board(day: dt.date, api: OddsAPI | None) -> dict:
+    """Fixtures, model probabilities and priced props for the next ~26 hours, from API-Football data."""
     from desk import facts
-    from desk.soccer import data as sdata
+    from desk.soccer import apifootball as sdata
     from desk.soccer.model import SoccerModel
 
-    sdata.update(day - dt.timedelta(days=1))
+    try:
+        sdata.update(day - dt.timedelta(days=1))
+    except sdata.APIFootballError as err:
+        print("API-Football update failed:", err)
     mt, pl = sdata.matches(), sdata.players()
     model = SoccerModel(mt, pl, day.isoformat())
     now = dt.datetime.now(dt.timezone.utc)
-    fixtures = []
-    for league, (sport_key, code) in sdata.LEAGUES.items():
+    raw = []
+    for dd in (day, day + dt.timedelta(days=1)):
         try:
-            sb = espn(f"https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/scoreboard?dates={day:%Y%m%d}")
-        except Exception:
+            raw += sdata.fixtures_on(dd)
+        except sdata.APIFootballError as err:
+            print("API-Football fixtures failed:", dd, err)
+    fixtures, seen = [], set()
+    for f in raw:
+        fid = f["fixture"]["id"]
+        if fid in seen or f["fixture"]["status"]["short"] not in ("NS", "TBD"):
             continue
-        for ev in sb.get("events", []):
-            comp = ev["competitions"][0]
-            if comp.get("status", {}).get("type", {}).get("state") != "pre":
-                continue
-            start = dt.datetime.fromisoformat(ev["date"].replace("Z", "+00:00"))
-            if not (now - dt.timedelta(hours=1) <= start <= now + dt.timedelta(hours=26)):
-                continue
-            side = {c["homeAway"]: c["team"] for c in comp["competitors"]}
-            h, a = side["home"], side["away"]
-            r = model.match(h["id"], a["id"], neutral=bool(comp.get("neutralSite")))
-            n_h = int((mt.team_id == h["id"]).sum())
-            n_a = int((mt.team_id == a["id"]).sum())
-            cpmf = model.corners_total_pmf(r["corners_home"], r["corners_away"])
-            fx = {"league": league, "sport_key": sport_key, "tracker_league": code, "espn_id": ev["id"], "start": ev["date"],
-                  "home": h["displayName"], "away": a["displayName"], "home_id": h["id"], "away_id": a["id"],
-                  "home_abbr": h.get("abbreviation"), "away_abbr": a.get("abbreviation"),
-                  "p_home": round(r["p_home"], 4), "p_draw": round(r["p_draw"], 4), "p_away": round(r["p_away"], 4),
-                  "xg_home": round(r["lambda_home"], 2), "xg_away": round(r["lambda_away"], 2), "btts": round(r["btts"], 3),
-                  "p_over": {str(L): round(model.p_total_over(r["goals_pmf"], L), 3) for L in (1.5, 2.5, 3.5, 4.5)},
-                  "exp_corners": round(r["corners_home"] + r["corners_away"], 1),
-                  "p_corners_over": {str(L): round(model.p_total_over(cpmf, L), 3) for L in (7.5, 8.5, 9.5, 10.5, 11.5, 12.5)},
-                  "sot_home": round(r["sot_home"], 2), "sot_away": round(r["sot_away"], 2),
-                  "low_sample": min(n_h, n_a) < 10, "players": []}
-            for tid, opp, is_home, tname in ((h["id"], a["id"], 1, h["displayName"]), (a["id"], h["id"], 0, a["displayName"])):
-                recent_events = mt[(mt.team_id == tid) & (mt.date < day.isoformat())].sort_values("date").event_id.tail(5)
-                rp = pl[(pl.team_id == tid) & pl.event_id.isin(recent_events)]
-                starters = rp.groupby("player_id").agg(starts=("starter", "sum"), player=("player", "last"))
-                for pid, srow in starters.iterrows():
-                    likely = bool(srow.starts >= 3)
-                    pr = model.player_sot(pid, tid, opp, is_home, starter=likely)
-                    if pr and pr["group"] != "GK":
-                        fx["players"].append({"player": srow.player, "player_id": pid, "team": tname, "team_id": tid,
-                                              "role": "projected starter" if likely else "rotation / bench",
-                                              "pos": pr["group"], "sot_mean": round(pr["mean"], 2), "per90": round(pr["per90"], 2),
-                                              "minutes": round(pr["minutes"]), "p_sot_1": round(model.p_sot_at_least(pr["mean"], 1), 3),
-                                              "p_sot_2": round(model.p_sot_at_least(pr["mean"], 2), 3)})
-            fx["facts"] = facts.soccer_team_facts(mt, h["id"], h["displayName"], day.isoformat()) + \
-                facts.soccer_team_facts(mt, a["id"], a["displayName"], day.isoformat())
-            fixtures.append(fx)
+        seen.add(fid)
+        start = dt.datetime.fromisoformat(f["fixture"]["date"])
+        if not (now - dt.timedelta(hours=1) <= start <= now + dt.timedelta(hours=26)):
+            continue
+        sport_key, code = sdata.LEAGUES[f["league"]["id"]]
+        h, a = f["teams"]["home"], f["teams"]["away"]
+        hid, aid = str(h["id"]), str(a["id"])
+        neutral = "final" in (f["league"].get("round") or "").lower() and "semi" not in (f["league"].get("round") or "").lower()
+        r = model.match(hid, aid, neutral=neutral, league=code)
+        n_h, n_a = int((mt.team_id == hid).sum()), int((mt.team_id == aid).sum())
+        cpmf = model.corners_total_pmf(r["corners_home"], r["corners_away"])
+        fx = {"league": code, "sport_key": sport_key, "tracker_league": code, "fixture_id": fid,
+              "start": start.astimezone(dt.timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
+              "home": h["name"], "away": a["name"], "home_id": hid, "away_id": aid,
+              "round": f["league"].get("round"), "venue": (f["fixture"].get("venue") or {}).get("name"),
+              "p_home": round(r["p_home"], 4), "p_draw": round(r["p_draw"], 4), "p_away": round(r["p_away"], 4),
+              "xg_home": round(r["lambda_home"], 2), "xg_away": round(r["lambda_away"], 2), "btts": round(r["btts"], 3),
+              "p_over": {str(L): round(model.p_total_over(r["goals_pmf"], L), 3) for L in (1.5, 2.5, 3.5, 4.5)},
+              "exp_corners": round(r["corners_home"] + r["corners_away"], 1),
+              "p_corners_over": {str(L): round(model.p_total_over(cpmf, L), 3) for L in (7.5, 8.5, 9.5, 10.5, 11.5, 12.5)},
+              "sot_home": round(r["sot_home"], 2), "sot_away": round(r["sot_away"], 2),
+              "low_sample": min(n_h, n_a) < 10, "players": [],
+              "markets_validated": {"result": True, "goals": code not in config.SOCCER_GOALS_EXCLUDE,
+                                    "corners": code in config.SOCCER_CORNER_LEAGUES, "sot": True}}
+        for tid, opp, is_home, tname in ((hid, aid, 1, h["name"]), (aid, hid, 0, a["name"])):
+            recent_events = mt[(mt.team_id == tid) & (mt.date < day.isoformat())].sort_values("date").event_id.tail(5)
+            rp = pl[(pl.team_id == tid) & pl.event_id.isin(recent_events)]
+            starters = rp.groupby("player_id").agg(starts=("starter", "sum"), player=("player", "last"))
+            for pid, srow in starters.iterrows():
+                likely = bool(srow.starts >= 3)
+                pr = model.player_sot(pid, tid, opp, is_home, starter=likely, league=code)
+                if pr and pr["group"] != "GK":
+                    fx["players"].append({"player": srow.player, "player_id": pid, "team": tname, "team_id": tid,
+                                          "role": "projected starter" if likely else "rotation / bench",
+                                          "pos": pr["group"], "sot_mean": round(pr["mean"], 2), "per90": round(pr["per90"], 2),
+                                          "minutes": round(pr["minutes"]), "p_sot_1": round(model.p_sot_at_least(pr["mean"], 1), 3),
+                                          "p_sot_2": round(model.p_sot_at_least(pr["mean"], 2), 3)})
+        fx["facts"] = facts.soccer_team_facts(mt, hid, h["name"], day.isoformat()) + \
+            facts.soccer_team_facts(mt, aid, a["name"], day.isoformat())
+        fixtures.append(fx)
     props, credits = [], None
     if api and fixtures:
         con = db.connect()
-        for sport_key in sorted({f["sport_key"] for f in fixtures}):
-            if low_credits(api):
+        start_credits = api.remaining
+        prio = {c: i for i, c in enumerate(config.SOCCER_PRIORITY)}
+        keys = sorted({(f["league"], f["sport_key"]) for f in fixtures}, key=lambda t: prio.get(t[0], 99))
+        for _code, sport_key in keys:
+            if low_credits(api) or (start_credits is not None and api.remaining is not None
+                                    and start_credits - api.remaining >= config.SOCCER_CREDIT_BUDGET):
+                print("soccer credit budget reached; remaining leagues unpriced")
                 break
             try:
                 events = api.events(sport_key)
@@ -562,6 +577,9 @@ def soccer_board(day: dt.date, api: OddsAPI | None) -> dict:
                            and same_team(f["away"], e["away_team"])), None)
                 if fx is None or low_credits(api):
                     continue
+                if start_credits is not None and api.remaining is not None and \
+                        start_credits - api.remaining >= config.SOCCER_CREDIT_BUDGET:
+                    break
                 try:
                     payload = api.event_odds(sport_key, e["id"], config.SOCCER_MARKETS)
                 except OddsAPIError as err:
@@ -571,9 +589,10 @@ def soccer_board(day: dt.date, api: OddsAPI | None) -> dict:
                 li = link_index(rows)
                 db.insert_many(con, "odds_snapshots", rows)
                 db.archive(rows, "open-soccer")
-                r = model.match(fx["home_id"], fx["away_id"])
+                r = model.match(fx["home_id"], fx["away_id"], league=fx["league"])
                 cpmf = model.corners_total_pmf(r["corners_home"], r["corners_away"])
                 byname = {norm(p["player"]): p for p in fx["players"]}
+                ok = fx["markets_validated"]
                 for (eid, market, player, point), books in pair_two_way(rows).items():
                     for side in sorted(set().union(*[set(v) for v in books.values()])):
                         stat, line = market, point
@@ -588,6 +607,8 @@ def soccer_board(day: dt.date, api: OddsAPI | None) -> dict:
                                 continue
                             fair, src = fair_multi_books(books, side)
                         elif market in ("totals", "alternate_totals", "alternate_totals_corners"):
+                            if not ok["corners" if "corners" in market else "goals"]:
+                                continue
                             pmf = cpmf if "corners" in market else r["goals_pmf"]
                             po = model.p_total_over(pmf, point)
                             p_model, label = (po if side == "Over" else 1 - po), f"{side} {point}"

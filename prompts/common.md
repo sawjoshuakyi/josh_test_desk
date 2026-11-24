@@ -46,7 +46,8 @@ Every leg lists the DK price, the FD price and which is better.
 
 ## SOURCES POLICY — our own analysis only (Playbook rule, Active)
 The desk forms its own opinions. Its numbers come from its own data: the model board, The Odds API prices, and the
-repo's datasets (ESPN box scores in data/nba_boxscores.csv, the tennis results archive, odds snapshots).
+repo's datasets (API-Football soccer data in data/soccer_af, ESPN box scores in data/nba_boxscores.csv, the tennis
+results archive, odds snapshots).
 - ALLOWED, for FACTS only: official injury reports and team/league announcements (who is out, questionable, minutes
   limits, confirmed lineups and starting XIs), official schedules and venues, weather forecasts, and raw statistics
   tables (box scores, play-by-play, team and player stat pages) from league or reference-data sites.
@@ -69,7 +70,9 @@ It is built about 45 minutes before this run. It contains:
   probabilities, total-games and game-margin distributions) for the next day of ATP/WTA singles, priced for match
   winner, total games and games handicap (low-sample players flagged), with `facts` bullets per match.
 - am, soccer: our team-rating model (Dixon-Coles goals, corners, team shots on target) for every fixture today in the
-  Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Champions League and MLS — 1X2 probabilities, expected goals,
+  27 competitions from API-Football (top 5 leagues, Champions/Europa/Conference League, MLS, English Championship to
+  League Two, the German/Italian/Spanish/French second divisions, Netherlands, Portugal, Turkey, Scotland, Belgium,
+  Greece, Austria, Norway, Mexico, Brazil, Argentina) — 1X2 probabilities (favourite-calibrated), expected goals,
   over/under 1.5–4.5, BTTS, expected corners and over/under 7.5–12.5 — plus a shots-on-target projection for every
   likely starter and rotation player, priced for match result, total goals (main and alternate), total corners and
   player shots on target, with `facts` bullets.
@@ -114,6 +117,11 @@ How to use it:
    market probability, and the edge. Singles also show the Kelly $ stake.
 6. Slip math: parlay probability = product of leg probabilities (state that same-game legs are correlated and the
    sportsbook's SGP price will differ); slip EV = probability × decimal odds − 1. Show both for each slip.
+
+SOCCER MARKET VALIDATION: each fixture's `markets_validated` says which markets our model beat the league baseline on
+in that league's out-of-sample test. The board only prices validated markets; never build a soccer leg on a market the
+fixture marks false (e.g. corners in MLS or goals totals in the Championship), even from DK/FD prices you see elsewhere.
+The old "no match result or goals on Champions League days" rule is lifted: the favourite calibration fixed that bias.
 
 ## QUANT CHECKLIST — every analyst, every leg
 Elite means nothing is assumed. Before a leg goes in a slip, the analyst works through every item for its sport using
@@ -248,7 +256,12 @@ You already have the repo cloned (sawjoshuakyi/josh_test_desk). Read README.md f
   "draw"}; soccer total corners {"league", "teams", "type": "corners", "dir", "line"}; soccer player shots on target
   {"league", "teams", "player", "stat": "sot", "min": N}; tennis total games {"league": "atp"|"wta", "teams",
   "type": "total_games", "dir", "line"}; tennis games handicap {"league", "teams", "type": "games_spread", "team",
-  "line"}. Tennis "teams" and "team" are players' names as ESPN shows them; soccer teams use ESPN abbreviations. Leagues: nba, nfl, epl, laliga, seriea, bundesliga, ligue1, ucl, mls, atp, wta. Use ESPN team
+  "line"}. Tennis "teams" and "team" are players' names as ESPN shows them. SOCCER (API-Football data, from
+  2026-11-25): "teams" is [home, away] copied exactly from the board fixture's "home" and "away" names, "player" is
+  copied exactly from the board (e.g. "L. Ramazani"), and "league" is the fixture's "league" code — epl, laliga,
+  seriea, bundesliga, ligue1, ucl, uel, uecl, mls, efl_champ, efl_l1, efl_l2, bundesliga2, serieb, laliga2, ligue2,
+  eredivisie, primeira, superlig, spl, belgium, greece, austria, eliteserien, ligamx, brasileirao, argentina.
+  Other leagues: nba, nfl, atp, wta. Use ESPN team
   abbreviations (e.g. UTAH, SA, NO, GS, NY, WSH, LAR, LAC, JAX, KC) and players' full names as ESPN shows them. Skip
   any leg the format can't express (e.g. set betting, cards) and mention it in the report.
 - If the file already exists (Josh may have added his own slips), keep every slip whose name does not start with

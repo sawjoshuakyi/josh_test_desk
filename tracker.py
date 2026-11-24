@@ -57,16 +57,91 @@ def get_json(url):
     with urllib.request.urlopen(req, timeout=20) as r:
         return json.load(r)
 
+# ---------------------------------------------------------------- API-Football (soccer, from 2026-11-25 slips)
+AF_IDS = {"epl": 39, "laliga": 140, "seriea": 135, "bundesliga": 78, "ligue1": 61, "ucl": 2, "uel": 3, "uecl": 848,
+          "mls": 253, "efl_champ": 40, "efl_l1": 41, "efl_l2": 42, "bundesliga2": 79, "serieb": 136, "laliga2": 141,
+          "ligue2": 62, "eredivisie": 88, "primeira": 94, "superlig": 203, "spl": 179, "belgium": 144, "greece": 197,
+          "austria": 218, "eliteserien": 103, "ligamx": 262, "brasileirao": 71, "argentina": 128}
+AF_SWITCH_DATE = "2026-11-25"
+AF_TTL = 120  # seconds between API-Football refreshes (saves requests; their live data updates about every minute)
+_af_cache = {}
+
+
+def af_get(path, **params):
+    import urllib.parse
+    url = f"https://v3.football.api-sports.io/{path}?{urllib.parse.urlencode(params)}"
+    hit = _af_cache.get(url)
+    if hit and time.time() - hit[0] < AF_TTL:
+        return hit[1]
+    req = urllib.request.Request(url, headers={"x-apisports-key": os.environ.get("API_FOOTBALL_KEY", ""),
+                                               "User-Agent": "BettingDeskTracker/1.0"})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        js = json.load(r)
+    if js.get("errors"):
+        raise RuntimeError(f"API-Football: {js['errors']}")
+    _af_cache[url] = (time.time(), js.get("response") or [])
+    return _af_cache[url][1]
+
+
+def af_event(f):
+    """API-Football fixture -> the ESPN-shaped event the leg checks read."""
+    st = f["fixture"]["status"]
+    short = st.get("short")
+    state = "post" if short in ("FT", "AET", "PEN", "AWD", "WO") else ("pre" if short in ("NS", "TBD", "PST", "CANC", "ABD", "SUSP") else "in")
+    detail = "FT" if state == "post" else (f"{st.get('elapsed')}'" if st.get("elapsed") else (st.get("long") or short))
+    comps = []
+    for side in ("home", "away"):
+        t = f["teams"][side]
+        nm = t["name"]
+        comps.append({"homeAway": side, "team": {"displayName": nm, "abbreviation": nm, "shortDisplayName": nm},
+                      "score": str(f["goals"][side] or 0), "winner": bool(t.get("winner"))})
+    return {"id": f["fixture"]["id"], "af": True,
+            "competitions": [{"status": {"type": {"state": state, "completed": state == "post", "shortDetail": detail}},
+                              "competitors": comps}]}
+
+
+def af_summary(f):
+    """API-Football fixture (with statistics and players) -> ESPN-shaped summary (corners, player stats)."""
+    teams = []
+    for t in f.get("statistics") or []:
+        stats = {s["type"]: s["value"] for s in t.get("statistics") or []}
+        if stats:
+            teams.append({"statistics": [{"name": "wonCorners", "displayValue": str(stats.get("Corner Kicks") or 0)}]})
+    rosters = []
+    for t in f.get("players") or []:
+        roster = []
+        for p in t.get("players") or []:
+            s = (p.get("statistics") or [{}])[0] or {}
+            g = s.get("games") or {}
+            sub, mins = bool(g.get("substitute")), g.get("minutes") or 0
+            sh, gl = s.get("shots") or {}, s.get("goals") or {}
+            roster.append({"athlete": {"displayName": p["player"].get("name", "")}, "starter": not sub,
+                           "subbedIn": sub and mins > 0,
+                           "stats": [{"name": "shotsOnTarget", "value": sh.get("on") or 0},
+                                     {"name": "totalShots", "value": sh.get("total") or 0},
+                                     {"name": "totalGoals", "value": gl.get("total") or 0},
+                                     {"name": "goalAssists", "value": gl.get("assists") or 0}]})
+        rosters.append({"roster": roster})
+    return {"boxscore": {"teams": teams}, "rosters": rosters}
+
+
 # ---------------------------------------------------------------- ESPN data
 class Feed:
     def __init__(self, date):
+        self.iso = date
         self.date = date.replace("-", "")
         self.scoreboards, self.summaries = {}, {}
+        self.use_af = date >= AF_SWITCH_DATE and bool(os.environ.get("API_FOOTBALL_KEY"))
 
     def reset(self):
         self.scoreboards, self.summaries = {}, {}
 
     def events(self, league):
+        if self.use_af and league in AF_IDS:
+            if league not in self.scoreboards:
+                day = af_get("fixtures", date=self.iso, timezone="America/New_York")
+                self.scoreboards[league] = [af_event(f) for f in day if f["league"]["id"] == AF_IDS[league]]
+            return self.scoreboards[league]
         if league not in self.scoreboards:
             data = get_json(ESPN.format(path=SPORT_PATHS[league]) + f"/scoreboard?dates={self.date}")
             self.scoreboards[league] = data.get("events", [])
@@ -101,6 +176,9 @@ class Feed:
 
     def summary(self, league, event_id):
         key = (league, event_id)
+        if key not in self.summaries and self.use_af and league in AF_IDS:
+            got = af_get("fixtures", id=event_id)
+            self.summaries[key] = af_summary(got[0]) if got else {}
         if key not in self.summaries:
             self.summaries[key] = get_json(ESPN.format(path=SPORT_PATHS[league]) + f"/summary?event={event_id}")
         return self.summaries[key]
@@ -131,7 +209,7 @@ def team_scores(event):
         out.append({"names": competitor_names(c), "score": score, "winner": bool(c.get("winner"))})
     return out
 
-SOCCER_LEAGUES = {"epl", "laliga", "seriea", "bundesliga", "ligue1", "ucl", "mls"}
+SOCCER_LEAGUES = {"epl", "laliga", "seriea", "bundesliga", "ligue1", "ucl", "mls"} | set(AF_IDS)
 SOCCER_STATS = {"sot": "shotsOnTarget", "shots": "totalShots", "goals": "totalGoals", "assists": "goalAssists"}
 
 

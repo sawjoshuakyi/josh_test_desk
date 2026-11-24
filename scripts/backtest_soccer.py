@@ -20,6 +20,7 @@ import pandas as pd
 
 from desk import pricing
 from desk.soccer import data
+from desk.soccer import apifootball as af
 from desk.soccer.model import SoccerModel, SoccerParams
 
 
@@ -47,13 +48,15 @@ def run(m, pl, start, end, prm, week_step=1, sot=True):
         for g in games.itertuples():
             if g.team_id not in model.goals["att"] or g.opp_id not in model.goals["att"]:
                 continue
-            r = model.match(g.team_id, g.opp_id)
+            r = model.match(g.team_id, g.opp_id, league=g.league)
             y = 0 if g.goals > g.goals_against else (1 if g.goals == g.goals_against else 2)
             cpmf = model.corners_total_pmf(r["corners_home"], r["corners_away"])
             opp_row = m[(m.event_id == g.event_id) & (m.team_id == g.opp_id)]
             corners = g.wonCorners + (opp_row.wonCorners.iloc[0] if len(opp_row) else np.nan)
             bc = base_c.get(g.league, pd.Series([10]))
             rows.append({"date": g.date, "league": g.league, "p_res": [r["p_home"], r["p_draw"], r["p_away"]],
+                         "lh": r["lambda_home"], "la": r["lambda_away"], "tg": g.goals + g.goals_against,
+                         "hg": g.goals, "ag": g.goals_against,
                          "b_res": base_res.get(g.league, [0.45, 0.25, 0.30]), "y_res": y,
                          "p_o25": model.p_total_over(r["goals_pmf"], 2.5), "b_o25": base_o25.get(g.league, 0.5),
                          "y_o25": int(g.goals + g.goals_against > 2.5),
@@ -76,7 +79,7 @@ def run(m, pl, start, end, prm, week_step=1, sot=True):
                 info = side.loc[(r.event_id, r.team_id)]
             except KeyError:
                 continue
-            pr = model.player_sot(r.player_id, r.team_id, info.opp_id, int(info.home), starter=True)
+            pr = model.player_sot(r.player_id, r.team_id, info.opp_id, int(info.home), starter=True, league=r.league)
             if pr is None or pr["group"] == "GK":
                 continue
             c = cnt.loc[r.player_id]
@@ -106,7 +109,7 @@ def total_ll(s):
 
 
 def main():
-    m, pl = data.matches(), data.players()
+    m, pl = af.matches(), af.players()   # API-Football data (ESPN retired for soccer on 2026-11-24)
     grid = {"half_life_days": [180.0, 365.0], "xg_weight": [0.3, 0.6], "ridge": [2.0, 6.0]}
     best, best_s = None, 9e9
     for combo in itertools.product(*grid.values()):

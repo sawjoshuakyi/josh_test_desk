@@ -28,7 +28,79 @@ def load_state():
     return json.load(open(STATE)) if os.path.exists(STATE) else {}
 
 
+def _name_match(a: str, b: str) -> bool:
+    a, b = norm(a), norm(b)
+    if a == b:
+        return True
+    ta, tb = a.split(), b.split()
+    return bool(ta and tb) and ta[-1] == tb[-1] and ta[0][:1] == tb[0][:1]
+
+
+def soccer_af(day, legs, state, posts, fixtures):
+    """API-Football line-ups for boards built from API-Football data (fixtures carry fixture_id)."""
+    from desk.soccer import apifootball as af
+    from desk.soccer.data import same_team
+    by_fx = {}
+    for slip, leg in legs:
+        if leg.get("league") not in af.CODE_TO_ID or len(leg.get("teams", [])) != 2:
+            continue
+        t1, t2 = leg["teams"]
+        fx = next((f for f in fixtures if (same_team(f["home"], t1) and same_team(f["away"], t2))
+                   or (same_team(f["home"], t2) and same_team(f["away"], t1))), None)
+        if fx:
+            by_fx.setdefault(fx["fixture_id"], (fx, []))[1].append((slip, leg))
+    for fid, (fx, items) in by_fx.items():
+        key = f"soccer-af-{fid}"
+        if state.get(key):
+            continue
+        try:
+            info = af.get("fixtures", id=fid)
+            started = bool(info) and info[0]["fixture"]["status"]["short"] not in ("NS", "TBD")
+            if started and not os.environ.get("LATE_NEWS_TEST"):
+                continue
+            ups = af.lineups(fid)
+        except af.APIFootballError as err:
+            print("lineups failed", fid, err)
+            continue
+        xi = []
+        for t in ups:
+            xi += [(p["player"]["name"], True) for p in t.get("startXI") or []]
+            xi += [(p["player"]["name"], False) for p in t.get("substitutes") or []]
+        if not any(st for _, st in xi):
+            continue  # line-ups not out yet
+
+        def status(name):
+            hits = [st for n, st in xi if _name_match(n, name)]
+            return None if not hits else any(hits)
+        lines = []
+        for side in ("home", "away"):
+            exp = sorted([p for p in fx["players"] if p.get("role") == "projected starter" and p["team"] == fx[side]],
+                         key=lambda p: -p["sot_mean"])
+            missing = [p for p in exp[:4] if not status(p["player"])]
+            if missing:
+                lost = sum(p["sot_mean"] for p in missing)
+                lines.append(f"• {fx[side]}: not starting — " + ", ".join(p["player"] for p in missing) +
+                             f" (≈{lost:.1f} of the team's projected {fx['sot_' + side]:.1f} shots on target)")
+        for slip, leg in items:
+            if leg.get("player"):
+                st = status(leg["player"])
+                if st is None:
+                    lines.append(f"• ⚠️ **{leg['player']}** is not in the match-day squad — {leg.get('stat')} leg is dead · _{slip}_")
+                elif st is False:
+                    lines.append(f"• ⚠️ **{leg['player']}** is on the **bench** — {leg.get('stat')} {leg.get('min', '')}+ "
+                                 f"leg now needs him to come on · _{slip}_")
+        title = f"{fx['home']} v {fx['away']} — line-ups are out"
+        posts.append({"title": ("🚨 " if lines else "🟢 ") + title, "color": 0xE67E22 if lines else 0x2ECC71,
+                      "description": "\n".join(lines) if lines else "All projected starters on our legs are in the XI."})
+        state[key] = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+
+
 def soccer(day, legs, state, posts):
+    board_path = os.path.join(ROOT, "boards", f"{day}-am.json")
+    fixtures = json.load(open(board_path)).get("soccer", {}).get("fixtures", []) if os.path.exists(board_path) else []
+    if fixtures and "fixture_id" in fixtures[0]:
+        return soccer_af(day, legs, state, posts, fixtures)
+    # boards built before the API-Football switch (ESPN fixtures) — transition only
     by_fixture = {}
     for slip, leg in legs:
         if leg.get("league") in CODE_TO_LEAGUE:
