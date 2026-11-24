@@ -1,0 +1,26 @@
+name: data-probe
+
+# Manual: tests the API-Football and balldontlie keys (coverage, corners, shots on target, NBA tiers)
+# and commits reports/data_probe.md. Takes about 5 minutes because the free tiers are rate limited.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+      BALLDONTLIE_KEY: ${{ secrets.BALLDONTLIE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Probe
+        run: python3 scripts/probe_data.py
+      - name: Commit
+        run: scripts/commit.sh "Data probe $(date -u +%F)" reports
