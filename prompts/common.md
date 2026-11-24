@@ -163,6 +163,19 @@ Give it all analyst reports, the model board, the Playbook, the Ledger/Legs/Summ
   better book for each slip.
 - Call out underperforming analysts, markets and slip types (Ledger/Legs, calibration, CLV, model_performance.md)
   and apply extra scrutiny to them.
+- PORTFOLIO CHECK (hard rules, from the Nov 23 review where one leg and one game result busted 7 of 8 slips):
+  write the draft slips in the live-tracker format to /tmp/draft.json and run
+  `python3 scripts/exposure.py /tmp/draft.json`. Any ERROR must be fixed before approval: no leg in more than 2 of a
+  sport's slips, and no more than 2 slips may need the same team to win/cover. Answer each WARN in the report. On a
+  one-game slate (e.g. MNF), at least one slip must win under the opposite game script to the others (e.g. an under,
+  the underdog, or a script-independent leg such as receptions), and no total over/under may be in every slip.
+- ANCHOR RULE: a leg whose probability is under 60% may appear in at most ONE slip; parlay anchors should be 65%+
+  legs with positive edge. Never reuse a coin-flip leg as the backbone of several parlays.
+- FILLER RULE: no "fair-priced filler" — every moneyline/spread in a parlay needs its own positive edge on the board
+  (DK/FD beats Pinnacle fair) or a model probability; otherwise drop it and shorten the parlay.
+- BEST BET must have positive edge at the best available price by the board (or, with no prices, the model's fair
+  price must be stated as the minimum acceptable price). A Best Bet the model rates below its implied probability is
+  rejected even if the analyst likes it.
 - Verdict per slip: APPROVED, APPROVED WITH CHANGES (exact swaps), or REJECTED (reason). Fixes go back for one revision
   round, then re-check. Only approved slips go to Josh.
 - For EVERY approved leg, write a one- or two-sentence "Manager:" reason that names the specific evidence that won it
