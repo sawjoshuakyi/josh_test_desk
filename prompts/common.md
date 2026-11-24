@@ -95,10 +95,18 @@ How to use it:
    probability, but it must be anchored to the no-vig market price (from the board or two-sided DK/FD prices) and
    any move away from the market needs a stated reason (Prob source "Analyst"). Game lines use the board's
    Pinnacle fair probability (Prob source "Market").
-3. A leg has VALUE when edge ≥ +3% (modeled) or the DK/FD price beats Pinnacle's fair price by 2%+ (game lines).
-   The Best Bet should be the strongest value single available after the manager's review. Prefer value legs in
-   every parlay; a negative-edge leg may be used only to reach a slip's odds target when no value leg fits, and the
-   report must say so.
+3. SLIP-BUILDING RULE (Josh, Nov 24 — "I care about winning"): build for HIT RATE with a BREAK-EVEN FLOOR.
+   - A leg is ELIGIBLE when edge ≥ 0 at the price on the book the slip is placed at (high-trust model markets), or
+     edge ≥ +2% (medium-trust markets: tennis games/sets; analyst/low-trust markets), as a cushion for the less proven
+     probability. A negative-edge leg is never
+     used, not even to reach an odds target.
+   - Among eligible legs, choose the HIGHEST-PROBABILITY ones first (not the biggest edge). Edge breaks ties.
+   - A leg has VALUE when edge ≥ +3% (modeled) or the DK/FD price beats Pinnacle's fair price by 2%+ (game lines).
+     Value legs that are too long-priced for the four slips are posted as extra "Value single" bets.
+   - Every leg of a parlay must be on the SAME book at an eligible price; quote the slip at that book.
+   - If the eligible legs cannot reach a slip's odds target, post the closest honest version (say so) or skip the
+     slip with the reason. Never pad with negative-edge legs.
+   - Skip legs where the model's mean contradicts the last-10 data AND the model is 5+ points away from the market.
 4. Model–market disagreement larger than 10 points is a warning, not a gift: look for missing news (injury, rest,
    role change) before using it. Follow the Playbook rule on this.
 5. Every leg in every slip shows: line, DK price, FD price, best book, the probability used and its source, the no-vig
@@ -154,8 +162,8 @@ bullets and the model's probability with today's injury report applied.
   probabilities use half of quarter-Kelly, capped at $25).
 - Double-Up and +400–700: quarter-Kelly on the slip probability and best price, capped at $12.50.
 - Lotto: fixed $5.
-- If Kelly is $0 (no edge), keep the slip in the report but mark it "Kelly says pass — $0" (Josh asked to see all four
-  slips daily). Never raise a stake above these caps.
+- If Kelly is $0 (eligible but edge rounds to zero), stake a flat $10 on a single or $5 on a parlay, labelled
+  "break-even stake" — the hit-rate rule keeps these on the card, but they never get Kelly money.
 - Limits: at most $100 at risk on any one game across all slips, and at most $250 per Eastern day across all sessions
   (add up today's Ledger L column first; trim the lowest-EV slips if over).
 - Ledger: L = dollar stake, H = =Ln/25, N = slip EV.
@@ -181,10 +189,11 @@ Give it all analyst reports, the model board, the Playbook, the Ledger/Legs/Summ
   one-game slate (e.g. MNF), at least one slip must win under the opposite game script to the others (e.g. an under,
   the underdog, or a script-independent leg such as receptions), and no total over/under may be in every slip.
 - ANCHOR RULE: a leg whose probability is under 60% may appear in at most ONE slip; parlay anchors should be 65%+
-  legs with positive edge. Never reuse a coin-flip leg as the backbone of several parlays.
-- FILLER RULE: no "fair-priced filler" — every moneyline/spread in a parlay needs its own positive edge on the board
-  (DK/FD beats Pinnacle fair) or a model probability; otherwise drop it and shorten the parlay.
-- BEST BET must have positive edge at the best available price by the board (or, with no prices, the model's fair
+  legs with edge ≥ 0. Never reuse a coin-flip leg as the backbone of several parlays.
+- FILLER RULE: every leg in a parlay needs edge ≥ 0 at the slip's book (model probability, or DK/FD at or better than
+  Pinnacle fair for game lines); otherwise drop it and shorten the parlay.
+- BEST BET is the highest-probability eligible single priced -300 or longer (so a win pays something), with edge ≥ 0
+  at the best available price by the board (or, with no prices, the model's fair
   price must be stated as the minimum acceptable price). A Best Bet the model rates below its implied probability is
   rejected even if the analyst likes it.
 - Verdict per slip: APPROVED, APPROVED WITH CHANGES (exact swaps), or REJECTED (reason). Fixes go back for one revision

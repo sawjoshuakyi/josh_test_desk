@@ -3,6 +3,117 @@
  "slips": [
   {
    "name": "Desk Soccer Best Bet",
+   "odds": "-220 DraftKings",
+   "legs": [
+    {
+     "league": "mls",
+     "teams": [
+      "HOU",
+      "SJ"
+     ],
+     "type": "total",
+     "dir": "under",
+     "line": 3.5
+    }
+   ],
+   "betslip": {
+    "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87214733U350_3",
+    "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.624459019&selectionId=1222344",
+    "per_leg": [
+     {
+      "leg": "Under 3.5",
+      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87214733U350_3",
+      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.624459019&selectionId=1222344"
+     }
+    ]
+   }
+  },
+  {
+   "name": "Desk Soccer Double-Up",
+   "odds": "+109 DraftKings",
+   "legs": [
+    {
+     "league": "mls",
+     "teams": [
+      "HOU",
+      "SJ"
+     ],
+     "type": "total",
+     "dir": "under",
+     "line": 3.5
+    },
+    {
+     "league": "ucl",
+     "teams": [
+      "DOR",
+      "ARS"
+     ],
+     "type": "corners",
+     "dir": "under",
+     "line": 10.5
+    }
+   ],
+   "betslip": {
+    "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87214733U350_3+0OU87383527U1050_3",
+    "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId[0]=42.624459019&selectionId[0]=1222344&marketId[1]=42.627862768&selectionId[1]=7449025",
+    "per_leg": [
+     {
+      "leg": "Under 3.5",
+      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87214733U350_3",
+      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.624459019&selectionId=1222344"
+     },
+     {
+      "leg": "Under 10.5",
+      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87383527U1050_3",
+      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.627862768&selectionId=7449025"
+     }
+    ]
+   }
+  },
+  {
+   "name": "Desk Soccer +400-700",
+   "odds": "+394 DraftKings",
+   "legs": [
+    {
+     "league": "mls",
+     "teams": [
+      "HOU",
+      "SJ"
+     ],
+     "type": "total",
+     "dir": "under",
+     "line": 2.5
+    },
+    {
+     "league": "ucl",
+     "teams": [
+      "BET",
+      "SLB"
+     ],
+     "type": "corners",
+     "dir": "over",
+     "line": 10.5
+    }
+   ],
+   "betslip": {
+    "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87214733U250_3+0OU87383523O1050_1",
+    "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId[0]=42.624459018&selectionId[0]=47972&marketId[1]=42.627863752&selectionId[1]=6393483",
+    "per_leg": [
+     {
+      "leg": "Under 2.5",
+      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87214733U250_3",
+      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.624459018&selectionId=47972"
+     },
+     {
+      "leg": "Over 10.5",
+      "draftkings": "https://sportsbook.draftkings.com/?outcomes=0OU87383523O1050_1",
+      "fanduel": "https://sportsbook.fanduel.com/addToBetslip?marketId=42.627863752&selectionId=6393483"
+     }
+    ]
+   }
+  },
+  {
+   "name": "Desk Soccer Value Single — Bartra",
    "odds": "+195 FanDuel",
    "legs": [
     {
@@ -29,7 +140,7 @@
    }
   },
   {
-   "name": "Desk Soccer Value Single",
+   "name": "Desk Soccer Value Single — Leipzig-Lens corners",
    "odds": "+280 FanDuel / +250 DraftKings",
    "legs": [
     {
