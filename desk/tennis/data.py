@@ -35,6 +35,19 @@ def _get(url):
             time.sleep(2)
 
 
+# Known surfaces for events the archive lacks (the calendar guess mislabels many clay and grass events).
+SURFACE_OVERRIDES = {
+    "Libéma Open": "Grass", "Boss Open": "Grass", "Lexus Ilkley Open": "Grass", "The HSBC Championships": "Grass",
+    "Internazionali Femminili Di Brescia": "Clay", "Grand Est Open 88": "Clay", "Generali Open Ladies Kitzbühel": "Clay",
+    "Generali Open": "Clay", "Livesport Prague Open": "Hard", "Montreux Nestlé Open": "Clay", "ATIK Antalya Open": "Clay",
+    "BBVA Open Internacional De Valencia": "Clay", "Zavarovalnica Triglav Ljubljana": "Clay",
+    "Delta Motors Tolentino Open": "Clay", "Lisboa Belem Open": "Clay",
+    "Vanda Pharmaceuticals Mallorca Women's Championships": "Hard", "Reto Win Tennis Cali Open": "Clay",
+    "DIRECTV Open Presentado por Compesar": "Clay", "Curitiba Open": "Clay", "LP Open by IND": "Clay",
+    "IEB+ Argentina Open": "Clay",
+}
+
+
 def surface_lookup() -> dict:
     """Most common surface for each tournament name in the archive."""
     df = pd.read_csv(ARCHIVE, usecols=["tourney_name", "surface"])
@@ -42,6 +55,8 @@ def surface_lookup() -> dict:
 
 
 def guess_surface(name: str, day: dt.date, lookup: dict) -> str:
+    if name in SURFACE_OVERRIDES:
+        return SURFACE_OVERRIDES[name]
     if name in lookup:
         return lookup[name]
     for k, v in lookup.items():
@@ -155,6 +170,8 @@ def all_matches() -> pd.DataFrame:
     if os.path.exists(LIVE):
         live = pd.read_csv(LIVE).drop(columns=["espn_id"], errors="ignore")
         live = live[live.tourney_date > df.tourney_date.max()]
+        fix = live.tourney_name.map(SURFACE_OVERRIDES)
+        live["surface"] = fix.fillna(live.surface)
         df = pd.concat([df, live], ignore_index=True)
     return df
 

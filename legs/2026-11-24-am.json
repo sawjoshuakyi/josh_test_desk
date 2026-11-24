@@ -1,0 +1,284 @@
+{
+ "date": "2026-11-24",
+ "slips": [
+  {
+   "name": "Desk Soccer Best Bet",
+   "odds": "fair -192 (bet at -177 or better)",
+   "legs": [
+    {
+     "league": "ucl",
+     "teams": [
+      "PSV",
+      "RMA"
+     ],
+     "player": "Kylian Mbapp\u00e9",
+     "stat": "sot",
+     "min": 2
+    }
+   ]
+  },
+  {
+   "name": "Desk Soccer Double-Up",
+   "odds": "fair +109 (bet at +115 or better)",
+   "legs": [
+    {
+     "league": "ucl",
+     "teams": [
+      "PSV",
+      "RMA"
+     ],
+     "player": "Kylian Mbapp\u00e9",
+     "stat": "sot",
+     "min": 2
+    },
+    {
+     "league": "ucl",
+     "teams": [
+      "AVL",
+      "GAL"
+     ],
+     "player": "Nicolas Jackson",
+     "stat": "sot",
+     "min": 1
+    }
+   ]
+  },
+  {
+   "name": "Desk Soccer +400-700",
+   "odds": "fair +618 (bet at +640 or better)",
+   "legs": [
+    {
+     "league": "ucl",
+     "teams": [
+      "NAP",
+      "MNC"
+     ],
+     "player": "Erling Haaland",
+     "stat": "sot",
+     "min": 2
+    },
+    {
+     "league": "ucl",
+     "teams": [
+      "BET",
+      "SLB"
+     ],
+     "player": "Abde Ezzalzouli",
+     "stat": "sot",
+     "min": 1
+    },
+    {
+     "league": "ucl",
+     "teams": [
+      "AEK",
+      "COM"
+     ],
+     "player": "Tasos Douvikas",
+     "stat": "sot",
+     "min": 1
+    },
+    {
+     "league": "ucl",
+     "teams": [
+      "NAP",
+      "MNC"
+     ],
+     "type": "corners",
+     "dir": "over",
+     "line": 8.5
+    }
+   ]
+  },
+  {
+   "name": "Desk Soccer Lotto",
+   "odds": "fair +5149 (bet at +5306 or better)",
+   "legs": [
+    {
+     "league": "ucl",
+     "teams": [
+      "AEK",
+      "COM"
+     ],
+     "player": "Nico Paz",
+     "stat": "sot",
+     "min": 1
+    },
+    {
+     "league": "ucl",
+     "teams": [
+      "NAP",
+      "MNC"
+     ],
+     "player": "Erling Haaland",
+     "stat": "sot",
+     "min": 1
+    },
+    {
+     "league": "ucl",
+     "teams": [
+      "AVL",
+      "GAL"
+     ],
+     "player": "Nicolas Jackson",
+     "stat": "sot",
+     "min": 1
+    },
+    {
+     "league": "ucl",
+     "teams": [
+      "BET",
+      "SLB"
+     ],
+     "player": "Abde Ezzalzouli",
+     "stat": "sot",
+     "min": 1
+    },
+    {
+     "league": "ucl",
+     "teams": [
+      "AEK",
+      "COM"
+     ],
+     "player": "Tasos Douvikas",
+     "stat": "sot",
+     "min": 1
+    },
+    {
+     "league": "ucl",
+     "teams": [
+      "BET",
+      "SLB"
+     ],
+     "player": "Antony",
+     "stat": "sot",
+     "min": 1
+    },
+    {
+     "league": "mls",
+     "teams": [
+      "HOU",
+      "SJ"
+     ],
+     "player": "Preston Judd",
+     "stat": "sot",
+     "min": 1
+    },
+    {
+     "league": "mls",
+     "teams": [
+      "HOU",
+      "SJ"
+     ],
+     "type": "corners",
+     "dir": "over",
+     "line": 8.5
+    },
+    {
+     "league": "ucl",
+     "teams": [
+      "NAP",
+      "MNC"
+     ],
+     "type": "corners",
+     "dir": "over",
+     "line": 8.5
+    },
+    {
+     "league": "ucl",
+     "teams": [
+      "RCL",
+      "RBL"
+     ],
+     "player": "R\u00f4mulo",
+     "stat": "sot",
+     "min": 1
+    }
+   ]
+  },
+  {
+   "name": "Desk Tennis Best Bet",
+   "odds": "fair -282 (bet at -253 or better)",
+   "legs": [
+    {
+     "league": "wta",
+     "teams": [
+      "Victoria Jimenez Kasintseva",
+      "Solana Sierra"
+     ],
+     "type": "moneyline",
+     "team": "Solana Sierra"
+    }
+   ]
+  },
+  {
+   "name": "Desk Tennis Double-Up",
+   "odds": "fair +124 (bet at +130 or better)",
+   "legs": [
+    {
+     "league": "wta",
+     "teams": [
+      "Leyre Romero Gormaz",
+      "Nadia Podoroska"
+     ],
+     "type": "moneyline",
+     "team": "Leyre Romero Gormaz"
+    },
+    {
+     "league": "wta",
+     "teams": [
+      "Sofia Costoulas",
+      "Polona Hercog"
+     ],
+     "type": "moneyline",
+     "team": "Polona Hercog"
+    }
+   ]
+  },
+  {
+   "name": "Desk Tennis +400-700",
+   "odds": "fair +505 (bet at +535 or better)",
+   "legs": [
+    {
+     "league": "wta",
+     "teams": [
+      "Victoria Jimenez Kasintseva",
+      "Solana Sierra"
+     ],
+     "type": "games_spread",
+     "team": "Solana Sierra",
+     "line": -2.5
+    },
+    {
+     "league": "wta",
+     "teams": [
+      "Leyre Romero Gormaz",
+      "Nadia Podoroska"
+     ],
+     "type": "games_spread",
+     "team": "Leyre Romero Gormaz",
+     "line": -2.5
+    },
+    {
+     "league": "wta",
+     "teams": [
+      "Sofia Costoulas",
+      "Polona Hercog"
+     ],
+     "type": "games_spread",
+     "team": "Polona Hercog",
+     "line": -1.5
+    },
+    {
+     "league": "wta",
+     "teams": [
+      "Leyre Romero Gormaz",
+      "Nadia Podoroska"
+     ],
+     "type": "total_games",
+     "dir": "under",
+     "line": 22.5
+    }
+   ]
+  }
+ ]
+}

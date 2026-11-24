@@ -369,7 +369,7 @@ def tennis_board(day: dt.date, api: OddsAPI | None) -> dict:
                     if not (now - dt.timedelta(hours=1) <= start <= now + dt.timedelta(hours=26)):
                         continue
                     names = [tdata._singles_name(x) for x in c.get("competitors", [])]
-                    if len(names) != 2 or None in names:
+                    if len(names) != 2 or None in names or any(n.strip().upper() == "TBD" for n in names):
                         continue
                     if any(m["espn_id"] == c.get("id") for m in matches):
                         continue  # Slams appear under both tours
