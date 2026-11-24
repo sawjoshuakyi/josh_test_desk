@@ -31,6 +31,8 @@ def main():
         b = json.load(open(path))
         wanted |= {r["event_id"] for r in b.get("nba", {}).get("props", []) if r.get("event_id")}
         wanted |= {r["event_id"] for r in b.get("tennis", {}).get("priced", []) if r.get("event_id")}
+        wanted |= {r["event_id"] for r in b.get("nfl", {}).get("props", []) if r.get("event_id")}
+        wanted |= {r["event_id"] for r in b.get("soccer", {}).get("props", []) if r.get("event_id")}
         for key in ("nba_lines", "nfl_lines", "soccer_lines"):
             wanted |= {r["event_id"] for r in b.get(key, []) if r.get("flag") and r.get("event_id")}
     opens = [r for d in days for r in db.load_snapshots(f"{d}-open-") if r["event_id"] in wanted]
@@ -59,7 +61,8 @@ def main():
             print("odds error", eid, err)
             continue
         rows = flatten(payload, kind, sport)
-        tag = "nba-props" if kind == "props" else sport.split("_")[0]
+        tag = {"basketball_nba": "nba-props", "americanfootball_nfl": "nfl-props"}.get(sport, sport.split("_")[0]) \
+            if kind == "props" else sport.split("_")[0]
         db.archive(rows, f"close-{tag}")
         print(f"closed {r['away']} @ {r['home']} ({len(markets)} markets, {len(rows)} prices) · credits left {api.remaining}")
         if api.remaining is not None and float(api.remaining) < config.MIN_CREDITS:
