@@ -20,7 +20,7 @@ sys.path.insert(0, ROOT)
 import pandas as pd
 
 from desk import config, db, pricing
-from desk.odds import OddsAPI, OddsAPIError, flatten, pair_two_way
+from desk.odds import OddsAPI, OddsAPIError, flatten, link_index, pair_two_way
 
 NBA_MARKET_STAT = {"player_points": "pts", "player_rebounds": "reb", "player_assists": "ast",
                    "player_threes": "threes", "player_points_rebounds_assists": "pra",
@@ -60,6 +60,18 @@ def fair_prob(book_prices: dict, side: str, other: str):
     return (sum(vals) / len(vals), "dk/fd") if vals else (None, None)
 
 
+def links_for(li: dict, eid, market, player, side, point) -> dict:
+    """Bet-slip link info for one selection at DraftKings and FanDuel (empty when the API gave none)."""
+    out = {}
+    for book in config.BET_BOOKS:
+        x = li.get((eid, market, player, side, point, book))
+        if x is None and point is not None:  # spreads: the selection's own signed line may differ in sign
+            x = li.get((eid, market, player, side, -point, book))
+        if x:
+            out[book] = x
+    return out
+
+
 def low_credits(api) -> bool:
     try:
         return api.remaining is not None and float(api.remaining) < config.MIN_CREDITS
@@ -85,6 +97,7 @@ def market_board(day: dt.date, api: OddsAPI, sports: list[str], tag: str) -> lis
             continue
         payload = [e for e in payload if et_date(e["commence_time"]) == day]
         rows = flatten(payload, "game", sport)
+        li = link_index(rows)
         db.insert_many(con, "odds_snapshots", rows)
         db.archive(rows, f"open-{tag}")
         names = {e["id"]: f'{e["away_team"]} @ {e["home_team"]}' for e in payload}
@@ -111,7 +124,8 @@ def market_board(day: dt.date, api: OddsAPI, sports: list[str], tag: str) -> lis
                             "pin": pin.get(side), "dk": books.get("draftkings", {}).get(side),
                             "fd": books.get("fanduel", {}).get(side), "best_book": best[0], "best_price": best[1],
                             "edge": round(ev_edge, 4), "flag": ev_edge >= config.MARKET_EDGE_FLAG,
-                            "kelly_usd": pricing.kelly_stake(p, best[1])})
+                            "kelly_usd": pricing.kelly_stake(p, best[1]),
+                            "links": links_for(li, eid, market, None, side, line if market == "spreads" else point)})
     out.sort(key=lambda r: r["edge"], reverse=True)
     return out
 
@@ -151,6 +165,7 @@ def nba_board(day: dt.date, api: OddsAPI | None) -> dict:
                 print("odds error", err)
                 continue
             rows = flatten(payload, "props", "basketball_nba")
+            li = link_index(rows)
             db.insert_many(con, "odds_snapshots", rows)
             db.archive(rows, "open-nba-props")
             for (eid, market, player, point), books in pair_two_way(rows).items():
@@ -176,6 +191,7 @@ def nba_board(day: dt.date, api: OddsAPI | None) -> dict:
                         "pin": books.get("pinnacle", {}).get(side), "best_book": best[0], "best_price": best[1],
                         "edge": round(edge, 4), "model_vs_market": round(p_model - fair, 4) if fair is not None else None,
                         "kelly_usd": pricing.kelly_stake(p_model, best[1]), "player_status": prow["status"],
+                        "links": links_for(li, eid, market, player, side, point),
                     })
         credits = api.remaining
     props.sort(key=lambda r: r["edge"], reverse=True)
@@ -280,6 +296,7 @@ def nfl_board(day: dt.date, api: OddsAPI | None) -> dict:
                 print("odds error", err)
                 continue
             rows = flatten(payload, "props", "americanfootball_nfl")
+            li = link_index(rows)
             db.insert_many(con, "odds_snapshots", rows)
             db.archive(rows, "open-nfl-props")
             for (eid, market, player, point), books in pair_two_way(rows).items():
@@ -314,6 +331,7 @@ def nfl_board(day: dt.date, api: OddsAPI | None) -> dict:
                         "pin": books.get("pinnacle", {}).get(side), "best_book": best[0], "best_price": best[1],
                         "edge": round(edge, 4), "model_vs_market": round(p_model - fair, 4) if fair is not None else None,
                         "kelly_usd": pricing.kelly_stake(p_model, best[1]), "player_status": prow["status"],
+                        "links": links_for(li, eid, market, player, side, point),
                         "low_trust": stat in config.NFL_LOW_TRUST,
                     })
         credits = api.remaining
@@ -410,6 +428,7 @@ def tennis_board(day: dt.date, api: OddsAPI | None) -> dict:
                 continue
             payload = [ev for ev in payload if (norm(ev.get("home_team", "")), norm(ev.get("away_team", ""))) in idx]
             rows = flatten(payload, "game", sp["key"])
+            li = link_index(rows)
             db.insert_many(con, "odds_snapshots", rows)
             db.archive(rows, "open-tennis")
             for (eid, market, _pl, point), books in pair_two_way(rows).items():
@@ -452,7 +471,8 @@ def tennis_board(day: dt.date, api: OddsAPI | None) -> dict:
                                    "pin": books.get("pinnacle", {}).get(side), "best_book": best[0], "best_price": best[1],
                                    "edge": round(pricing.edge(p_model, best[1]), 4),
                                    "model_vs_market": round(p_model - fair, 4) if fair is not None else None,
-                                   "kelly_usd": pricing.kelly_stake(p_model, best[1]), "low_sample": m["low_sample"]})
+                                   "kelly_usd": pricing.kelly_stake(p_model, best[1]), "low_sample": m["low_sample"],
+                                   "links": links_for(li, eid, market, None, side, line if market == "spreads" else point)})
         credits = api.remaining
     priced.sort(key=lambda r: r["edge"], reverse=True)
     return {"matches": matches, "priced": priced, "credits_remaining": credits}
@@ -548,6 +568,7 @@ def soccer_board(day: dt.date, api: OddsAPI | None) -> dict:
                     print("odds error", err)
                     continue
                 rows = flatten(payload, "props", sport_key)
+                li = link_index(rows)
                 db.insert_many(con, "odds_snapshots", rows)
                 db.archive(rows, "open-soccer")
                 r = model.match(fx["home_id"], fx["away_id"])
@@ -593,7 +614,8 @@ def soccer_board(day: dt.date, api: OddsAPI | None) -> dict:
                                "fd": books.get("fanduel", {}).get(side), "pin": books.get("pinnacle", {}).get(side),
                                "best_book": best[0], "best_price": best[1], "edge": round(edge, 4),
                                "model_vs_market": round(p_model - fair, 4) if fair is not None else None,
-                               "kelly_usd": pricing.kelly_stake(p_model, best[1]), "low_sample": fx["low_sample"]}
+                               "kelly_usd": pricing.kelly_stake(p_model, best[1]), "low_sample": fx["low_sample"],
+                               "links": links_for(li, eid, market, player, side, point)}
                         if stat == "sot":
                             pp = byname[norm(player)]
                             row["player_id"] = pp["player_id"]
@@ -740,6 +762,12 @@ def main():
         board["tennis"] = tennis_board(day, api)
         board["soccer"] = soccer_board(day, api)
     board["credits_remaining"] = api.remaining if api else None
+    for key, rows_ in (("nba", board.get("nba", {}).get("props", [])), ("nfl", board.get("nfl", {}).get("props", [])),
+                       ("tennis", board.get("tennis", {}).get("priced", [])), ("soccer", board.get("soccer", {}).get("props", [])),
+                       ("nba_lines", board.get("nba_lines", [])), ("nfl_lines", board.get("nfl_lines", [])),
+                       ("soccer_lines", board.get("soccer_lines", []))):
+        for i, r in enumerate(rows_):
+            r["ref"] = f"{key}:{i}"  # the desk cites refs; scripts/slip_links.py turns them into bet-slip links
     os.makedirs(os.path.join(ROOT, "boards"), exist_ok=True)
     base = os.path.join(ROOT, "boards", f"{day}-{session}")
     json.dump(board, open(base + ".json", "w"), indent=1, default=str)

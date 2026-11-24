@@ -58,3 +58,7 @@ NFL_LOW_TRUST = {"pass_yds", "pass_cmp"}  # model lost to the naive baseline out
 MEDIUM_TRUST_EDGE = 0.05
 TENNIS_MEDIUM_TRUST = {"totals", "spreads", "set_betting"}
 SOCCER_MARKETS = ["h2h", "totals", "alternate_totals", "alternate_totals_corners", "player_shots_on_target"]
+
+# Bet-slip link hosts. Leave a book out to keep the host The Odds API returns. Examples:
+#   Maryland/US: {} (default)   Ontario: {"fanduel": "on.sportsbook.fanduel.ca", "draftkings": "sportsbook.draftkings.com"}
+BETSLIP_HOSTS: dict = {}

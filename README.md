@@ -100,3 +100,9 @@ props): log loss 0.626 vs 0.652 for the naive baseline; passing yards and comple
 - Late news: `late_news_nfl.py` (inactives), `late_news_am.py` (soccer XIs, tennis withdrawals), workflow
   `late-news-more.yml`.
 - Tracker leg types added: `draw`, `corners`, player `stat: "sot"` (soccer), `total_games`, `games_spread` (tennis).
+
+### Bet-slip links
+The board asks The Odds API for bookmaker deep links and ids (`includeLinks`, `includeSids`; no extra credits) and
+stores them on every priced row with a `ref`. `scripts/slip_links.py` turns a slip's refs into one DraftKings and
+one FanDuel link that load every leg (`desk/betslip.py`), plus per-leg links; the desk puts them in the doc,
+Discord and the legs file. Set `BETSLIP_HOSTS` in `desk/config.py` if your state or province uses another host.

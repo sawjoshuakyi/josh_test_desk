@@ -39,7 +39,8 @@ def connect(path: str = DB_PATH) -> sqlite3.Connection:
 def insert_many(con: sqlite3.Connection, table: str, rows: list[dict]) -> int:
     if not rows:
         return 0
-    cols = list(rows[0].keys())
+    table_cols = {r[1] for r in con.execute(f"PRAGMA table_info({table})")}
+    cols = [c for c in rows[0].keys() if c in table_cols]  # extra keys (links, ids) live in the JSON archive only
     con.executemany(
         f"INSERT INTO {table} ({', '.join(cols)}) VALUES ({', '.join('?' for _ in cols)})",
         [tuple(r.get(c) for c in cols) for r in rows],

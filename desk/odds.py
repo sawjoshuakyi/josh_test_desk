@@ -56,13 +56,16 @@ class OddsAPI:
         return self._get(f"/sports/{sport}/events")
 
     # ---- odds
+    # includeLinks / includeSids add bookmaker deep links and the bookmaker's own ids (no extra credit cost).
     def game_odds(self, sport: str, markets=("h2h", "spreads", "totals"), books=None):
         return self._get(f"/sports/{sport}/odds", markets=",".join(markets),
-                         bookmakers=",".join(books or config.ALL_BOOKS), oddsFormat="american")
+                         bookmakers=",".join(books or config.ALL_BOOKS), oddsFormat="american",
+                         includeLinks="true", includeSids="true")
 
     def event_odds(self, sport: str, event_id: str, markets, books=None):
         return self._get(f"/sports/{sport}/events/{event_id}/odds", markets=",".join(markets),
-                         bookmakers=",".join(books or config.ALL_BOOKS), oddsFormat="american")
+                         bookmakers=",".join(books or config.ALL_BOOKS), oddsFormat="american",
+                         includeLinks="true", includeSids="true")
 
     def historical_game_odds(self, sport: str, when: str, markets=("h2h",), books=None):
         """when: ISO timestamp, e.g. 2026-11-20T23:00:00Z (paid plans only)."""
@@ -85,6 +88,8 @@ def flatten(payload, kind: str, sport: str) -> list[dict]:
                         "away": ev.get("away_team"), "book": bm.get("key"), "market": mk.get("key"),
                         "player": oc.get("description"), "side": oc.get("name"),
                         "point": oc.get("point"), "price": oc.get("price"),
+                        "link": oc.get("link"), "sid": oc.get("sid"), "market_sid": mk.get("sid"),
+                        "market_link": mk.get("link"), "event_link": bm.get("link"), "event_sid": bm.get("sid"),
                     })
     return rows
 
@@ -102,4 +107,15 @@ def pair_two_way(rows: list[dict]) -> dict:
             point = abs(point)  # both sides of a spread share |line|
         key = (r["event_id"], r["market"], r["player"], point)
         out.setdefault(key, {}).setdefault(r["book"], {})[r["side"]] = r["price"]
+    return out
+
+
+def link_index(rows: list[dict]) -> dict:
+    """{(event_id, market, player, side, point, book): {link, sid, market_sid, event_link, event_sid}} for building
+    bet-slip links. Spread points keep their sign (each side has its own selection)."""
+    out = {}
+    for r in rows:
+        if r.get("link") or r.get("sid"):
+            out[(r["event_id"], r["market"], r["player"], r["side"], r["point"], r["book"])] = {
+                k: r.get(k) for k in ("link", "sid", "market_sid", "event_link", "event_sid")}
     return out

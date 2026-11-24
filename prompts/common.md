@@ -130,6 +130,17 @@ and the report shows the numbers. If an item cannot be checked, say so explicitl
   distribution, last-10 form and surface record this season, head-to-head, fatigue (matches and sets played this
   week, long previous match), travel/surface switch, retirement/withdrawal risk, best-of-3 vs best-of-5.
 
+## BET-SLIP LINKS (every slip)
+Every priced board row has a `ref` (e.g. "nba:12", "soccer:4", "tennis:7", "nfl_lines:3") and DraftKings/FanDuel link
+data from The Odds API. After the manager approves the slips, write /tmp/slips.json —
+{"date": "<YYYY-MM-DD>", "session": "<am|pm|nfl>", "slips": [{"name": "Desk NBA Best Bet", "refs": ["nba:12"]}, ...]}
+(names exactly as in the live-tracker file, refs of every leg) — and run
+`python3 scripts/slip_links.py /tmp/slips.json --write legs/<date>-<session>.json`. It prints, per slip, one
+DraftKings link and one FanDuel link that load every leg into the bet slip (when every leg is offered at that book),
+plus per-leg links, and stores them in the legs file under "betslip". A leg with no ref (not on the board) has no
+link: say "find in app". Put the links in the report doc and in Discord (below). Same-game parlays: the book may
+price the combined slip differently from the product of the legs; the link loads the legs, the app shows the price.
+
 ## LEG REASONING TOOL
 For any NBA or NFL player leg whose bullets are not already in the board's `facts`, generate them from our data:
 `pip install -q pandas numpy scipy --break-system-packages` once, then
@@ -190,7 +201,7 @@ Structure, like a presentation:
   EV, $ stake), today's total $ at risk, top risks and when news is due, the model board status (built at, odds
   source, API credits left), and a recap of slips graded in Step 0 with the running record in units and dollars.
 - One section per sport: each approved slip (odds, best book, slip probability, EV, $ stake, correlation logic,
-  manager's slip verdict), then EVERY leg in this exact format (minimum standard — more is welcome):
+  manager's slip verdict, and its "Bet it: [DraftKings](link) · [FanDuel](link)" line from BET-SLIP LINKS), then EVERY leg in this exact format (minimum standard — more is welcome):
 
   **Isaiah Hartenstein — Over 3.5 assists** · DK -120 / FD -115 (FD) · p 62% (Model) · market 54% · edge +6.1%
   - Hartenstein is averaging 3.9 assists per game this season while playing about 25 minutes per game.
@@ -243,7 +254,8 @@ Post with Python's urllib from the shell (headers Content-Type application/json 
   title "[Sport] · [Slip type] · [odds] ([best book])"; description one leg per line,
   "**Player/team — market line** (DK x / FD y) · p 62% · edge +4.1%", followed by that leg's two strongest data
   bullets and its "✅ Manager:" line (shorten to fit; the doc has the full reasoning); fields "Stake" ($ and
-  "Kelly says pass" when $0),
+  "Kelly says pass" when $0), "Bet it" ("[DraftKings](link) · [FanDuel](link)" from BET-SLIP LINKS; "find in app"
+  when a book has no link),
   "EV" (slip EV), "Manager" (one-line verdict), "Main risk" (one line). Consistent color per slip type.
 - GENERAL: one short results message — slips graded this run (record, units and $), running record and ROI from
   Summary, and links to today's doc and the tracker.
