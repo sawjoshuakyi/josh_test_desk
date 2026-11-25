@@ -1,0 +1,68 @@
+{
+ "data": [
+  {
+   "player": {
+    "id": 1091477603,
+    "first_name": "Henri",
+    "last_name": "Veesaar",
+    "position": "C",
+    "height": "6-11",
+    "weight": "225",
+    "jersey_number": "13",
+    "college": "North Carolina",
+    "country": "Estonia",
+    "draft_year": 2026,
+    "draft_round": 2,
+    "draft_number": 52,
+    "team_id": 1
+   },
+   "return_date": "2027-07-01",
+   "description": "Veesaar was diagnosed with a torn right ACL and is expected to miss the 2026-27 season, the Hawks announced Monday. Veesaar suffered the injury during a workout on Sept. 15, and an MRI confirmed the diagnosis. The No. 52 overall pick in the 2026 NBA Draft, Veesaar was expected to spend a lot of time with Atlanta's G League affiliate this season. Reported out for season.",
+   "status": "Out"
+  },
+  {
+   "player": {
+    "id": 56677806,
+    "first_name": "Mouhamed",
+    "last_name": "Gueye",
+    "position": "F",
+    "height": "6-11",
+    "weight": "210",
+    "jersey_number": "18",
+    "college": "Washington State",
+    "country": "Senegal",
+    "draft_year": 2023,
+    "draft_round": 2,
+    "draft_number": 39,
+    "team_id": 1
+   },
+   "return_date": "2026-12-12",
+   "description": "Gueye (foot) is ready to begin on-court activities and will be re-evaluated in four weeks, Brad Rowland of the Locked On Podcast Network reports. The team stated in July that the big man would remain sidelined for the next 3-to-4 months after undergoing surgery to repair a fractured left foot, and he's continuing to make progress in his rehab. A timetable for Gueye's 2026-27 debut has yet to be established, thought a date could come into focus following his next evaluation in mid-December.",
+   "status": "Out"
+  },
+  {
+   "player": {
+    "id": 1057263194,
+    "first_name": "Kon",
+    "last_name": "Knueppel",
+    "position": "G-F",
+    "height": "6-6",
+    "weight": "230",
+    "jersey_number": "7",
+    "college": "Duke",
+    "country": "USA",
+    "draft_year": 2025,
+    "draft_round": 1,
+    "draft_number": 4,
+    "team_id": 4
+   },
+   "return_date": "2026-12-12",
+   "description": "Injury/Illness - Left Hamstring Strain (2026-11-25, CHI@CHA). Prior reporting (2026-11-08): Knueppel (hamstring) was diagnosed with a left hamstring strain Sunday and will be re-evaluated in four weeks. Knueppel missed the first eight games of the 2026-27 campaign. He returned for the 114-104 loss to Brooklyn on Wednesday, though he exited the contest after just six minutes of work and didn't return. With Knueppel out of commission for at least a month, Grayson Allen and Sion James are candidates to replace him in the starting lineup, especially with Dennis Schroder (hamstring) sidelined for a minimum of two weeks.",
+   "status": "Out"
+  }
+ ],
+ "meta": {
+  "next_cursor": 16015689,
+  "per_page": 100
+ }
+}
