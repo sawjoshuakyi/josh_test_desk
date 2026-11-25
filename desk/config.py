@@ -15,8 +15,8 @@ UNIT = BANKROLL * 0.01     # 1 unit = 1% of bankroll ($25)
 KELLY_FRACTION = 0.25      # quarter-Kelly
 MAX_BET_PCT = 0.02         # no single bet above 2% of bankroll ($50)
 MAX_GAME_PCT = 0.04        # no more than 4% of bankroll riding on one game across all bets
-MAX_PARLAY_PCT = 0.005     # parlays are capped at 0.5% of bankroll ($12.50)
-LOTTO_PCT = 0.002          # lottos are a fixed 0.2% of bankroll ($5) — entertainment budget
+MAX_PARLAY_PCT = 0.004     # parlays are capped at 0.4% of bankroll ($10)
+LOTTO_PCT = 0.001          # lottos are a fixed 0.1% of bankroll ($2.50) — entertainment budget
 DAILY_RISK_PCT = 0.10      # stop adding bets once 10% of bankroll is at risk in one day ($250)
 
 EDGE_FLAG = 0.03           # a leg is a "model edge" when model prob beats the no-vig market by 3+ points

@@ -21,8 +21,8 @@ def test_kelly_and_caps():
     assert math.isclose(f, 0.2)
     assert p.kelly_stake(0.6, 100) == 50.0    # quarter-Kelly 5% capped at 2% of 2500
     assert p.kelly_stake(0.52, 100) == 25.0   # 0.04*0.25 = 1% -> $25
-    assert p.kelly_stake(0.9, 500, kind="parlay") == 12.5
-    assert p.kelly_stake(0.01, 5000, kind="lotto") == 5.0
+    assert p.kelly_stake(0.9, 500, kind="parlay") == 10.0
+    assert p.kelly_stake(0.01, 5000, kind="lotto") == 2.5
 
 def test_parlay_and_metrics():
     assert p.parlay_american([100, 100]) == 300

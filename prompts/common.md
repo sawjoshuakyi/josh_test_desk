@@ -98,19 +98,33 @@ How to use it:
    probability, but it must be anchored to the no-vig market price (from the board or two-sided DK/FD prices) and
    any move away from the market needs a stated reason (Prob source "Analyst"). Game lines use the board's
    Pinnacle fair probability (Prob source "Market").
-3. SLIP-BUILDING RULE (Josh, Nov 24 — "I care about winning"): build for HIT RATE with a BREAK-EVEN FLOOR.
-   - A leg is ELIGIBLE when edge ≥ 0 at the price on the book the slip is placed at (high-trust model markets), or
-     edge ≥ +2% (medium-trust markets: tennis games/sets; analyst/low-trust markets), as a cushion for the less proven
-     probability. A negative-edge leg is never
-     used, not even to reach an odds target.
-   - Among eligible legs, choose the HIGHEST-PROBABILITY ones first (not the biggest edge). Edge breaks ties.
-   - GOAL IS STEADY BANK GROWTH (Josh: "small gradual wins is also a win"). No extra "value single" bets: a leg that
-     only has value at a long price (plus-money long shots) is not posted outside the five slips. A leg has VALUE when
-     edge ≥ +3% (modeled) or DK/FD beats Pinnacle fair by 2%+; value only breaks ties between equally likely legs.
+3. SLIP-BUILDING RULE (revised Nov 25 after a 1-13 parlay start; Josh's goal is still HIT RATE and steady bank growth).
+   - PROBABILITY USED (p_used) — never the raw model number alone. The model is overconfident on the very legs the
+     parlays are built from (NBA points/PRA backtest: legs it rates 55% hit 48%, 65% hit 60%), and legs picked because
+     the model beats the market are the ones where the model is most often wrong. So:
+       p_used = 0.5 × model + 0.5 × no-vig market fair prob, when the board has a two-sided fair price;
+       p_used = 0.75 × model + 0.25 × the book's implied prob, for alt lines and one-sided props (no fair price).
+     Show model, market and p_used for every leg. Slip probability = product of p_used.
+   - ELIGIBLE: parlay legs need edge ≥ +2% on p_used at the slip's book; singles (Best Bet) need edge ≥ +1%. A leg
+     whose edge is only there on the raw model number is not eligible. Medium-trust markets (tennis games/sets) and
+     analyst probabilities need edge ≥ +4% on p_used. Never pad with a non-eligible leg to reach an odds target.
+   - NO BOOK PRICE, NO SLIP: a leg with no DK/FD price on the board (e.g. WTA 125 tennis) is not bet. If a sport has no
+     priced legs, post its section as "no card today" with the reason. Never build slips from "bet only at fair or
+     better" model-only prices again.
+   - DEGRADED MODE: if the official model board is missing or has no odds (odds_source "none"), the desk posts NO slips
+     for the affected sports — one status line to GENERAL and the report — and tells Josh. A fallback board built
+     inside the session (no API keys) is for diagnosis only, never for picks.
+   - Among eligible legs choose the HIGHEST p_used first; edge breaks ties. No extra "value single" bets.
+   - ONE LEG, ONE SLIP: each leg appears in at most one of a sport's slips (the Best Bet's leg is not reused in any
+     parlay), and each game in at most two slips. `scripts/exposure.py` enforces this.
+   - SIZE LIMITS: Bank Builder 1–2 legs, every leg p_used ≥ 70%. Double-Up 2–3 legs, every leg p_used ≥ 60%.
+     +400–700 at most 4 legs. Lotto only on slates with 10+ separate games of eligible legs, $2.50.
+   - WEAKEST LEG: for every parlay the manager names the lowest-p_used leg and why it is worth including. If the slip
+     would be better without it at a lower price band, drop the slip rather than keep a weak leg.
    - Every leg of a parlay must be on the SAME book at an eligible price; quote the slip at that book.
-   - If the eligible legs cannot reach a slip's odds target, post the closest honest version (say so) or skip the
-     slip with the reason. Never pad with negative-edge legs.
    - Skip legs where the model's mean contradicts the last-10 data AND the model is 5+ points away from the market.
+   - Expectation, stated in every report: a +400–700 slip wins about 1 time in 5–6 and a Lotto about 1 in 100+ even when
+     priced right; Best Bet and Bank Builder carry the bankroll.
 4. Model–market disagreement larger than 10 points is a warning, not a gift: look for missing news (injury, rest,
    role change) before using it. Follow the Playbook rule on this.
 5. Every leg in every slip shows: line, DK price, FD price, best book, the probability used and its source, the no-vig
@@ -169,11 +183,11 @@ bullets and the model's probability with today's injury report applied.
 ## STAKING (bankroll $2,500 — Playbook rule)
 - Best Bet: quarter-Kelly on the leg's probability, capped at $50 (board `kelly_usd` for modeled legs; for analyst
   probabilities use half of quarter-Kelly, capped at $25).
-- Bank Builder: quarter-Kelly on the slip probability and price, capped at $50 (it is the steady-win slip).
-- Double-Up and +400–700: quarter-Kelly on the slip probability and best price, capped at $12.50.
-- Lotto: fixed $5.
-- If Kelly is $0 (eligible but edge rounds to zero), stake a flat $10 on a single or $5 on a parlay, labelled
-  "break-even stake" — the hit-rate rule keeps these on the card, but they never get Kelly money.
+- All Kelly sizing uses p_used (never the raw model probability). The board's `kelly_usd` uses the raw model, so for
+  the Best Bet recompute it on p_used.
+- Bank Builder: quarter-Kelly on the slip p_used and price, capped at $30 until the desk has 30 graded Bank Builders.
+- Double-Up: quarter-Kelly, capped at $10. +400–700: capped at $5. Lotto: fixed $2.50.
+- If Kelly on p_used is $0, the leg is not eligible — there is no "break-even stake" any more.
 - Limits: at most $100 at risk on any one game across all slips, and at most $250 per Eastern day across all sessions
   (add up today's Ledger L column first; trim the lowest-EV slips if over).
 - Ledger: L = dollar stake, H = =Ln/25, N = slip EV.
@@ -194,17 +208,15 @@ Give it all analyst reports, the model board, the Playbook, the Ledger/Legs/Summ
   and apply extra scrutiny to them.
 - PORTFOLIO CHECK (hard rules, from the Nov 23 review where one leg and one game result busted 7 of 8 slips):
   write the draft slips in the live-tracker format to /tmp/draft.json and run
-  `python3 scripts/exposure.py /tmp/draft.json`. Any ERROR must be fixed before approval: no leg in more than 2 of a
-  sport's slips, and no more than 2 slips may need the same team to win/cover. Answer each WARN in the report. On a
+  `python3 scripts/exposure.py /tmp/draft.json`. Any ERROR must be fixed before approval: no leg in more than 1 of a
+  sport's slips, no game in more than 2 slips, and no more than 2 slips may need the same team to win/cover. Answer each WARN in the report. On a
   one-game slate (e.g. MNF), at least one slip must win under the opposite game script to the others (e.g. an under,
   the underdog, or a script-independent leg such as receptions), and no total over/under may be in every slip.
-- ANCHOR RULE: a leg whose probability is under 60% may appear in at most ONE slip; parlay anchors should be 65%+
-  legs with edge ≥ 0. Never reuse a coin-flip leg as the backbone of several parlays.
-- FILLER RULE: every leg in a parlay needs edge ≥ 0 at the slip's book (model probability, or DK/FD at or better than
-  Pinnacle fair for game lines); otherwise drop it and shorten the parlay.
-- BEST BET is the highest-probability eligible single priced -500 or longer (a loss costs at most ~5 wins), with edge ≥ 0
-  at the best available price by the board (or, with no prices, the model's fair
-  price must be stated as the minimum acceptable price). A Best Bet the model rates below its implied probability is
+- ANCHOR RULE: parlay anchors are 70%+ p_used legs with edge ≥ +2% on p_used. No leg is reused across slips.
+- FILLER RULE: every leg in a parlay needs edge ≥ +2% on p_used at the slip's book; otherwise drop it and shorten the
+  parlay.
+- BEST BET is the highest-p_used eligible single priced -500 or longer (a loss costs at most ~5 wins), with edge ≥ +1%
+  on p_used at a real DK/FD price on the board. A Best Bet the model rates below its implied probability is
   rejected even if the analyst likes it.
 - Verdict per slip: APPROVED, APPROVED WITH CHANGES (exact swaps), or REJECTED (reason). Fixes go back for one revision
   round, then re-check. Only approved slips go to Josh.
@@ -244,6 +256,7 @@ Structure, like a presentation:
 Append one Ledger row per APPROVED slip (Session per session file, Result "Pending", formulas for H, J, M) and one Legs
 row per leg (Result "Pending", K and M formulas, T–X filled as above, Best odds = the better of DK/FD where known).
 Exact labels — Sport: NBA, NFL, Soccer, Tennis. Slip type: Best Bet, Bank Builder, Double-Up, +400-700, Lotto.
+  Legs column U (Fair mkt) holds the no-vig market prob and T the p_used; write the raw model prob in the notes.
 
 ## LIVE TRACKER FILE (GitHub)
 You already have the repo cloned (sawjoshuakyi/josh_test_desk). Read README.md for the exact leg format and write

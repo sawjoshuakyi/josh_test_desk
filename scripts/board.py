@@ -768,20 +768,31 @@ def main():
     board = {"date": day.isoformat(), "session": session,
              "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
              "odds_source": "the-odds-api" if api else "none (model only)", "odds_error": odds_error}
+    board["errors"] = {}
+
+    def part(key, fn, *args):
+        """One sport failing must not take the whole board down: record the error and carry on."""
+        try:
+            board[key] = fn(*args)
+        except Exception:
+            import traceback
+            board["errors"][key] = traceback.format_exc()[-1500:]
+            print(f"{key} failed:\n{board['errors'][key]}")
+
     if session == "pm":
-        board["nba"] = nba_board(day, api)
+        part("nba", nba_board, day, api)
         if day.weekday() != 6:  # weekday NFL (TNF/MNF/Saturday); Sunday has its own session
-            board["nfl"] = nfl_board(day, api)
+            part("nfl", nfl_board, day, api)
         if api:
-            board["nba_lines"] = market_board(day, api, ["basketball_nba"], "nba-lines")
-            board["nfl_lines"] = market_board(day, api, ["americanfootball_nfl"], "nfl-lines")
+            part("nba_lines", market_board, day, api, ["basketball_nba"], "nba-lines")
+            part("nfl_lines", market_board, day, api, ["americanfootball_nfl"], "nfl-lines")
     elif session == "nfl":
-        board["nfl"] = nfl_board(day, api)
+        part("nfl", nfl_board, day, api)
         if api:
-            board["nfl_lines"] = market_board(day, api, ["americanfootball_nfl"], "nfl-lines")
+            part("nfl_lines", market_board, day, api, ["americanfootball_nfl"], "nfl-lines")
     else:
-        board["tennis"] = tennis_board(day, api)
-        board["soccer"] = soccer_board(day, api)
+        part("tennis", tennis_board, day, api)
+        part("soccer", soccer_board, day, api)
     board["credits_remaining"] = api.remaining if api else None
     for key, rows_ in (("nba", board.get("nba", {}).get("props", [])), ("nfl", board.get("nfl", {}).get("props", [])),
                        ("tennis", board.get("tennis", {}).get("priced", [])), ("soccer", board.get("soccer", {}).get("props", [])),

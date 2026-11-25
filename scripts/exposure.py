@@ -2,9 +2,9 @@
 
 Usage: python3 scripts/exposure.py legs.json   (the live-tracker format; only slips named "Desk ..." are checked)
 Exit code 1 when a hard rule is broken, so the manager must fix the slips before publishing:
-  - the same leg appears in more than 2 slips of one sport
-  - one game carries a leg of 3 or more of a sport's 4 slips AND those slips all need the same side of that game
-    (same team to win/cover, or same total direction) - one result would bust most of the card
+  - the same leg appears in more than 1 slip of one sport (one leg, one slip: a miss may only ever cost one slip)
+  - one game carries legs of 3 or more of a sport's slips (one game may touch at most 2 slips)
+  - one game carries a leg of 3 or more slips AND those slips all need the same side of that game
 Warnings (reported, not blocking): every slip of a sport comes from a single game; lotto filler moneylines.
 """
 from __future__ import annotations
@@ -62,8 +62,15 @@ def main(path: str) -> int:
                 if side(leg):
                     games[g][s["name"]].add(side(leg))
         for lid, u in uses.items():
-            if len(u) > 2:
-                errors.append(f"{sport}: '{u[0][1]}' is in {len(u)} slips ({', '.join(n for n, _ in u)}) — max 2.")
+            if len(u) > 1:
+                errors.append(f"{sport}: '{u[0][1]}' is in {len(u)} slips ({', '.join(n for n, _ in u)}) — one leg, one slip.")
+        game_slips = defaultdict(set)
+        for s in ss:
+            for leg in s["legs"]:
+                game_slips["/".join(sorted(leg.get("teams", [])))].add(s["name"])
+        for g, names in game_slips.items():
+            if len(names) >= 3 and not any("Lotto" in n for n in names):
+                errors.append(f"{sport}: {g} is in {len(names)} slips ({', '.join(sorted(names))}) — max 2 slips per game.")
         for g, per_slip in games.items():
             counts = defaultdict(list)
             for name, sides in per_slip.items():

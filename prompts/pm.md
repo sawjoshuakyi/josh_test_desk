@@ -20,7 +20,7 @@ diligence and deliver five slips:
  2. BANK BUILDER: a single or short parlay with combined odds between -200 and +125 — the steady-win slip.
  3. DOUBLE-UP parlay: combined odds +100 to +150.
  4. +400 to +700 parlay.
- 5. LOTTO parlay of 10 or more legs (fixed $5). Skip it, with the reason, when the board has fewer than 10 eligible
+ 5. LOTTO parlay of 10 or more legs (fixed $2.50). Skip it, with the reason, when the board has fewer than 10 eligible
     legs from separate games.
 Start from the model board: its highest-edge rows are your candidate list, and every NBA points/rebounds/assists/
 threes/PRA leg uses the board's model probability (adjust only for news after the board was built, max 8 points,
