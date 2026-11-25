@@ -7,8 +7,33 @@ SCOPE: today's NBA slate, plus any NFL games still to be played today EXCEPT Sun
 e.g. Thursday Night, Monday Night, Saturday or holiday games. If a sport has no games today, its analyst reports
 "No slate today" and produces nothing.
 
-Follow common.md: STEP 0 → MODEL BOARD → STEP 1 (below) → MANAGER → REPORT DOC → LOGGING → LIVE TRACKER FILE →
-DISCORD → FINISH.
+Follow common.md: STEP 0 → MODEL BOARD → NBA SLATE REPORT (below) → STEP 1 (below) → MANAGER → REPORT DOC → LOGGING →
+LIVE TRACKER FILE → DISCORD → FINISH.
+
+## NBA SLATE REPORT (Josh's daily scouting report — every day there are NBA games)
+GitHub Actions builds reports/nba_slate/<date>.md (and .json) at ~1:20 PM and again ~3:25 PM ET with the latest
+injury report. Read it (git pull first). If it is missing or reports/nba_slate/<date>.error.txt exists, say so in
+GENERAL and in the desk report, and continue without it.
+1. Create a separate doc titled "NBA Slate Report — [Weekday, Month Day]". One section per game, in tip-off order,
+   each with these sub-sections, written as plain readable prose and short bullets from the file's numbers (do not
+   invent numbers; every figure must be in the file or computed from the repo's data):
+   a. Game type — regular season or NBA Cup (with the Cup label; group games count in the standings and point
+      differential is a Cup tiebreaker).
+   b. Standings and motivation — records, conference ranks, games back of 1st/6th/10th, last 10, streak, rest and
+      back-to-backs, and the motivation signals the file lists. State facts; label any judgment as the desk's read.
+   c. Strengths and weaknesses — offense/defense per 100 possessions, pace, and what each defense allows to guards,
+      lead guards, forwards and centers (e.g. "allows the 3rd-most points to lead guards; shuts down centers' boards").
+   d. Mismatches — position and player mismatches from the file, and for each, how that player did against the
+      similarly weak defenses and in head-to-head games this season and last.
+   e. Player matchups — each key player's role, season vs last-5 form, minutes in the last 3 games, fatigue
+      (back-to-back, games in 7 days), and the opponent's rank against his position.
+   f. Injuries — the official status, and how the absent player's minutes and shots have been redistributed.
+   g. With/without — each teammate's minutes, points, rebounds, assists and shots with vs without the injured player,
+      with sample sizes (flag fewer than 5 games without him as a hint, not a trend).
+2. Post the doc link to NBA_NFL ("📋 NBA Slate Report — [date]: [link]") before the slips.
+3. Give the slate file to the NBA analyst with the board; the analyst cites it in each NBA leg's reasoning (matchup
+   rank, with/without numbers, fatigue). The manager rejects an NBA leg that the slate report contradicts without an
+   explanation (e.g. an over against a defense ranked in the 5 stingiest at his position).
 
 ## STEP 1 — Analyst agents (one per sport in scope, in parallel, via the Agent tool)
 Give each the Active and Testing Playbook rules for its sport, the ODDS and MODEL BOARD sections of common.md, the

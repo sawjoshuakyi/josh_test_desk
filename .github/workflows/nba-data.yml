@@ -1,11 +1,13 @@
 name: nba-data
 
 # balldontlie NBA data (games, player box scores, injuries) + the official NBA schedule (NBA Cup labels).
-# Daily 1:20 PM ET (refresh) — the slate report runs after it. Manual run with backfill=true loads two full seasons
+# Daily 1:20 PM ET and 3:25 PM ET (fresh injury report before the 3:45 PM board), then the NBA slate report
+# (reports/nba_slate/<date>.md) is built from it. Manual run with backfill=true loads two full seasons
 # (~10 minutes at the ALL-STAR rate limit).
 on:
   schedule:
     - cron: "20 18 * * *"
+    - cron: "25 20 * * *"
   workflow_dispatch:
     inputs:
       backfill:
@@ -35,6 +37,9 @@ jobs:
       - name: Load
         run: |
           if [ "${{ github.event.inputs.backfill }}" = "true" ]; then python3 scripts/nba_bdl_update.py --backfill; else python3 scripts/nba_bdl_update.py; fi
+      - name: NBA slate report
+        if: github.event.inputs.backfill != 'true' || github.event_name == 'workflow_dispatch'
+        run: python3 scripts/nba_slate.py || echo "slate report failed (see reports/nba_slate/*.error.txt)"
       - name: Commit
         if: always()
         run: |
