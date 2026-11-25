@@ -1,0 +1,42 @@
+name: nba-data
+
+# balldontlie NBA data (games, player box scores, injuries) + the official NBA schedule (NBA Cup labels).
+# Daily 1:20 PM ET (refresh) — the slate report runs after it. Manual run with backfill=true loads two full seasons
+# (~10 minutes at the ALL-STAR rate limit).
+on:
+  schedule:
+    - cron: "20 18 * * *"
+  workflow_dispatch:
+    inputs:
+      backfill:
+        description: "true = load last season and this season in full"
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nba-data
+  cancel-in-progress: false
+
+jobs:
+  load:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      BALLDONTLIE_KEY: ${{ secrets.BALLDONTLIE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -q -r requirements.txt
+      - name: Load
+        run: |
+          if [ "${{ github.event.inputs.backfill }}" = "true" ]; then python3 scripts/nba_bdl_update.py --backfill; else python3 scripts/nba_bdl_update.py; fi
+      - name: Commit
+        if: always()
+        run: |
+          mkdir -p data/nba_bdl reports && touch data/nba_bdl/.keep
+          scripts/commit.sh "NBA data (balldontlie) $(date -u +%F)" data/nba_bdl reports
