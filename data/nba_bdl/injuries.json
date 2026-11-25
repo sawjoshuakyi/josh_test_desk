@@ -1,5 +1,5 @@
 {
- "fetched_at": "2026-11-25T18:29:34+00:00",
+ "fetched_at": "2026-11-25T20:30:29+00:00",
  "injuries": [
   {
    "player_id": "1091477603",
@@ -672,7 +672,7 @@
    "player": "Giannis Antetokounmpo",
    "team_id": "16",
    "pos": "F",
-   "status": "Questionable",
+   "status": "Probable",
    "return_date": "2026-11-25",
    "description": "Injury/Illness - Right Groin Tendinitis (2026-11-25, MIA@PHI). Prior reporting (2026-11-24): Antetokounmpo (groin) is questionable for Wednesday's game in Philadelphia. Antetokounmpo missed Sunday's 123-113 win over the Thunder due to right groin tendinitis, but he was able to get through most of Tuesday's practice, so he's trending in the right direction. If he's cleared to return, Bobby Portis would likely head back to the second unit."
   },
@@ -753,9 +753,9 @@
    "player": "Joel Embiid",
    "team_id": "23",
    "pos": "F-C",
-   "status": "Doubtful",
+   "status": "Out",
    "return_date": "2026-11-27",
-   "description": "Injury/Illness - Illness (2026-11-25, MIA@PHI). Prior reporting (2026-11-24): Embiid (illness) is listed as doubtful for Wednesday's game versus Miami. Embiid missed Monday's 128-111 loss to Portland and doesn't appear to be on track to return Wednesday against the Heat. As a result, Jabari Walker could make another start, with more minutes available for Adem Bona and Dominick Barlow."
+   "description": "Injury/Illness - Illness (2026-11-25, MIA@PHI). Prior reporting (2026-11-25): Embiid (illness) is out for Wednesday's game against Miami, Ira Winderman of the South Florida Sun Sentinel reports. With Embiid set to miss a second straight game due to illness after previously being listed as doubtful, Philadelphia will again need to cover his vacated minutes at center. His absence removes one of the 76ers' top offensive options and should leave added frontcourt work available to the likes of Jabari Walker, Dominick Barlow and Adem Bona."
   },
   {
    "player_id": "3547250",
@@ -771,7 +771,7 @@
    "player": "Cade Cunningham",
    "team_id": "9",
    "pos": "G-F",
-   "status": "Out",
+   "status": "Day-To-Day",
    "return_date": "2026-11-27",
    "description": "Cunningham (knee) is listed as out for Tuesday's game against Orlando. Cunningham was listed as probable, so his absence for Tuesday's meeting with the Magic is concerning. Head coach J.B. Bickerstaff indicated that the knee has been giving the two-time All-Star some trouble of late, and while he's mostly played through it, he will now miss his second game of the 2026-27 campaign. Without Cunningham, Isaiah Joe will enter the starting lineup."
   },
@@ -1044,6 +1044,15 @@
    "status": "Questionable",
    "return_date": "2026-11-25",
    "description": "Injury/Illness - Illness (2026-11-25, CLE@NYK). Prior reporting (2026-11-25): Brunson (illness) has been downgraded to questionable for Wednesday's game against the Cavaliers. Brunson is under the weather and was a late addition to the injury report. If the star floor general joins Miles McBride (adductor) on the inactive list, Jose Alvarado and Tyler Kolek would be candidates for a significant uptick in minutes. Brunson has scored at least 21 points in 10 straight games, averaging 27.9 points, 6.4 assists, 3.4 rebounds and 0.7 steals in 33.9 minutes per contest during that span."
+  },
+  {
+   "player_id": "56677582",
+   "player": "Jalen Pickett",
+   "team_id": "13",
+   "pos": "G",
+   "status": "Questionable",
+   "return_date": null,
+   "description": "G League - Two-Way (2026-11-25, LAC@MEM)."
   }
  ]
 }
