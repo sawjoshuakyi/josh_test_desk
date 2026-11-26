@@ -1,5 +1,5 @@
 {
- "fetched_at": "2026-11-26T18:29:08+00:00",
+ "fetched_at": "2026-11-26T20:30:31+00:00",
  "injuries": [
   {
    "player_id": "1091477603",
@@ -663,9 +663,9 @@
    "player": "Mitchell Robinson",
    "team_id": "2",
    "pos": "C",
-   "status": "Out",
+   "status": "Questionable",
    "return_date": "2026-11-27",
-   "description": "Robinson (illness) is out for Tuesday's game against Washington, Taylor Snow of the Celtics' official site reports. With Robinson set to miss a third contest due to an illness, Boston will again be without one of its primary center options. His absence should continue to leave more frontcourt minutes available for Neemias Queta and Luka Garza on Tuesday, with the former being in line to see the lion's share of the playing time."
+   "description": "Injury/Illness - Illness (2026-11-27, ATL@BOS). Prior reporting (2026-11-26): Robinson (illness) is questionable for Friday's game against the Hawks. Robinson has missed Boston's previous three games due to an illness, and it appears he's in danger of missing a fourth consecutive outing Friday. Neemias Queta will continue to start in Robinson's place if he remains sidelined, while Luka Garza and Chris Cenac get more minutes off the bench."
   },
   {
    "player_id": "38017706",
@@ -846,6 +846,33 @@
    "status": "Day-To-Day",
    "return_date": "2026-11-27",
    "description": "Castleton totaled five points (2-4 FG, 1-1 3Pt) and four rebounds in seven minutes during Tuesday's 132-116 preseason win over the Cavaliers. Castleton squeezed five points and four boards into his brief appearance, including a successful three-point attempt. The reserve center made productive use of his late-game opportunity, though his limited playing time leaves his regular-season role uncertain."
+  },
+  {
+   "player_id": "1028025242",
+   "player": "Devin Carter",
+   "team_id": "2",
+   "pos": "G",
+   "status": "Out",
+   "return_date": null,
+   "description": "G League - Two-Way (2026-11-27, ATL@BOS)."
+  },
+  {
+   "player_id": "1091465698",
+   "player": "Dillon Mitchell",
+   "team_id": "2",
+   "pos": "F",
+   "status": "Out",
+   "return_date": null,
+   "description": "G League - Two-Way (2026-11-27, ATL@BOS)."
+  },
+  {
+   "player_id": "1057396966",
+   "player": "Amari Williams",
+   "team_id": "2",
+   "pos": "F-C",
+   "status": "Out",
+   "return_date": null,
+   "description": "G League - Two-Way (2026-11-27, ATL@BOS)."
   }
  ]
 }
