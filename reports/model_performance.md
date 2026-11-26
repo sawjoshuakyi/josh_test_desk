@@ -1,14 +1,14 @@
 # Model performance (graded boards)
 
-Updated 2026-11-26T05:41:42+00:00
+Updated 2026-11-26T06:25:33+00:00
 
 Model must beat the market's log loss on the same rows and show positive CLV before its edges are trusted.
 
 | Sport | Kind | Graded | Model LL | Market LL (same rows) | CLV avg | Beat close | Flagged | Hit | ROI/1u | Kelly P&L |
 |---|---|---|---|---|---|---|---|---|---|---|
 | nba | h2h | 22 | 0.6675 | 0.6675 | – | – | 1 | +100.0% | +102.0% | $+37.59 |
-| nba | prop | 1304 | 0.6991 | 0.685 | -2.8% | +9.5% | 404 | +49.8% | -4.5% | $-501.37 |
-| nba | prop_alt | 4756 | – | – | – | – | 1463 | +21.5% | -2.4% | $+1754.01 |
+| nba | prop | 1406 | 0.7001 | 0.6849 | -2.8% | +9.5% | 430 | +49.1% | -6.0% | $-876.22 |
+| nba | prop_alt | 5180 | – | – | – | – | 1586 | +22.6% | +4.0% | $+4336.23 |
 | nba | spreads | 16 | 0.7003 | 0.7003 | – | – | – | – | – | – |
 | nba | totals | 8 | 0.6935 | 0.6935 | – | – | – | – | – | – |
 | nfl | h2h | 2 | 0.5598 | 0.5598 | – | – | – | – | – | – |

@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-26T05:41:42+00:00",
+ "generated": "2026-11-26T06:25:33+00:00",
  "groups": [
   {
    "sport": "nba",
@@ -21,33 +21,33 @@
    "sport": "nba",
    "kind": "prop",
    "rows": 1450,
-   "graded": 1304,
-   "model_brier": 0.2519,
-   "model_logloss": 0.6991,
+   "graded": 1406,
+   "model_brier": 0.2525,
+   "model_logloss": 0.7001,
    "market_brier": 0.2459,
-   "market_logloss": 0.685,
-   "model_logloss_same_rows": 0.6991,
+   "market_logloss": 0.6849,
+   "model_logloss_same_rows": 0.7001,
    "clv_rows": 1234,
    "clv_avg": -0.0277,
    "clv_beat_rate": 0.0948,
-   "flagged": 404,
-   "flagged_hit": 0.4975,
-   "flagged_roi_1u": -0.0446,
-   "flagged_profit_kelly": -501.3681,
-   "flagged_staked_kelly": 18345.38
+   "flagged": 430,
+   "flagged_hit": 0.4907,
+   "flagged_roi_1u": -0.06,
+   "flagged_profit_kelly": -876.221,
+   "flagged_staked_kelly": 19541.67
   },
   {
    "sport": "nba",
    "kind": "prop_alt",
    "rows": 5335,
-   "graded": 4756,
-   "model_brier": 0.1492,
-   "model_logloss": 0.4596,
-   "flagged": 1463,
-   "flagged_hit": 0.2153,
-   "flagged_roi_1u": -0.024,
-   "flagged_profit_kelly": 1754.0121,
-   "flagged_staked_kelly": 43681.4
+   "graded": 5180,
+   "model_brier": 0.1506,
+   "model_logloss": 0.4627,
+   "flagged": 1586,
+   "flagged_hit": 0.2257,
+   "flagged_roi_1u": 0.0395,
+   "flagged_profit_kelly": 4336.2283,
+   "flagged_staked_kelly": 47555.94
   },
   {
    "sport": "nba",
