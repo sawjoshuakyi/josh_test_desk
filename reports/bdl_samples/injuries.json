@@ -17,7 +17,7 @@
     "team_id": 1
    },
    "return_date": "2027-07-01",
-   "description": "Veesaar was diagnosed with a torn right ACL and is expected to miss the 2026-27 season, the Hawks announced Monday. Veesaar suffered the injury during a workout on Sept. 15, and an MRI confirmed the diagnosis. The No. 52 overall pick in the 2026 NBA Draft, Veesaar was expected to spend a lot of time with Atlanta's G League affiliate this season. Reported out for season.",
+   "description": "Injury/Illness - Right ACL Repair / Surgery (2026-11-27, ATL@BOS). Prior reporting (2026-09-21): Veesaar was diagnosed with a torn right ACL and is expected to miss the 2026-27 season, the Hawks announced Monday. Veesaar suffered the injury during a workout on Sept. 15, and an MRI confirmed the diagnosis. The No. 52 overall pick in the 2026 NBA Draft, Veesaar was expected to spend a lot of time with Atlanta's G League affiliate this season. Previously reported out for season.",
    "status": "Out"
   },
   {
@@ -37,7 +37,7 @@
     "team_id": 1
    },
    "return_date": "2026-12-12",
-   "description": "Gueye (foot) is ready to begin on-court activities and will be re-evaluated in four weeks, Brad Rowland of the Locked On Podcast Network reports. The team stated in July that the big man would remain sidelined for the next 3-to-4 months after undergoing surgery to repair a fractured left foot, and he's continuing to make progress in his rehab. A timetable for Gueye's 2026-27 debut has yet to be established, thought a date could come into focus following his next evaluation in mid-December.",
+   "description": "Injury/Illness - Left Foot Fracture (2026-11-27, ATL@BOS). Prior reporting (2026-11-13): Gueye (foot) is ready to begin on-court activities and will be re-evaluated in four weeks, Brad Rowland of the Locked On Podcast Network reports. The team stated in July that the big man would remain sidelined for the next 3-to-4 months after undergoing surgery to repair a fractured left foot, and he's continuing to make progress in his rehab. A timetable for Gueye's 2026-27 debut has yet to be established, thought a date could come into focus following his next evaluation in mid-December.",
    "status": "Out"
   },
   {
@@ -62,6 +62,7 @@
   }
  ],
  "meta": {
+  "next_cursor": 16077238,
   "per_page": 100
  }
 }
