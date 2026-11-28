@@ -1,0 +1,337 @@
+{
+ "date": "2026-11-28",
+ "season": 2026,
+ "games": [
+  {
+   "matchup": "ORL @ WAS",
+   "home": "WAS",
+   "away": "ORL",
+   "type": "Regular season (official schedule not loaded)",
+   "cup": false,
+   "teams": {
+    "home": {
+     "abbr": 30,
+     "side": "home",
+     "standing": {
+      "w": 7.0,
+      "l": 12.0,
+      "conf": "?",
+      "conf_rank": 21.0,
+      "gb_1": 8.5,
+      "gb_6": 6.5,
+      "gb_10": 5.0,
+      "home_rec": "3-6",
+      "away_rec": "4-6",
+      "last10": "3-7",
+      "streak": "L1",
+      "margin": -5.579
+     },
+     "fatigue": {
+      "b2b": false,
+      "rest_days": null,
+      "games_last4": 0,
+      "games_last7": 0,
+      "last_home": null
+     },
+     "injuries": [],
+     "players": [],
+     "injury_impact": []
+    },
+    "away": {
+     "abbr": 22,
+     "side": "away",
+     "standing": {
+      "w": 7.0,
+      "l": 10.0,
+      "conf": "?",
+      "conf_rank": 19.0,
+      "gb_1": 7.5,
+      "gb_6": 5.5,
+      "gb_10": 4.0,
+      "home_rec": "1-6",
+      "away_rec": "6-4",
+      "last10": "5-5",
+      "streak": "L2",
+      "margin": -4.941
+     },
+     "fatigue": {
+      "b2b": false,
+      "rest_days": null,
+      "games_last4": 0,
+      "games_last7": 0,
+      "last_home": null
+     },
+     "injuries": [],
+     "players": [],
+     "injury_impact": []
+    }
+   },
+   "mismatches": []
+  },
+  {
+   "matchup": "BKN @ CHA",
+   "home": "CHA",
+   "away": "BKN",
+   "type": "Regular season (official schedule not loaded)",
+   "cup": false,
+   "teams": {
+    "home": {
+     "abbr": 4,
+     "side": "home",
+     "standing": {
+      "w": 4.0,
+      "l": 13.0,
+      "conf": "?",
+      "conf_rank": 25.0,
+      "gb_1": 10.5,
+      "gb_6": 8.5,
+      "gb_10": 7.0,
+      "home_rec": "3-6",
+      "away_rec": "1-7",
+      "last10": "1-9",
+      "streak": "L6",
+      "margin": -9.765
+     },
+     "fatigue": {
+      "b2b": false,
+      "rest_days": null,
+      "games_last4": 0,
+      "games_last7": 0,
+      "last_home": null
+     },
+     "injuries": [],
+     "players": [],
+     "injury_impact": []
+    },
+    "away": {
+     "abbr": 3,
+     "side": "away",
+     "standing": {
+      "w": 4.0,
+      "l": 14.0,
+      "conf": "?",
+      "conf_rank": 26.0,
+      "gb_1": 11.0,
+      "gb_6": 9.0,
+      "gb_10": 7.5,
+      "home_rec": "1-6",
+      "away_rec": "3-8",
+      "last10": "2-8",
+      "streak": "L1",
+      "margin": -9.0
+     },
+     "fatigue": {
+      "b2b": false,
+      "rest_days": null,
+      "games_last4": 0,
+      "games_last7": 0,
+      "last_home": null
+     },
+     "injuries": [],
+     "players": [],
+     "injury_impact": []
+    }
+   },
+   "mismatches": []
+  },
+  {
+   "matchup": "IND @ CHI",
+   "home": "CHI",
+   "away": "IND",
+   "type": "Regular season (official schedule not loaded)",
+   "cup": false,
+   "teams": {
+    "home": {
+     "abbr": 5,
+     "side": "home",
+     "standing": {
+      "w": 6.0,
+      "l": 12.0,
+      "conf": "?",
+      "conf_rank": 22.0,
+      "gb_1": 9.0,
+      "gb_6": 7.0,
+      "gb_10": 5.5,
+      "home_rec": "2-6",
+      "away_rec": "4-6",
+      "last10": "5-5",
+      "streak": "W2",
+      "margin": -6.167
+     },
+     "fatigue": {
+      "b2b": false,
+      "rest_days": null,
+      "games_last4": 0,
+      "games_last7": 0,
+      "last_home": null
+     },
+     "injuries": [],
+     "players": [],
+     "injury_impact": []
+    },
+    "away": {
+     "abbr": 12,
+     "side": "away",
+     "standing": {
+      "w": 6.0,
+      "l": 13.0,
+      "conf": "?",
+      "conf_rank": 23.0,
+      "gb_1": 9.5,
+      "gb_6": 7.5,
+      "gb_10": 6.0,
+      "home_rec": "3-7",
+      "away_rec": "3-6",
+      "last10": "3-7",
+      "streak": "L1",
+      "margin": -4.421
+     },
+     "fatigue": {
+      "b2b": false,
+      "rest_days": null,
+      "games_last4": 0,
+      "games_last7": 0,
+      "last_home": null
+     },
+     "injuries": [],
+     "players": [],
+     "injury_impact": []
+    }
+   },
+   "mismatches": []
+  },
+  {
+   "matchup": "OKC @ MIL",
+   "home": "MIL",
+   "away": "OKC",
+   "type": "Regular season (official schedule not loaded)",
+   "cup": false,
+   "teams": {
+    "home": {
+     "abbr": 17,
+     "side": "home",
+     "standing": {
+      "w": 2.0,
+      "l": 18.0,
+      "conf": "?",
+      "conf_rank": 30.0,
+      "gb_1": 14.0,
+      "gb_6": 12.0,
+      "gb_10": 10.5,
+      "home_rec": "1-9",
+      "away_rec": "1-9",
+      "last10": "1-9",
+      "streak": "L2",
+      "margin": -11.35
+     },
+     "fatigue": {
+      "b2b": false,
+      "rest_days": null,
+      "games_last4": 0,
+      "games_last7": 0,
+      "last_home": null
+     },
+     "injuries": [],
+     "players": [],
+     "injury_impact": []
+    },
+    "away": {
+     "abbr": 21,
+     "side": "away",
+     "standing": {
+      "w": 10.0,
+      "l": 9.0,
+      "conf": "?",
+      "conf_rank": 16.0,
+      "gb_1": 5.5,
+      "gb_6": 3.5,
+      "gb_10": 2.0,
+      "home_rec": "6-2",
+      "away_rec": "4-7",
+      "last10": "3-7",
+      "streak": "L3",
+      "margin": 2.632
+     },
+     "fatigue": {
+      "b2b": false,
+      "rest_days": null,
+      "games_last4": 0,
+      "games_last7": 0,
+      "last_home": null
+     },
+     "injuries": [],
+     "players": [],
+     "injury_impact": []
+    }
+   },
+   "mismatches": []
+  },
+  {
+   "matchup": "PHI @ HOU",
+   "home": "HOU",
+   "away": "PHI",
+   "type": "Regular season (official schedule not loaded)",
+   "cup": false,
+   "teams": {
+    "home": {
+     "abbr": 11,
+     "side": "home",
+     "standing": {
+      "w": 14.0,
+      "l": 5.0,
+      "conf": "?",
+      "conf_rank": 5.0,
+      "gb_1": 1.5,
+      "gb_6": -0.5,
+      "gb_10": -2.0,
+      "home_rec": "9-1",
+      "away_rec": "5-4",
+      "last10": "7-3",
+      "streak": "W2",
+      "margin": 8.105
+     },
+     "fatigue": {
+      "b2b": false,
+      "rest_days": null,
+      "games_last4": 0,
+      "games_last7": 0,
+      "last_home": null
+     },
+     "injuries": [],
+     "players": [],
+     "injury_impact": []
+    },
+    "away": {
+     "abbr": 23,
+     "side": "away",
+     "standing": {
+      "w": 16.0,
+      "l": 4.0,
+      "conf": "?",
+      "conf_rank": 1.0,
+      "gb_1": 0.0,
+      "gb_6": -2.0,
+      "gb_10": -3.5,
+      "home_rec": "8-3",
+      "away_rec": "8-1",
+      "last10": "8-2",
+      "streak": "W2",
+      "margin": 3.2
+     },
+     "fatigue": {
+      "b2b": false,
+      "rest_days": null,
+      "games_last4": 0,
+      "games_last7": 0,
+      "last_home": null
+     },
+     "injuries": [],
+     "players": [],
+     "injury_impact": []
+    }
+   },
+   "mismatches": []
+  }
+ ],
+ "notes": []
+}
