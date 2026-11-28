@@ -1,6 +1,6 @@
 # Model performance (graded boards)
 
-Updated 2026-11-28T05:42:40+00:00
+Updated 2026-11-28T20:18:32+00:00
 
 Model must beat the market's log loss on the same rows and show positive CLV before its edges are trusted.
 
